@@ -22,4 +22,17 @@
         android:name="com.example.kit.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_contactlist"
+        android:name="com.example.kit.ui.contactlist.ContactListFragment"
+        android:label="@string/title_contactlist"
+        tools:layout="@layout/fragment_contact_list"/>
+
+    <fragment
+        android:id="@+id/navigation_addContact"
+        android:name="com.example.kit.ui.addcontact.AddContactFragment"
+        android:label="@string/title_addcontact"
+        tools:layout="@layout/fragment_add_contact" />
+
 </navigation>
