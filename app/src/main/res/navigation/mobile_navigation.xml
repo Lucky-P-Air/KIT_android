@@ -12,27 +12,28 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.example.kit.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
-
-    <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.example.kit.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
-
-    <fragment
         android:id="@+id/navigation_contactlist"
         android:name="com.example.kit.ui.contactlist.ContactListFragment"
         android:label="@string/title_contactlist"
-        tools:layout="@layout/fragment_contact_list"/>
+        tools:layout="@layout/fragment_contact_list">
+        <action
+            android:id="@+id/action_navigation_contactlist_to_contactDetailFragment"
+            app:destination="@id/contactDetailFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_addContact"
         android:name="com.example.kit.ui.addcontact.AddContactFragment"
         android:label="@string/title_addcontact"
         tools:layout="@layout/fragment_add_contact" />
+    <fragment
+        android:id="@+id/contactDetailFragment"
+        android:name="com.example.kit.ui.contactdetail.ContactDetailFragment"
+        android:label="@string/title_contactdetail"
+        tools:layout="@layout/fragment_contact_detail" />
+
+    <fragment
+        android:id="@+id/editContactFragment"
+        android:label="@string/title_editcontact"/>
 
 </navigation>
