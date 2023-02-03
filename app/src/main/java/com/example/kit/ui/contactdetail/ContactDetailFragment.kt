@@ -1,4 +1,4 @@
-package com.example.kit.ui.addcontact
+package com.example.kit.ui.contactdetail
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,34 +7,33 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.example.kit.databinding.FragmentAddContactBinding
+import com.example.kit.databinding.FragmentContactDetailBinding
 
-class AddContactFragment : Fragment() {
+class ContactDetailFragment : Fragment() {
 
     companion object {
-        fun newInstance() = AddContactFragment()
+        fun newInstance() = ContactDetailFragment()
     }
 
-    private lateinit var viewModel: AddContactViewModel
-    private var _binding: FragmentAddContactBinding? = null
+    private lateinit var viewModel: ContactDetailViewModel
+    private var _binding: FragmentContactDetailBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         // Initialize ViewModel
-        val addContactViewModel = ViewModelProvider(this).get(AddContactViewModel::class.java)
+        val contactDetailViewModel = ViewModelProvider(this).get(ContactDetailViewModel::class.java)
 
         // Initialize View Binding
-        _binding = FragmentAddContactBinding.inflate(inflater, container, false)
+        _binding = FragmentContactDetailBinding.inflate(inflater, container, false)
 
-        // Make reference to Header/Title TextView
-        val headerTextView: TextView = binding.textAddContact
+        // Make reference to Header/Title TextView, & Button
+        val headerTextView: TextView = binding.textContactDetail
 
         // Observe ViewModel state and retrieve text data based on current state
-        addContactViewModel.text.observe(viewLifecycleOwner) {
+        contactDetailViewModel.text.observe(viewLifecycleOwner) {
             headerTextView.text = it
         }
 
@@ -48,7 +47,7 @@ class AddContactFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(AddContactViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(ContactDetailViewModel::class.java)
         // TODO: Use the ViewModel
     }
 
