@@ -4,9 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import com.example.kit.R
 import com.example.kit.databinding.FragmentContactDetailBinding
 
 class ContactDetailFragment : Fragment() {
@@ -15,40 +16,32 @@ class ContactDetailFragment : Fragment() {
         fun newInstance() = ContactDetailFragment()
     }
 
-    private lateinit var viewModel: ContactDetailViewModel
-    private var _binding: FragmentContactDetailBinding? = null
-    private val binding get() = _binding!!
+    private val viewModel: ContactDetailViewModel by viewModels()
+    private lateinit var binding: FragmentContactDetailBinding
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Initialize ViewModel
-        val contactDetailViewModel = ViewModelProvider(this).get(ContactDetailViewModel::class.java)
-
-        // Initialize View Binding
-        _binding = FragmentContactDetailBinding.inflate(inflater, container, false)
-
-        // Make reference to Header/Title TextView, & Button
-        val headerTextView: TextView = binding.textContactDetail
-
-        // Observe ViewModel state and retrieve text data based on current state
-        contactDetailViewModel.text.observe(viewLifecycleOwner) {
-            headerTextView.text = it
-        }
+        // Initialize Data Binding
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contact_detail, container, false)
 
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.contactDetailViewModel = viewModel
     }
 
+    /*
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(ContactDetailViewModel::class.java)
         // TODO: Use the ViewModel
     }
-
+    */
 }

@@ -19,8 +19,6 @@ class ContactListFragment : Fragment() {
 
     private val viewModel: ContactListViewModel by viewModels()
     private lateinit var binding: FragmentContactListBinding
-    //private var _binding: FragmentContactListBinding? = null
-    //private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,7 +26,6 @@ class ContactListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Initialize Data Binding
-        // _binding = FragmentContactListBinding.inflate(inflater, container, false)
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contact_list, container, false)
 
         return binding.root
@@ -46,22 +43,6 @@ class ContactListFragment : Fragment() {
             this.findNavController().navigate(action)
         }
 
-        /* Replaced all this code with data binding implementation above
-        // Make reference to Header/Title TextView, & Button
-        val headerTextView: TextView = binding.textContactList
-        val seeContactButton: Button = binding.buttonContactDetail
-
-        // Observe ViewModel state and retrieve text data based on current state
-        viewModel.text.observe(viewLifecycleOwner) {
-            headerTextView.text = it
-        }
-
-        // Set ClickListener & navigation to Contact Detail
-        seeContactButton.setOnClickListener {
-            val action = ContactListFragmentDirections.actionNavigationContactlistToContactDetailFragment()
-            this.findNavController().navigate(action)
-        }
-        */
     }
 
     /* Unnecessary with databinding?
