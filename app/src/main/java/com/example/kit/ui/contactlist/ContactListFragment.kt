@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kit.R
 import com.example.kit.databinding.FragmentContactListBinding
 
@@ -16,7 +16,7 @@ class ContactListFragment : Fragment() {
     companion object {
         fun newInstance() = ContactListFragment()
     }
-
+    // View Model & Data Binding Declarations
     private val viewModel: ContactListViewModel by viewModels()
     private lateinit var binding: FragmentContactListBinding
 
@@ -37,11 +37,10 @@ class ContactListFragment : Fragment() {
         // Set Data Binding properties
         binding.lifecycleOwner = viewLifecycleOwner
         binding.contactListViewModel = viewModel
-        // ClickListener
-        binding.buttonContactDetail.setOnClickListener {
-            val action = ContactListFragmentDirections.actionNavigationContactlistToContactDetailFragment()
-            this.findNavController().navigate(action)
-        }
+
+        // Declare RecyclerView
+        binding.recycleContactList.layoutManager = LinearLayoutManager(context)
+        binding.recycleContactList.adapter = ContactListAdapter()
 
     }
 

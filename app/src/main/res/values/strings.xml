@@ -9,5 +9,6 @@
     <string name="title_editcontact">Edit Contact</string>
     <string name="title_contactdetail">Contact Details</string>
     <string name="text_contactdetail">This is the Contact Details fragment</string>
+    <string name="button_view">VIEW</string>
 
 </resources>
