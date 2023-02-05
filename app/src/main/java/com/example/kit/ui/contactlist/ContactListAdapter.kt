@@ -18,10 +18,10 @@ class ContactListAdapter :
     private val list: MutableList<Contact> = ContactSource().loadContacts()
 
     class ContactViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
-        val buttonViewContact = view.findViewById<Button>(R.id.button_view)
-        val cardName = view.findViewById<TextView>(R.id.card_name)
-        val cardLastContact = view.findViewById<TextView>(R.id.card_last_contact)
-        val cardNextContact = view.findViewById<TextView>(R.id.card_next_contact)
+        val buttonViewContact = view.findViewById<Button>(R.id.button_view)!!
+        val cardName = view.findViewById<TextView>(R.id.card_name)!!
+        val cardLastContact = view.findViewById<TextView>(R.id.card_last_contact)!!
+        val cardNextContact = view.findViewById<TextView>(R.id.card_next_contact)!!
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
@@ -33,13 +33,15 @@ class ContactListAdapter :
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         val contact = list.get(position)
-        holder.cardName.text = "${contact.firstName} ${contact.lastName}"
+        val currentContext = holder.cardName.context
+        holder.cardName.text =  currentContext.getString(
+            R.string.text_fullname, contact.firstName, contact.lastName)
         holder.cardLastContact.text = contact.intervalTime.toString() // TODO: Placeholder for contact date
         holder.cardNextContact.text = contact.intervalUnit // TODO: Placeholder for contact date
         holder.buttonViewContact.setOnClickListener {
             val action =
                 ContactListFragmentDirections
-                    .actionNavigationContactlistToContactDetailFragment()
+                    .actionNavigationContactlistToContactDetailFragment(position)  //TODO: replace position with pk(id)
             holder.view.findNavController().navigate(action)
         }
     }

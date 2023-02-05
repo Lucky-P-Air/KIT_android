@@ -6,7 +6,7 @@
     <dimen name="card_small_field">100dp</dimen>
     <dimen name="card_padding_internal">2dp</dimen>
     <dimen name="padding_xlarge_32">32dp</dimen>
-    <dimen name="padding_large">16dp</dimen>
+    <dimen name="padding_large">12dp</dimen>
     <dimen name="padding_medium_8">8dp</dimen>
     <dimen name="padding_small_4">4dp</dimen>
     <dimen name="padding_xsmall_2">4dp</dimen>

@@ -7,8 +7,9 @@ class ContactSource {
     .loadContacts()
      */
     fun loadContacts(): MutableList<Contact> {
+        //TODO: Alphabetize the list that's returned
         return mutableListOf(
-            Contact("Matt", "Pereira", "mattcpereira@gmail.com", "+13018732741", 2, "weeks"),
+            Contact("Matt", "Pereira", "mattcpereira@gmail.com", "+13018732741", 2, "Mar. 23, 2023"),
             Contact("Lucky", "Pierre", "streetbllplaya@gmail.com", "+12054339837", 4, "days"),
             Contact("Jean", "Weatherax", "fakeJean@gmail.com", "+852028732741", 1, "days"),
             Contact("Isaac", "Askew", "fakeIsaac@gmail.com", "+13038732741", 1, "months"),

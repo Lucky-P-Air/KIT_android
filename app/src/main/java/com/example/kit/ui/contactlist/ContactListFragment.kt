@@ -24,7 +24,7 @@ class ContactListFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Initialize Data Binding
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contact_list, container, false)
 
