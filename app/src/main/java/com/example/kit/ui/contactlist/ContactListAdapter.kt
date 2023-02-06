@@ -1,5 +1,6 @@
 package com.example.kit.ui.contactlist
 
+import android.icu.util.Calendar
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,8 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kit.R
 import com.example.kit.model.Contact
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ContactListAdapter(viewModel: ContactListViewModel) :
     RecyclerView.Adapter<ContactListAdapter.ContactViewHolder>() {
@@ -34,11 +37,14 @@ class ContactListAdapter(viewModel: ContactListViewModel) :
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         val contact = list.get(position)
         val currentContext = holder.view.context
+        val calendar = Calendar.getInstance() // TODO: Delete this placeholder reference to current time
+        val calendar2 = Calendar.getInstance()  // TODO: Delete this placeholder time+2weeks
+            calendar2.add(Calendar.DATE, 14) // TODO: Delete this placeholder time+2weeks
         holder.apply {
             cardName.text =  currentContext.getString(
                 R.string.text_fullname, contact.firstName, contact.lastName)
-            cardLastContact.text = contact.intervalTime.toString() // TODO: Placeholder for contact date
-            cardNextContact.text = contact.intervalUnit // TODO: Placeholder for contact date
+            cardLastContact.text = formatDates(calendar.time) // contact.intervalTime.toString() // TODO: Placeholder for contact date
+            cardNextContact.text = formatDates(calendar2.time) // TODO: Placeholder for contact date
             buttonViewContact.setOnClickListener {
                 val action =
                     ContactListFragmentDirections
@@ -46,6 +52,11 @@ class ContactListAdapter(viewModel: ContactListViewModel) :
                 view.findNavController().navigate(action)
             }
         }
+    }
+
+    private fun formatDates(date_value: Date): String {
+        val formatter = SimpleDateFormat("MMM d, y", Locale.getDefault())
+        return formatter.format(date_value)
     }
 
     override fun getItemCount(): Int {

@@ -27,13 +27,13 @@
                 android:layout_weight="1"
                 android:ellipsize="middle"
                 android:maxLines="2"
-                android:padding="@dimen/card_padding_internal"
+                android:padding="@dimen/padding_medium_8"
                 android:textAppearance="?attr/textAppearanceBody1"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/card_div_1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Bizhan Zhumagalipositano" />
+                tools:text="Bizhan Zhumagali" />
 
             <com.google.android.material.divider.MaterialDivider
                 android:id="@+id/card_div_3"
