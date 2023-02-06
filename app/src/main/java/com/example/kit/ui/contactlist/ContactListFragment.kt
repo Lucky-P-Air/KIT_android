@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.kit.R
 import com.example.kit.databinding.FragmentContactListBinding
@@ -17,7 +17,7 @@ class ContactListFragment : Fragment() {
         fun newInstance() = ContactListFragment()
     }
     // View Model & Data Binding Declarations
-    private val viewModel: ContactListViewModel by viewModels()
+    private val viewModel: ContactListViewModel by activityViewModels() //viewModels()
     private lateinit var binding: FragmentContactListBinding
 
     override fun onCreateView(
@@ -40,7 +40,7 @@ class ContactListFragment : Fragment() {
 
         // Declare RecyclerView
         binding.recycleContactList.layoutManager = LinearLayoutManager(context)
-        binding.recycleContactList.adapter = ContactListAdapter()
+        binding.recycleContactList.adapter = ContactListAdapter(viewModel)
 
     }
 

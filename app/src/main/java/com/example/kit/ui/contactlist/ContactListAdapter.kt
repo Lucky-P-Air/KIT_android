@@ -8,16 +8,13 @@ import android.widget.TextView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kit.R
-import com.example.kit.data.ContactSource
 import com.example.kit.model.Contact
 
-class ContactListAdapter :
+class ContactListAdapter(viewModel: ContactListViewModel) :
     RecyclerView.Adapter<ContactListAdapter.ContactViewHolder>() {
 
-    //TODO( REVISE ContactListAdapter to point to ViewModel for data)
-    private val list: MutableList<Contact> = ContactSource().loadContacts()
-    //TODO: Define shared ViewModel using parent's  context
-    //private var viewModel: ContactListViewModel by activityViewModels
+    // Load up the list of contacts from ViewModel
+    private val list: List<Contact> = viewModel.list.value!!
 
 
     class ContactViewHolder(val view: View) : RecyclerView.ViewHolder(view) {

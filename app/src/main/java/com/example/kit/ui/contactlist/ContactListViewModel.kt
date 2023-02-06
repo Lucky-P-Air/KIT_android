@@ -8,25 +8,31 @@ import com.example.kit.model.Contact
 
 class ContactListViewModel : ViewModel() {
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is the Contact List fragment"// R.string.title_contactlist.toString()
-    }
-    val text: LiveData<String> = _text
-
-    // Retrieve list of Contacts data
-    private lateinit var _list: MutableLiveData<MutableList<Contact>>
-    val list: LiveData<MutableList<Contact>> get() = _list
+    // list of Contacts data
+    private lateinit var _list: MutableLiveData<List<Contact>>
+    val list: LiveData<List<Contact>> get() = _list
 
     init {
         getContactList()
     }
 
-    // Load or refresh full list of contacts
+    // Load or refresh full list of contacts, sorted by name
     fun getContactList() {
-        _list = MutableLiveData(ContactSource().loadContacts())
+        // Function for sorting names
+        val byFirstName  = Comparator.comparing<Contact, String> {
+                contact: Contact -> contact.firstName.lowercase()
+        }
+        // Last name is nullable so don't use it for sorting at this time
+
+        _list = MutableLiveData(ContactSource().loadContacts().sortedWith(byFirstName))
     }
 
-    // fun addContact() {}
+    // fun addContact() {
+        /* Method of adding a contact might require turning _list into a MutableList?
+        Depends what the state of the ContactSource class/database is, and whether there's
+        another way to append it during the progression of this ViewModel's development
+        }
+         */
 
-    // fun getContactDetail() {}
+    // fun getContactDetail(position: Int) {    }
 }
