@@ -16,6 +16,9 @@ class ContactListAdapter :
 
     //TODO( REVISE ContactListAdapter to point to ViewModel for data)
     private val list: MutableList<Contact> = ContactSource().loadContacts()
+    //TODO: Define shared ViewModel using parent's  context
+    //private var viewModel: ContactListViewModel by activityViewModels
+
 
     class ContactViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         val buttonViewContact = view.findViewById<Button>(R.id.button_view)!!
@@ -33,16 +36,18 @@ class ContactListAdapter :
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         val contact = list.get(position)
-        val currentContext = holder.cardName.context
-        holder.cardName.text =  currentContext.getString(
-            R.string.text_fullname, contact.firstName, contact.lastName)
-        holder.cardLastContact.text = contact.intervalTime.toString() // TODO: Placeholder for contact date
-        holder.cardNextContact.text = contact.intervalUnit // TODO: Placeholder for contact date
-        holder.buttonViewContact.setOnClickListener {
-            val action =
-                ContactListFragmentDirections
-                    .actionNavigationContactlistToContactDetailFragment(position)  //TODO: replace position with pk(id)
-            holder.view.findNavController().navigate(action)
+        val currentContext = holder.view.context
+        holder.apply {
+            cardName.text =  currentContext.getString(
+                R.string.text_fullname, contact.firstName, contact.lastName)
+            cardLastContact.text = contact.intervalTime.toString() // TODO: Placeholder for contact date
+            cardNextContact.text = contact.intervalUnit // TODO: Placeholder for contact date
+            buttonViewContact.setOnClickListener {
+                val action =
+                    ContactListFragmentDirections
+                        .actionNavigationContactlistToContactDetailFragment(position)  //TODO: replace position with pk(id)
+                view.findNavController().navigate(action)
+            }
         }
     }
 
