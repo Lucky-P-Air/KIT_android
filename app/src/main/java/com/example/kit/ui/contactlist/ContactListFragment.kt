@@ -1,6 +1,7 @@
 package com.example.kit.ui.contactlist
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +18,7 @@ class ContactListFragment : Fragment() {
         fun newInstance() = ContactListFragment()
     }
     // View Model & Data Binding Declarations
-    private val viewModel: ContactListViewModel by activityViewModels() //viewModels()
+    val viewModel: ContactListViewModel by activityViewModels() //viewModels()
     private lateinit var binding: FragmentContactListBinding
 
     override fun onCreateView(
@@ -40,10 +41,14 @@ class ContactListFragment : Fragment() {
 
         // Declare RecyclerView
         binding.recycleContactList.layoutManager = LinearLayoutManager(context)
-        binding.recycleContactList.adapter = ContactListAdapter(viewModel)
+        binding.recycleContactList.adapter = ContactListAdapter(viewModel.list)
 
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.d("ContactListFragment", "ContactListFragment Destroyed")
+    }
     /* Unnecessary with databinding?
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)

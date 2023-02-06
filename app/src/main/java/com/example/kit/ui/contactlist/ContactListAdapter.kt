@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.lifecycle.LiveData
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kit.R
@@ -13,11 +14,11 @@ import com.example.kit.model.Contact
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ContactListAdapter(viewModel: ContactListViewModel) :
+class ContactListAdapter(contactList: LiveData<List<Contact>>) :
     RecyclerView.Adapter<ContactListAdapter.ContactViewHolder>() {
 
     // Load up the list of contacts from ViewModel
-    private val list: List<Contact> = viewModel.list.value!!
+    private val list: List<Contact> = contactList.value!!
 
 
     class ContactViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
@@ -39,7 +40,7 @@ class ContactListAdapter(viewModel: ContactListViewModel) :
         val currentContext = holder.view.context
         val calendar = Calendar.getInstance() // TODO: Delete this placeholder reference to current time
         val calendar2 = Calendar.getInstance()  // TODO: Delete this placeholder time+2weeks
-            calendar2.add(Calendar.DATE, 14) // TODO: Delete this placeholder time+2weeks
+        calendar2.add(Calendar.DATE, 14) // TODO: Delete this placeholder time+2weeks
         holder.apply {
             cardName.text =  currentContext.getString(
                 R.string.text_fullname, contact.firstName, contact.lastName)
