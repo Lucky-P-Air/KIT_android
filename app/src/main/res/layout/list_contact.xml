@@ -6,7 +6,8 @@
     android:id="@+id/recycler_contact_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/padding_small_4">
+    android:layout_margin="@dimen/padding_small_4"
+    app:cardElevation="3dp">
     <!-- android:layout_margin="8dp"-->
 
     <LinearLayout
@@ -20,17 +21,17 @@
 
             <TextView
                 android:id="@+id/card_name"
-                android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_weight="1"
+                android:ellipsize="middle"
+                android:maxLines="2"
                 android:padding="@dimen/card_padding_internal"
                 android:textAppearance="?attr/textAppearanceBody1"
-                android:maxLines="2"
-                android:ellipsize="middle"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/card_div_1"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Bizhan Zhumagalipositano" />
 
@@ -42,7 +43,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.75"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"  />
+                app:layout_constraintTop_toTopOf="parent" />
 
 
             <TextView
@@ -51,8 +52,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:padding="@dimen/card_padding_internal"
-                android:textAppearance="?attr/textAppearanceBody2"
                 android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/card_div_2"
                 app:layout_constraintStart_toEndOf="@id/card_div_1"
@@ -67,7 +68,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.55"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"  />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/card_next_contact"
@@ -75,8 +76,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:padding="@dimen/card_padding_internal"
-                android:textAppearance="?attr/textAppearanceBody2"
                 android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceBody2"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/card_div_3"
                 app:layout_constraintStart_toEndOf="@id/card_div_2"
