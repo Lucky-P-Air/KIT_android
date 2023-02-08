@@ -1,6 +1,5 @@
 package com.example.kit.model
 
-// TODO: Actually connect this class to a Datasource class (ContactSource) that builds Contacts
 data class Contact(
     val firstName: String,
     val lastName: String?,

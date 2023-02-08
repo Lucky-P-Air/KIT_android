@@ -14,7 +14,7 @@ import com.example.kit.model.Contact
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ContactListAdapter(contactList: LiveData<List<Contact>>) :
+class ContactListAdapter(contactList: LiveData<MutableList<Contact>>) :
     RecyclerView.Adapter<ContactListAdapter.ContactViewHolder>() {
 
     // Load up the list of contacts from ViewModel

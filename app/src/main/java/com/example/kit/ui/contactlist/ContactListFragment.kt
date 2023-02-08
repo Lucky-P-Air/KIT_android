@@ -18,7 +18,7 @@ class ContactListFragment : Fragment() {
         fun newInstance() = ContactListFragment()
     }
     // View Model & Data Binding Declarations
-    val viewModel: ContactListViewModel by activityViewModels() //viewModels()
+    private val viewModel: ContactListViewModel by activityViewModels() //viewModels()
     private lateinit var binding: FragmentContactListBinding
 
     override fun onCreateView(

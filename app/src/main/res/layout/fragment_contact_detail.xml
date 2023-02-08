@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="contactDetailViewModel"
-            type="com.example.kit.ui.contactdetail.ContactDetailViewModel" />
+            name="contactListViewModel"
+            type="com.example.kit.ui.contactlist.ContactListViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,7 +23,7 @@
             android:layout_marginEnd="8dp"
             android:textAlignment="center"
             android:textSize="20sp"
-            android:text="@{@string/text_contactdetail}"
+            android:text="@{contactListViewModel.text}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
