@@ -30,7 +30,15 @@
         android:id="@+id/contactDetailFragment"
         android:name="com.example.kit.ui.contactdetail.ContactDetailFragment"
         android:label="@string/title_contactdetail"
-        tools:layout="@layout/fragment_contact_detail" />
+        tools:layout="@layout/fragment_contact_detail" >
+        <argument
+            android:name="position"
+            app:argType="integer"
+            android:defaultValue="1" />
+        <action
+            android:id="@+id/action_contactDetailFragment_to_navigation_contactlist"
+            app:destination="@id/navigation_contactlist" />
+    </fragment>
 
     <fragment
         android:id="@+id/editContactFragment"
