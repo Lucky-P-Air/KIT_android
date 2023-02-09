@@ -16,34 +16,170 @@
         tools:context=".ui.addcontact.AddContactFragment">
 
         <TextView
-            android:id="@+id/text_add_contact"
+            android:id="@+id/title_add_Contact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/padding_large"
+            android:text="@string/add_new_contact"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textLayout_addContact_firstName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:text="@{@string/title_addcontact}"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:hint="@string/first_name"
+            app:endIconDrawable="@android:drawable/ic_menu_close_clear_cancel"
+            app:endIconMode="clear_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/title_add_Contact">
+            <!--app:boxStrokeColor="@android:color/primary_text_light"
+            app:hintTextAppearance="@style/TextAppearance.AppCompat.Body1" -->
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textInput_addContact_firstName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textLayout_addContact_lastName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:hint="@string/last_name"
+            app:endIconDrawable="@android:drawable/ic_menu_close_clear_cancel"
+            app:endIconMode="clear_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textLayout_addContact_firstName">
+            <!--app:boxStrokeColor="@android:color/primary_text_light"
+            app:hintTextAppearance="@style/TextAppearance.AppCompat.Body1" -->
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textInput_addContact_lastName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textLayout_addContact_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:hint="@string/phone_number"
+            app:endIconDrawable="@android:drawable/ic_menu_close_clear_cancel"
+            app:endIconMode="clear_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textLayout_addContact_lastName">
+            <!--app:boxStrokeColor="@android:color/primary_text_light"
+            app:hintTextAppearance="@style/TextAppearance.AppCompat.Body1" -->
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textInput_addContact_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="phone" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textLayout_addContact_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:hint="@string/email"
+            app:endIconDrawable="@android:drawable/ic_menu_close_clear_cancel"
+            app:endIconMode="clear_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textLayout_addContact_phone">
+            <!--app:boxStrokeColor="@android:color/primary_text_light"
+            app:hintTextAppearance="@style/TextAppearance.AppCompat.Body1" -->
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textInput_addContact_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/textView_remind_me_every"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
+            android:text="@string/text_remind_me_every"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            app:layout_constraintStart_toStartOf="@id/textLayout_addContact_email"
+            app:layout_constraintTop_toBottomOf="@id/textLayout_addContact_email" />
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textLayout_addContact_intervalTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:layout_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+
+            app:layout_constraintTop_toBottomOf="@id/textView_remind_me_every">
+            <!--app:layout_constraintEnd_toEndOf="parent"
+            app:boxStrokeColor="@android:color/primary_text_light"
+            app:hintTextAppearance="@style/TextAppearance.AppCompat.Body1" -->
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textInput_addContact_intervalTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="@string/intervalTime_defaultValue"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <!-- Spinner needs an ArrayAdapter to make it work?-->
+        <!--<Spinner
+            android:id="@+id/spinner_interval_unit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:layout_weight="4"
+            android:contentDescription="@string/intervalUnits_speakable"
+            android:entries="@{addContactViewModel.INTERVAL_UNITS}"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textLayout_addContact_intervalTime"
+            app:layout_constraintTop_toBottomOf="@id/textView_remind_me_every" /> -->
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Top of add contact fragment"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:text="Dropdown Placeholder"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            app:layout_constraintTop_toTopOf="@id/textLayout_addContact_intervalTime"
+            app:layout_constraintBottom_toBottomOf="@id/textLayout_addContact_intervalTime"
+            app:layout_constraintStart_toEndOf="@id/textLayout_addContact_intervalTime"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
-        <TextView
+        <Button
+            android:id="@+id/button_add_contact_form"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bottom of add contact fragment"
+            android:layout_margin="@dimen/padding_xlarge_32"
+            android:text="@string/save_contact"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            app:layout_constraintTop_toBottomOf="@id/textLayout_addContact_intervalTime"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
