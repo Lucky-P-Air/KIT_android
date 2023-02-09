@@ -30,5 +30,12 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="email">E-Mail</string>
+    <string name="intervalTime_defaultValue">2</string>
+    <string name="text_remind_me_every">Remind me every ...</string>
+    <string name="intervalUnits_speakable">Interval Units of Time. Days, Weeks, Months, Years</string>
 
 </resources>
