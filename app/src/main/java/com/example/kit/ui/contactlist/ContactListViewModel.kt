@@ -9,7 +9,8 @@ import com.example.kit.model.Contact
 
 class ContactListViewModel : ViewModel() {
 
-    // TODO: Delete these (3) temporary variables used for development
+    // TODO: Delete these (4) temporary variables used for development
+    val INTERVAL_UNITS = listOf<String>("days", "weeks", "months", "years")
     private val _text = MutableLiveData<String>("This is the alternate Detail fragment")
     val text: LiveData<String> = _text
     // Temporary object for connecting to ContactSource() until a database is used
@@ -54,6 +55,7 @@ class ContactListViewModel : ViewModel() {
         phoneNumber: String?,
         intervalTime: Int,
         intervalUnit: String) {
+        Log.d("ContactListViewModel", "addContact method called")
         dataSource.sourceContactList
             .add(
                 Contact(firstName, lastName, email, phoneNumber, intervalTime, intervalUnit)
