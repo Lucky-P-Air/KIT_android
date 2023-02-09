@@ -15,6 +15,17 @@
     <string name="header_next_contact">Next Contact</string>
     <string name="header_last_contact">Last Contact</string>
     <string name="header_name">Name</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="email">E-Mail</string>
+    <string name="intervalTime_defaultValue">2</string>
+    <string name="text_remind_me_every">Remind me every …</string>
+    <string name="intervalUnits_speakable">Interval Units of Time. Days, Weeks, Months, Years</string>
+    <string name="intervalTime_speakable_text">Number, such as 2 or 3, representing how many time intervals, such as days or weeks, between contact</string>
+    <string name="save_contact">Save Contact</string>
+    <string name="add_new_contact">Add New Contact</string>
+
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
@@ -30,12 +41,6 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
-    <string name="first_name">First Name</string>
-    <string name="last_name">Last Name</string>
-    <string name="phone_number">Phone Number</string>
-    <string name="email">E-Mail</string>
-    <string name="intervalTime_defaultValue">2</string>
-    <string name="text_remind_me_every">Remind me every ...</string>
-    <string name="intervalUnits_speakable">Interval Units of Time. Days, Weeks, Months, Years</string>
+
 
 </resources>

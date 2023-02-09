@@ -25,7 +25,11 @@
         android:id="@+id/navigation_addContact"
         android:name="com.example.kit.ui.addcontact.AddContactFragment"
         android:label="@string/title_addcontact"
-        tools:layout="@layout/fragment_add_contact" />
+        tools:layout="@layout/fragment_add_contact" >
+        <action
+            android:id="@+id/action_navigation_addContact_to_navigation_contactlist"
+            app:destination="@id/navigation_contactlist" />
+    </fragment>
     <fragment
         android:id="@+id/contactDetailFragment"
         android:name="com.example.kit.ui.contactdetail.ContactDetailFragment"
