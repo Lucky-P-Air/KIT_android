@@ -25,7 +25,17 @@
     <string name="intervalTime_speakable_text">Number, such as 2 or 3, representing how many time intervals, such as days or weeks, between contact</string>
     <string name="save_contact">Save Contact</string>
     <string name="add_new_contact">Add New Contact</string>
-
+    <string name="toast_contact_added">New Contact Has Been Saved</string>
+    <string name="error_interval_number">Number?</string>
+    <string name="error_first_name">First name is required</string>
+    <string name="error_blank"> </string>
+    <!-- Spinner Arrays-->
+    <string-array name="intervalUnit_array">
+        <item>Days</item>
+        <item>Weeks</item>
+        <item>Months</item>
+        <item>Years</item>
+    </string-array>
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
@@ -41,7 +51,6 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
-    <string name="toast_contact_added">New Contact Has Been Saved</string>
 
 
 </resources>

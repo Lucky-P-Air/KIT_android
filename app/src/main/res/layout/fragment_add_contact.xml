@@ -40,6 +40,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/activity_horizontal_margin"
                 android:hint="@string/first_name"
+                app:errorIconDrawable="@drawable/ic_error"
+                app:helperTextTextAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
                 app:endIconDrawable="@android:drawable/ic_menu_close_clear_cancel"
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -129,14 +131,17 @@
                 app:layout_constraintStart_toStartOf="@id/textLayout_addContact_email"
                 app:layout_constraintTop_toBottomOf="@id/textLayout_addContact_email" />
 
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textLayout_addContact_intervalTime"
-                android:layout_width="0dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/activity_horizontal_margin"
+                android:layout_margin="@dimen/padding_small_4"
                 android:layout_weight="1"
-                android:textAlignment="center"
-                app:layout_constraintStart_toStartOf="parent"
+                app:errorIconDrawable="@drawable/ic_error"
+                app:helperTextTextAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                app:layout_constraintEnd_toStartOf="@id/guideline2"
                 app:layout_constraintTop_toBottomOf="@id/textView_remind_me_every">
                 <!--app:layout_constraintEnd_toEndOf="parent"
                 app:boxStrokeColor="@android:color/primary_text_light"
@@ -144,50 +149,48 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/textInput_addContact_intervalTime"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_width="90dp"
+                    android:layout_height="match_parent"
                     android:inputType="number"
-                    android:text="@string/intervalTime_defaultValue"/>
+                    android:text="@string/intervalTime_defaultValue"
+                    android:textAlignment="center" />
             </com.google.android.material.textfield.TextInputLayout>
 
 
             <!-- Spinner needs an ArrayAdapter to make it work?-->
-            <!--<Spinner
+            <Spinner
                 android:id="@+id/spinner_interval_unit"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/activity_horizontal_margin"
-                android:layout_weight="4"
-                android:contentDescription="@string/intervalUnits_speakable"
-                android:entries="@{addContactViewModel.INTERVAL_UNITS}"
-                android:spinnerMode="dropdown"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/textLayout_addContact_intervalTime"
-                app:layout_constraintTop_toBottomOf="@id/textView_remind_me_every" /> -->
-
-            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Dropdown Placeholder"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                app:layout_constraintTop_toTopOf="@id/textLayout_addContact_intervalTime"
+                android:layout_weight="1"
+                android:contentDescription="@string/intervalUnits_speakable"
+                android:entries="@array/intervalUnit_array"
+                android:minHeight="48dp"
+                android:spinnerMode="dropdown"
+                android:textSize="14pt"
                 app:layout_constraintBottom_toBottomOf="@id/textLayout_addContact_intervalTime"
-                app:layout_constraintStart_toEndOf="@id/textLayout_addContact_intervalTime"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintStart_toStartOf="@id/guideline2"
+                app:layout_constraintTop_toTopOf="@id/textLayout_addContact_intervalTime" />
 
             <Button
                 android:id="@+id/button_add_contact_form"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/padding_xlarge_32"
+                android:onClickListener="@{() -> addContactFragment.onSubmitted()}"
                 android:paddingHorizontal="@dimen/padding_large"
                 android:text="@string/save_contact"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                android:onClickListener="@{() -> addContactFragment.onSubmitted()}"
-                app:layout_constraintTop_toBottomOf="@id/textLayout_addContact_intervalTime"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/textLayout_addContact_intervalTime" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".5" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

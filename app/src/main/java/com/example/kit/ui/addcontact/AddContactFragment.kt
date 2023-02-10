@@ -29,7 +29,12 @@ class AddContactFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Initialize Data Binding
-        val fragmentBinding: FragmentAddContactBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_add_contact, container, false)
+        val fragmentBinding: FragmentAddContactBinding =
+            DataBindingUtil.inflate(
+                inflater,
+                R.layout.fragment_add_contact,
+                container,
+                false)
         binding = fragmentBinding
         return fragmentBinding.root
     }
@@ -45,8 +50,11 @@ class AddContactFragment : Fragment() {
     }
 
     fun onSubmitted() {
-        //TODO: Still needs input/value validation. intervalTime canNOT be empty. Fatal Crash
+        //TODO: Still needs input/value validation on emails/phone?
         Log.d("AddContactFragment", "onSubmitted called")
+
+        // Validate non-null inputs for required fields
+        if (errorFirstName() or errorIntervalTime()) return
 
         viewModel.addContact(
             binding!!.textInputAddContactFirstName.text.toString(),
@@ -54,8 +62,7 @@ class AddContactFragment : Fragment() {
             binding!!.textInputAddContactPhone.text.toString(),
             binding!!.textInputAddContactEmail.text.toString(),
             binding!!.textInputAddContactIntervalTime.text.toString().toInt(),
-            "weeks" //TODO: Replace this placeholder with dropdown value
-            //binding.textInputAddContactIntervalTime.text,
+            binding!!.spinnerIntervalUnit.selectedItem.toString().lowercase(),
         )
         Toast.makeText(this.requireContext(), R.string.toast_contact_added, Toast.LENGTH_SHORT).show()
         goToContactList()
@@ -64,7 +71,34 @@ class AddContactFragment : Fragment() {
     private fun goToContactList() {
         findNavController().navigate(R.id.action_navigation_addContact_to_navigation_contactlist)
     }
-    //TODO: Modify the layout to not require entries for LastName, phone, email. They are nullable
+
+    private fun errorFirstName() : Boolean {
+        val firstNameValue = binding!!.textInputAddContactFirstName.text
+        if (firstNameValue.isNullOrEmpty()) {
+            binding!!.textLayoutAddContactFirstName.isErrorEnabled = true
+            binding!!.textLayoutAddContactFirstName.error = getString(R.string.error_first_name)
+            Log.d("AddContactFragment", "First Name value is null or empty")
+            return true
+        } else{
+            binding!!.textLayoutAddContactFirstName.isErrorEnabled = false
+            binding!!.textLayoutAddContactFirstName.error = null
+        }
+        return false
+    }
+
+    private fun errorIntervalTime() : Boolean {
+        val intervalTimeValue = binding!!.textInputAddContactIntervalTime.text
+        if (intervalTimeValue.isNullOrEmpty()) {
+            binding!!.textLayoutAddContactIntervalTime.isErrorEnabled = true
+            binding!!.textLayoutAddContactIntervalTime.error = getString(R.string.error_interval_number)
+            Log.d("AddContactFragment", "IntervalTime value is null or empty")
+            return true
+        } else{
+            binding!!.textLayoutAddContactIntervalTime.isErrorEnabled = false
+            binding!!.textLayoutAddContactIntervalTime.error = null
+        }
+        return false
+    }
 
     override fun onDestroy() {
         super.onDestroy()
