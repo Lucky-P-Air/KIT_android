@@ -10,6 +10,7 @@
     <string name="title_contactdetail">Contact Details</string>
     <string name="text_contactdetail">This is the Contact Details fragment</string>
     <string name="button_view">VIEW</string>
+    <string name="button_edit">Edit</string>
     <string name="text_fullname">%s %s</string>
     <string name="header_view_button">See Details</string>
     <string name="header_next_contact">Next Contact</string>
@@ -29,6 +30,11 @@
     <string name="error_interval_number">Number?</string>
     <string name="error_first_name">First name is required</string>
     <string name="error_blank"> </string>
+    <string name="placeholder">Upcoming</string>
+    <string name="placeholder_date1">Jan 1, 2023</string>
+    <string name="placeholder_date2">Feb 1, 2023</string>
+    <string name="last_contact_date">Last Contact: %s</string>
+    <string name="next_contact_date">Next Contact: %s</string>
     <!-- Spinner Arrays-->
     <string-array name="intervalUnit_array">
         <item>Days</item>
@@ -51,6 +57,9 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="reminders_on">Reminders On</string>
+    <string name="button_markDone">Mark Done</string>
+    <string name="button_delete">Delete</string>
 
 
 </resources>

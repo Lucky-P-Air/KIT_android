@@ -9,6 +9,8 @@
         <item name="colorSecondary">@color/teal_700</item>
         <item name="colorSecondaryVariant">@color/teal_900</item>
         <item name="colorOnSecondary">@color/black</item>
+        <!-- Tertiary color. -->
+        <item name="colorTertiary">@color/gray_dark_ic</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorOnSecondary</item>
         <!-- Customize your theme here. -->

@@ -17,5 +17,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="gray_300">#E0E0E0</color>
     <color name="gray_400">#BDBDBD</color>
+    <color name="gray_dark_ic">#4E4E4E</color>
+    <color name="gray_light_ic">#b0bec5</color>
+    <color name="red_error">#A72424</color>
 
 </resources>
