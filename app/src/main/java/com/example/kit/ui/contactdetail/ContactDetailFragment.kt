@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.example.kit.R
 import com.example.kit.databinding.FragmentContactDetailBinding
 import com.example.kit.ui.contactlist.ContactListViewModel
@@ -20,24 +21,28 @@ class ContactDetailFragment : Fragment() {
         const val POSITION = "position"
     }
 
-    // private val viewModel: ContactDetailViewModel by viewModels()
     private val viewModel: ContactListViewModel by activityViewModels()
     private lateinit var binding: FragmentContactDetailBinding
+    private var position: Int = 1  // Hacky. This doesn't need initializing here
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Capture SafeArgs
         arguments?.let {
-            val position: Int = it.getInt(POSITION)
+            position = it.getInt(POSITION)
             Log.d(TAG, "Position $position given from Recycler")
-            // TODO: Use position value to retrieve Contact details from data source
         }
+        // Set which contact from list will be Detailed. Could be moved to onViewCreated
+        // TODO: Replace this position indexing with a contact primary key
+        viewModel.setCurrentContact(position)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Initialize Data Binding
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contact_detail, container, false)
 
@@ -47,15 +52,28 @@ class ContactDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.contactListViewModel = viewModel
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            contactListViewModel = viewModel
+            contactDetailFragment = this@ContactDetailFragment
+            currentContact = viewModel.currentContact.value
+        }
+        //viewModel.setCurrentContact(position)
     }
 
-    /*
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(ContactDetailViewModel::class.java)
-        // TODO: Use the ViewModel
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "ContactDetail Fragment Destroyed")
     }
-    */
+
+    fun deleteContact() {
+
+        //TODO: Insert a confirmation dialog before executing the rest of this logic
+        viewModel.deleteContact()
+        goToContactList()
+    }
+
+    private fun goToContactList() {
+        findNavController().navigate(R.id.action_contactDetailFragment_to_navigation_contactlist)
+    }
 }

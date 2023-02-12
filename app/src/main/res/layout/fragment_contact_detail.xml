@@ -7,27 +7,210 @@
         <variable
             name="contactListViewModel"
             type="com.example.kit.ui.contactlist.ContactListViewModel" />
+        <variable
+            name="currentContact"
+            type="com.example.kit.model.Contact"/>
+        <variable
+            name="contactDetailFragment"
+            type="com.example.kit.ui.contactdetail.ContactDetailFragment"/>
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".ui.contactdetail.ContactDetailFragment">
-
-        <TextView
-            android:id="@+id/text_contact_detail"
+        android:layout_height="match_parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:text="@{contactListViewModel.text}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            tools:context=".ui.contactdetail.ContactDetailFragment">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/contact_detail_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding_medium_8"
+                app:cardElevation="5dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+                <!-- android:layout_margin="8dp"-->
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/padding_large">
+
+                    <TextView
+                        android:id="@+id/cardDetail_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="3"
+                        android:ellipsize="middle"
+                        android:maxLines="2"
+                        android:textAppearance="?attr/textAppearanceHeadline5"
+                        android:text="@{@string/text_fullname(currentContact.firstName,currentContact.lastName)}"
+                        app:layout_constraintEnd_toStartOf="@+id/cardDetail_status"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Bizhan Zhumagali" />
+
+                    <TextView
+                        android:id="@+id/cardDetail_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:padding="@dimen/padding_medium_8"
+                        android:textAlignment="textEnd"
+                        android:textAppearance="?attr/textAppearanceHeadline6"
+                        android:text="@string/placeholder"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/cardDetail_name"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Upcoming" />
+
+                    <TextView
+                        android:id="@+id/cardDetail_last_contact"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start|center"
+                        android:layout_marginTop="@dimen/activity_vertical_margin"
+                        android:textAppearance="?attr/textAppearanceBody1"
+                        android:text="@{@string/last_contact_date(@string/placeholder_date1)}"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/cardDetail_name"
+                        tools:text="Last Contact: Jan 30, 2023" />
+
+                    <TextView
+                        android:id="@+id/cardDetail_next_contact"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start|center"
+                        android:textAppearance="?attr/textAppearanceBody1"
+                        android:text="@{@string/next_contact_date(@string/placeholder_date2)}"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/cardDetail_last_contact"
+                        tools:text="Next Contact: Aug 30, 2023" />
+
+                    <ImageView
+                        android:id="@+id/contactDetail_icon_email"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/activity_vertical_margin"
+                        android:src="@drawable/ic_email_gray_24"
+                        android:contentDescription="@string/contentDescription_contact_email"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/cardDetail_next_contact" />
+
+                    <TextView
+                        android:id="@+id/cardDetail_email"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start|center"
+                        android:layout_marginStart="@dimen/activity_horizontal_margin"
+                        android:padding="@dimen/card_padding_internal"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                        android:text="@{currentContact.email}"
+                        app:layout_constraintBottom_toBottomOf="@id/contactDetail_icon_email"
+                        app:layout_constraintStart_toEndOf="@id/contactDetail_icon_email"
+                        app:layout_constraintTop_toTopOf="@id/contactDetail_icon_email"
+                        tools:text="DefinitelyReal@AOL.com" />
+
+                    <ImageView
+                        android:id="@+id/contactDetail_icon_phone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/activity_vertical_margin"
+                        android:src="@drawable/ic_phone_gray_24"
+                        android:contentDescription="@string/contentDescription_contact_phone_number"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/contactDetail_icon_email" />
+
+                    <TextView
+                        android:id="@+id/cardDetail_phone"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start|center"
+                        android:layout_marginStart="@dimen/activity_horizontal_margin"
+                        android:padding="@dimen/card_padding_internal"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                        android:text="@{currentContact.phoneNumber}"
+                        app:layout_constraintBottom_toBottomOf="@id/contactDetail_icon_phone"
+                        app:layout_constraintStart_toEndOf="@id/contactDetail_icon_phone"
+                        app:layout_constraintTop_toTopOf="@id/contactDetail_icon_phone"
+                        tools:text="867-5309" />
+
+                    <CheckBox
+                        android:id="@+id/checkBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/activity_horizontal_margin"
+                        android:checked="true"
+                        android:text="@string/reminders_on"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/contactDetail_icon_phone" />
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:id="@+id/cardDetail_div1"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="@dimen/activity_horizontal_margin"
+                        android:orientation="horizontal"
+                        app:layout_constraintTop_toBottomOf="@id/checkBox" />
+
+                    <Button
+                        android:id="@+id/cardDetail_button_markDone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="@dimen/activity_horizontal_margin"
+                        android:text="@string/button_markDone"
+                        app:layout_constraintTop_toBottomOf="@id/cardDetail_div1" />
+
+                    <Button
+                        android:id="@+id/cardDetail_button_edit"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="@dimen/card_padding_internal"
+                        android:layout_marginEnd="@dimen/padding_small_4"
+                        android:text="@string/button_edit"
+                        android:backgroundTint="?attr/colorTertiary"
+                        app:layout_constraintEnd_toStartOf="@+id/cardDetail_button_delete"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/cardDetail_button_markDone" />
+
+                    <Button
+                        android:id="@+id/cardDetail_button_delete"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="@dimen/card_padding_internal"
+                        android:layout_marginStart="@dimen/padding_small_4"
+                        android:backgroundTint="?attr/colorError"
+                        android:text="@string/button_delete"
+                        android:onClickListener="@{() -> contactDetailFragment.deleteContact()}"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toEndOf="@+id/cardDetail_button_edit"
+                        app:layout_constraintTop_toBottomOf="@id/cardDetail_button_markDone" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!--<TextView
+                android:id="@+id/text_contact_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:text="@{contactListViewModel.text}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" /> -->
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 </layout>

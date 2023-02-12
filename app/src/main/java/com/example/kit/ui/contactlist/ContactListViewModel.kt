@@ -9,10 +9,8 @@ import com.example.kit.model.Contact
 
 class ContactListViewModel : ViewModel() {
 
-    // TODO: Delete these (4) temporary variables used for development
+    // TODO: Delete these (2) temporary variables used for development
     val INTERVAL_UNITS = listOf<String>("days", "weeks", "months", "years")
-    private val _text = MutableLiveData<String>("This is the alternate Detail fragment")
-    val text: LiveData<String> = _text
     // Temporary object for connecting to ContactSource() until a database is used
     // This particular instance might get lost if ViewModel
     private var dataSource = ContactSource()
@@ -22,28 +20,15 @@ class ContactListViewModel : ViewModel() {
     val list: LiveData<MutableList<Contact>> get() = _list
 
     // Specific contact detail properties
-
+    private lateinit var _position: MutableLiveData<Int> // position index within sorted list
+    val position : LiveData<Int> get() = _position
     private lateinit var _currentContact: MutableLiveData<Contact>
     val currentContact: LiveData<Contact> get() = _currentContact
 
 
     init {
         getContactList()
-
     }
-
-    // Load or refresh full list of contacts, sorted by name
-    private fun getContactList() {
-        // Sorting Method
-        val byFirstName  = Comparator.comparing<Contact, String> {
-                contact: Contact -> contact.firstName.lowercase()
-        }
-        // Last name is nullable so don't use it for sorting at this time
-
-        _list = MutableLiveData(dataSource.sourceContactList.sortedWith(byFirstName).toMutableList()
-        )
-    }
-
 
     /* Adds a contact to the (temporary) ContactSource.sourceContactList
     that will eventually be replaced by a method connected to a database
@@ -65,6 +50,33 @@ class ContactListViewModel : ViewModel() {
         getContactList()
     }
 
+    fun deleteContact() {
+        /** Deletes _currentContact.value from the ViewModel's _list of contacts
+         * Function is currently implemented to only be called from ContactDetail page
+         * and only affects the ViewModels datasource. */
+
+        dataSource.sourceContactList.remove(currentContact.value)
+        Log.d("ContactListViewModel", "Contact deleted from dataSource. List not refreshed yet")
+        getContactList()
+        Log.d("ContactListViewModel", "Contact List Refreshed after contact deletion")
+    }
+
+    // Load or refresh full list of contacts, sorted by name
+    private fun getContactList() {
+        // Sorting Method
+        val byFirstName  = Comparator.comparing<Contact, String> {
+                contact: Contact -> contact.firstName.lowercase()
+        }
+        // Last name is nullable so don't use it for sorting at this time
+
+        _list = MutableLiveData(dataSource.sourceContactList.sortedWith(byFirstName).toMutableList()
+        )
+    }
+
+    fun setCurrentContact(position: Int) {
+        _position = MutableLiveData(position)
+        _currentContact = MutableLiveData(list.value?.get(position))
+    }
 
     // fun getContactDetail(position: Int) : {    }
 

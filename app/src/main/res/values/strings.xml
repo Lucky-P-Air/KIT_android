@@ -60,6 +60,8 @@
     <string name="reminders_on">Reminders On</string>
     <string name="button_markDone">Mark Done</string>
     <string name="button_delete">Delete</string>
+    <string name="contentDescription_contact_email">Contact Email</string>
+    <string name="contentDescription_contact_phone_number">Contact Phone Number</string>
 
 
 </resources>
