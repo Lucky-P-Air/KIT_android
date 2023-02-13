@@ -13,7 +13,7 @@
     <string name="button_edit">Edit</string>
     <string name="text_fullname">%s %s</string>
     <string name="header_view_button">See Details</string>
-    <string name="header_next_contact">Next Contact</string>
+    <string name="header_next_contact">Next Reminder</string>
     <string name="header_last_contact">Last Contact</string>
     <string name="header_name">Name</string>
     <string name="first_name">First Name</string>
@@ -33,8 +33,9 @@
     <string name="placeholder">Upcoming</string>
     <string name="placeholder_date1">Jan 1, 2023</string>
     <string name="placeholder_date2">Feb 1, 2023</string>
-    <string name="last_contact_date">Last Contact: %s</string>
-    <string name="next_contact_date">Next Contact: %s</string>
+    <string name="last_contact_date">Last Contacted: %s</string>
+    <string name="next_contact_date">Next Reminder: %s</string>
+    <string name="stringify_integer">%s</string>
     <!-- Spinner Arrays-->
     <string-array name="intervalUnit_array">
         <item>Days</item>
@@ -62,6 +63,8 @@
     <string name="button_delete">Delete</string>
     <string name="contentDescription_contact_email">Contact Email</string>
     <string name="contentDescription_contact_phone_number">Contact Phone Number</string>
+    <string name="edit_contact">Edit Contact</string>
+    <string name="toast_contact_updated">Contact has been updated</string>
 
 
 </resources>
