@@ -12,6 +12,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.kit.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -28,7 +30,6 @@ class MainActivity : AppCompatActivity() {
         // Define View Binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        enableAppBarMenu()
 
         // Reference to Bottom Nav View in MainActivity's layout
         val navView: BottomNavigationView = binding.navView
@@ -37,7 +38,14 @@ class MainActivity : AppCompatActivity() {
         // Create reference to NavHostFragment, and get its NavController
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment
         navController = navHostFragment.navController
-        Log.d(TAG, "navController defined successfully")
+
+//        val appBarConfiguration = AppBarConfiguration(navController.graph)  // This version forces Up to return Home
+        val appBarConfiguration = AppBarConfiguration(
+            setOf<Int>(R.id.navigation_home,R.id.navigation_contactlist, R.id.navigation_addContact)
+        )
+        // Adds up/back button on ActionBar. But this conflicts with AppBarMenu
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        // enableAppBarMenu() // Using this breaks the up button in ActionBar
 
         // Setup of bottom navigation NavView
         navView.setupWithNavController(navController)
@@ -67,9 +75,36 @@ class MainActivity : AppCompatActivity() {
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 // Handle the menu selection
-                //TODO: Implement navigation to user account settings page
-                Log.d(TAG,"onMenuItemSelected called")
-                return true
+                when (menuItem.itemId) {
+
+                    //TODO: Implement navigation to user account settings page
+                    R.id.action_account_settings -> {
+                        Log.d(TAG, "Account settings icon clicked")
+                        Log.d(
+                            TAG,
+                            "onMenuItemSelected called on ${resources.getResourceName(menuItem.itemId)}"
+                        )
+                        return true
+                    }
+                    //TODO: get the resource id of the up button to trigger navigateUp
+                    androidx.appcompat.R.id.home -> {
+                        Log.d(
+                            TAG,
+                            "Back Button. onMenuItemSelected called on ${resources.getResourceName(menuItem.itemId)}"
+                        )
+                        return true
+                    }
+                    else -> {
+
+                        Log.d(TAG, "onMenuItemSelected called on $menuItem")
+                        Log.d(TAG, "onMenuItemSelected called on ${menuItem.itemId}")
+                        Log.d(
+                            TAG,
+                            "onMenuItemSelected called on ${resources.getResourceName(menuItem.itemId)}"
+                        )
+                        return true
+                    }
+                }
             }
         }, ViewTreeLifecycleOwner.get(binding.root)!!, Lifecycle.State.STARTED)
         // replace binding.root with another view if used within a Fragment or subview
