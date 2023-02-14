@@ -19,7 +19,8 @@ class ContactListFragment : Fragment() {
     }
     // View Model & Data Binding Declarations
     private val viewModel: ContactListViewModel by activityViewModels() //viewModels()
-    private lateinit var binding: FragmentContactListBinding
+    private var _binding: FragmentContactListBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,7 +28,7 @@ class ContactListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Initialize Data Binding
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contact_list, container, false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contact_list, container, false)
 
         return binding.root
     }
@@ -47,13 +48,8 @@ class ContactListFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d("ContactListFragment", "ContactListFragment Destroyed")
+        Log.d("ContactListFragment", "ContactListFragment's View Destroyed")
+        _binding = null
     }
-    /* Unnecessary with databinding?
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(ContactListViewModel::class.java)
-        // TODO: Use the ViewModel
-    }
-    */
+
 }

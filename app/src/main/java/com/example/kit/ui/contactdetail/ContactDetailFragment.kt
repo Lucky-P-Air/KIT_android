@@ -8,21 +8,24 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.kit.R
 import com.example.kit.databinding.FragmentContactDetailBinding
 import com.example.kit.ui.contactlist.ContactListViewModel
 
 private const val TAG = "ContactDetailFragment"
+private const val POSITION = "position"
+
 class ContactDetailFragment : Fragment() {
 
     companion object {
         fun newInstance() = ContactDetailFragment()
-        const val POSITION = "position"
     }
 
     private val viewModel: ContactListViewModel by activityViewModels()
-    private lateinit var binding: FragmentContactDetailBinding
+    private var _binding: FragmentContactDetailBinding? = null
+    private val binding get() = _binding!!
     private var position: Int = 1  // Hacky. This doesn't need initializing here
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,19 +47,24 @@ class ContactDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Initialize Data Binding
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contact_detail, container, false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contact_detail, container, false)
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        // val currentContext = view.context
         binding.apply {
             lifecycleOwner = viewLifecycleOwner
             contactListViewModel = viewModel
             contactDetailFragment = this@ContactDetailFragment
             currentContact = viewModel.currentContact.value
+            cardDetailButtonEdit.setOnClickListener {
+                val action =
+                    ContactDetailFragmentDirections.actionContactDetailFragmentToEditContactFragment()
+                view.findNavController().navigate(action)
+            }
         }
         //viewModel.setCurrentContact(position)
     }
@@ -64,6 +72,12 @@ class ContactDetailFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "ContactDetail Fragment Destroyed")
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        Log.d(TAG, "ContactDetail Fragment's View Destroyed")
     }
 
     fun deleteContact() {

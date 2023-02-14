@@ -80,6 +80,23 @@ class ContactListViewModel : ViewModel() {
 
     // fun getContactDetail(position: Int) : {    }
 
+    fun updateContact(
+        firstName: String,
+        lastName: String?,
+        email: String?,
+        phoneNumber: String?,
+        intervalTime: Int,
+        intervalUnit: String) {
+        Log.d("ContactListViewModel", "updateContact method called")
+
+        // find position index within UNSORTED data source list
+        val sourcePosition = dataSource.sourceContactList.indexOf(currentContact.value)
+        dataSource.sourceContactList[sourcePosition] =
+            Contact(firstName, lastName, email, phoneNumber, intervalTime, intervalUnit)
+
+        // Update ._list with appended contact list, sorted by name
+        getContactList()
+    }
 
     override fun onCleared() {
         super.onCleared()

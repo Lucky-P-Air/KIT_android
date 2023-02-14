@@ -45,10 +45,20 @@
             app:destination="@id/navigation_contactlist"
             app:popUpTo="@id/navigation_contactlist"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_contactDetailFragment_to_editContactFragment"
+            app:destination="@id/editContactFragment" />
     </fragment>
-
     <fragment
         android:id="@+id/editContactFragment"
-        android:label="@string/title_editcontact"/>
+        android:name="com.example.kit.ui.editcontact.EditContactFragment"
+        android:label="@string/title_editcontact"
+        tools:layout="@layout/fragment_edit_contact" >
+        <action
+            android:id="@+id/action_editContactFragment_to_contactDetailFragment"
+            app:destination="@id/contactDetailFragment"
+            app:popUpTo="@id/contactDetailFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 
 </navigation>

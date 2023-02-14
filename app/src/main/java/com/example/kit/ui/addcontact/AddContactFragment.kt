@@ -21,7 +21,8 @@ class AddContactFragment : Fragment() {
     }
 
     private val viewModel: ContactListViewModel by activityViewModels()
-    private var binding: FragmentAddContactBinding? = null
+    private var _binding: FragmentAddContactBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,14 +36,14 @@ class AddContactFragment : Fragment() {
                 R.layout.fragment_add_contact,
                 container,
                 false)
-        binding = fragmentBinding
-        return fragmentBinding.root
+        _binding = fragmentBinding
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding?.apply {
+        binding.apply {
             lifecycleOwner = viewLifecycleOwner
             contactListViewModel = viewModel
             addContactFragment = this@AddContactFragment
@@ -57,12 +58,12 @@ class AddContactFragment : Fragment() {
         if (errorFirstName() or errorIntervalTime()) return
 
         viewModel.addContact(
-            binding!!.textInputAddContactFirstName.text.toString(),
-            binding!!.textInputAddContactLastName.text.toString(),
-            binding!!.textInputAddContactPhone.text.toString(),
-            binding!!.textInputAddContactEmail.text.toString(),
-            binding!!.textInputAddContactIntervalTime.text.toString().toInt(),
-            binding!!.spinnerIntervalUnit.selectedItem.toString().lowercase(),
+            binding.textInputAddContactFirstName.text.toString(),
+            binding.textInputAddContactLastName.text.toString(),
+            binding.textInputAddContactPhone.text.toString(),
+            binding.textInputAddContactEmail.text.toString(),
+            binding.textInputAddContactIntervalTime.text.toString().toInt(),
+            binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),
         )
         Toast.makeText(this.requireContext(), R.string.toast_contact_added, Toast.LENGTH_SHORT).show()
         goToContactList()
@@ -73,37 +74,42 @@ class AddContactFragment : Fragment() {
     }
 
     private fun errorFirstName() : Boolean {
-        val firstNameValue = binding!!.textInputAddContactFirstName.text
+        val firstNameValue = binding.textInputAddContactFirstName.text
         if (firstNameValue.isNullOrEmpty()) {
-            binding!!.textLayoutAddContactFirstName.isErrorEnabled = true
-            binding!!.textLayoutAddContactFirstName.error = getString(R.string.error_first_name)
+            binding.textLayoutAddContactFirstName.isErrorEnabled = true
+            binding.textLayoutAddContactFirstName.error = getString(R.string.error_first_name)
             Log.d("AddContactFragment", "First Name value is null or empty")
             return true
         } else{
-            binding!!.textLayoutAddContactFirstName.isErrorEnabled = false
-            binding!!.textLayoutAddContactFirstName.error = null
+            binding.textLayoutAddContactFirstName.isErrorEnabled = false
+            binding.textLayoutAddContactFirstName.error = null
         }
         return false
     }
 
     private fun errorIntervalTime() : Boolean {
-        val intervalTimeValue = binding!!.textInputAddContactIntervalTime.text
+        val intervalTimeValue = binding.textInputAddContactIntervalTime.text
         if (intervalTimeValue.isNullOrEmpty()) {
-            binding!!.textLayoutAddContactIntervalTime.isErrorEnabled = true
-            binding!!.textLayoutAddContactIntervalTime.error = getString(R.string.error_interval_number)
+            binding.textLayoutAddContactIntervalTime.isErrorEnabled = true
+            binding.textLayoutAddContactIntervalTime.error = getString(R.string.error_interval_number)
             Log.d("AddContactFragment", "IntervalTime value is null or empty")
             return true
         } else{
-            binding!!.textLayoutAddContactIntervalTime.isErrorEnabled = false
-            binding!!.textLayoutAddContactIntervalTime.error = null
+            binding.textLayoutAddContactIntervalTime.isErrorEnabled = false
+            binding.textLayoutAddContactIntervalTime.error = null
         }
         return false
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("AddContactFragment", "Add Contact View destroyed")
-        binding = null
+        Log.d("AddContactFragment", "Add Contact Fragment destroyed")
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        Log.d("AddContactFragment", "Add Contact Fragment's View destroyed")
     }
 
 }
