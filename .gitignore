@@ -91,4 +91,4 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
-/app/src/main/java/com/example/kit/data/secrets.kt
+/app/src/main/java/com/example/kit/network/secrets.kt
