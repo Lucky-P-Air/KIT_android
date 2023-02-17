@@ -129,6 +129,7 @@
                 android:clipToPadding="false"
                 android:padding="@dimen/padding_medium_8"
                 android:scrollbars="vertical"
+                app:listData="@{contactListViewModel.list}"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/list_contact" />
 

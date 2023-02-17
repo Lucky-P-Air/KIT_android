@@ -38,7 +38,8 @@ class ContactDetailFragment : Fragment() {
         }
         // Set which contact from list will be Detailed. Could be moved to onViewCreated
         // TODO: Replace this position indexing with a contact primary key
-        viewModel.setCurrentContact(position)
+        // Removed after ListAdapter binding
+        //viewModel.setCurrentContact(position)
     }
 
     override fun onCreateView(

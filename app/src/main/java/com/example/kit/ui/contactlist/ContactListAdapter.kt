@@ -1,57 +1,70 @@
 package com.example.kit.ui.contactlist
 
 import android.icu.util.Calendar
+import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
-import androidx.lifecycle.LiveData
-import androidx.navigation.findNavController
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.kit.R
+import com.example.kit.databinding.ListContactBinding
 import com.example.kit.model.Contact
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ContactListAdapter(contactList: LiveData<MutableList<Contact>>) :
-    RecyclerView.Adapter<ContactListAdapter.ContactViewHolder>() {
+/**
+ * This class implements a [RecyclerView] [ListAdapter] which uses Data Binding to present [List]
+ * data, including computing diffs between lists.
+ */
+//class ContactListAdapter(contactList: LiveData<MutableList<Contact>>) : // Removed for ListAdapter conversion
+class ContactListAdapter(val clickListener: ContactListListener) :
+    ListAdapter<Contact, ContactListAdapter.ContactViewHolder>(DiffCallback) {
 
-    // Load up the list of contacts from ViewModel
-    private val list: List<Contact> = contactList.value!!
-
-
-    class ContactViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
-        val buttonViewContact = view.findViewById<Button>(R.id.button_view)!!
-        val cardName = view.findViewById<TextView>(R.id.card_name)!!
-        val cardLastContact = view.findViewById<TextView>(R.id.card_last_contact)!!
-        val cardNextContact = view.findViewById<TextView>(R.id.card_next_contact)!!
+    // Data binding ViewHolder to list_contact.xml of individual list item
+    class ContactViewHolder(var binding: ListContactBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(clickListener: ContactListListener, contact: Contact) {
+            binding.contact = contact
+            binding.clickListener = clickListener
+            binding.executePendingBindings()
+        }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
-        val layout = LayoutInflater
-            .from(parent.context)
-            .inflate(R.layout.list_contact, parent, false)
-        return ContactViewHolder(layout)
+    companion object DiffCallback : DiffUtil.ItemCallback<Contact>() {
+        override fun areItemsTheSame(oldItem: Contact, newItem: Contact): Boolean {
+            val check:Boolean = oldItem.firstName == newItem.firstName // TODO && ID check
+            Log.d("ContactListAdapter", "DiffCallback areItemsTheSame: $check")
+            return check // TODO && ID check
+        }
+
+        override fun areContentsTheSame(oldItem: Contact, newItem: Contact): Boolean {
+            val check: Boolean = (oldItem.firstName == newItem.firstName && //TODO ID check
+                    oldItem.lastName == newItem.lastName &&
+                    oldItem.email == newItem.email &&
+                    oldItem.phoneNumber == newItem.phoneNumber &&
+                    oldItem.intervalUnit == newItem.intervalUnit &&
+                    oldItem.intervalTime == newItem.intervalTime
+                    )
+            Log.d("ContactListAdapter", "DiffCallback areContentsTheSame: $check")
+            return check
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactListAdapter.ContactViewHolder {
+        val layoutInflater = LayoutInflater.from(parent.context)
+        return ContactViewHolder(
+            ListContactBinding.inflate(layoutInflater, parent, false)
+        )
     }
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
-        val contact = list.get(position)
-        val currentContext = holder.view.context
+        val contact = getItem(position)
         val calendar = Calendar.getInstance() // TODO: Delete this placeholder reference to current time
         val calendar2 = Calendar.getInstance()  // TODO: Delete this placeholder time+2weeks
         calendar2.add(Calendar.DATE, 14) // TODO: Delete this placeholder time+2weeks
-        holder.apply {
-            cardName.text =  currentContext.getString(
-                R.string.text_fullname, contact.firstName, contact.lastName)
+        holder.bind(clickListener, contact)
+        holder.binding.apply {
             cardLastContact.text = formatDates(calendar.time) // contact.intervalTime.toString() // TODO: Placeholder for contact date
             cardNextContact.text = formatDates(calendar2.time) // TODO: Placeholder for contact date
-            buttonViewContact.setOnClickListener {
-                val action =
-                    ContactListFragmentDirections
-                        .actionNavigationContactlistToContactDetailFragment(position)  //TODO: replace position with pk(id)
-                view.findNavController().navigate(action)
-            }
         }
     }
 
@@ -59,9 +72,8 @@ class ContactListAdapter(contactList: LiveData<MutableList<Contact>>) :
         val formatter = SimpleDateFormat("MMM d, y", Locale.getDefault())
         return formatter.format(date_value)
     }
+}
 
-    override fun getItemCount(): Int {
-        return list.size
-    }
-
+class ContactListListener(val clickListener: (contact: Contact) -> Unit){
+    fun onClick(contact: Contact) = clickListener(contact)
 }
