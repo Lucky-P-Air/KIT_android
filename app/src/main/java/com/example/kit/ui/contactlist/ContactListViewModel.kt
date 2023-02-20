@@ -28,9 +28,10 @@ class ContactListViewModel : ViewModel() {
     private var _list = MutableLiveData<MutableList<Contact>>()
     val list: LiveData<MutableList<Contact>> = _list
 
-    // TODO Delete positions because they're not really used after clickListener binding implementation
-    //private lateinit var _position: MutableLiveData<Int> // position index within sorted list
-    //val position : LiveData<Int> get() = _position
+    // TODO Delete positions because they're not really used after clickListener binding implementation.
+    // Need to clean up 'position' references in EditContact fragment
+    private lateinit var _position: MutableLiveData<Int> // position index within sorted list
+    val position : LiveData<Int> get() = _position
     // Specific contact detail properties
     private var _currentContact = MutableLiveData<Contact>()
     val currentContact: LiveData<Contact> = _currentContact
