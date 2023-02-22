@@ -1,7 +1,5 @@
 package com.example.kit.utils
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.example.kit.model.Contact
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -13,28 +11,23 @@ import java.util.*
 
 //class DateUtils {
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun asDate(localDate: LocalDate): Date {
     return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant())
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun asDate(localDateTime: LocalDateTime): Date {
     return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant())
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun asLocalDate(date: Date): LocalDate {
     return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate()
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun asLocalDateTime(date: Date): LocalDateTime {
     return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault())
         .toLocalDateTime()
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun formatLocalDates(dateValue: LocalDate): String {
     /** Return a String, formatted "MMM d, y", from an input LocalDate object
      * */
@@ -59,12 +52,10 @@ fun parseDates(dateString: String): Date? {
     return formatter.parse(dateString)
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun parseLocalDates(dateString: String): LocalDate {
     return asLocalDate(parseDates(dateString)!!)
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun getNextContactLocalDate(contact: Contact): LocalDate {
     /**
      * Takes input of a Contact object and returns a LocalDate for the next expected reminder
@@ -75,12 +66,11 @@ fun getNextContactLocalDate(contact: Contact): LocalDate {
      */
 
     // LocalDates of createdAt and lastContact, generated from date String
-    val lastContactLocalDate = contact.lastContacted?.let { parseLocalDates(it) }
-    val createdLocalDate = parseLocalDates(contact.createdAt)
-    /* Use these 2 instead of 2 above after converting Contact date-property-types
-    val lastContactLocalDate = contact.lastContacted?
+    //val lastContactLocalDate = contact.lastContacted?.let { parseLocalDates(it) }
+    //val createdLocalDate = parseLocalDates(contact.createdAt)
+    // Use these 2 instead of 2 above after converting Contact date-property-types
+    val lastContactLocalDate = contact.lastContacted
     val createdLocalDate = contact.createdAt
-      */
 
     // Set starting point for next reminderDate based on lastContact or createdAt
     var reminderDate = lastContactLocalDate ?: createdLocalDate

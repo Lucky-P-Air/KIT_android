@@ -1,5 +1,7 @@
 package com.example.kit.model
 
+import java.time.LocalDate
+
 // Starter class with just the properties needed to create/add a contact. Used in API POST
 data class Contact(
     val id: String,
@@ -10,10 +12,10 @@ data class Contact(
     val intervalTime: Int,
     val intervalUnit: String,
     val reminderEnabled: Boolean,
-    val lastContacted: String?, //Datetime
-    val createdAt: String, // Datetime
-    val updatedAt: String, // Datetime
-    val status: String?
+    val lastContacted: LocalDate?, //String?, //Datetime
+    val createdAt: LocalDate, // String, // Datetime
+    val updatedAt: LocalDate, //String, // Datetime
+    val status: String
     )
 // TODO: Overwrite null values for constructor parameters to avoid always writing null
 

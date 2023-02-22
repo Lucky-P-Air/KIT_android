@@ -11,6 +11,7 @@ import com.example.kit.data.Secrets
 import com.example.kit.model.Contact
 import com.example.kit.model.ContactEntry
 import com.example.kit.model.ContactSubmission
+import com.example.kit.utils.parseLocalDates
 import kotlinx.coroutines.launch
 
 class ContactListViewModel : ViewModel() {
@@ -113,16 +114,16 @@ class ContactListViewModel : ViewModel() {
                         it.attributes.intervalNumber,
                         it.attributes.intervalUnit,
                         it.attributes.remindersEnabled,
-                        it.attributes.lastContacted,
-                        it.attributes.createdAt,
-                        it.attributes.updatedAt,
-                        it.attributes.status,
+                        it.attributes.lastContacted?.let { it1 -> parseLocalDates(it1)},
+                        parseLocalDates(it.attributes.createdAt),
+                        parseLocalDates(it.attributes.updatedAt),
+                        it.attributes.status ?: "",
                     )
                 }?.toMutableList()
                 Log.d("ContactSource", "Transform produced listContacts of size ${listContacts?.size} entries")
                 Log.d(
                     "ContactSource",
-                    "First entry is ${listContacts?.get(0)?.firstName} with last contacted date of ${listContacts?.get(0)?.lastContacted}"
+                    "First entry is ${listContacts?.get(0)?.firstName} "
                 )
                 // Last name is nullable so don't use it for sorting at this time
                 _list.value = listContacts?.sortedWith(byFirstName)?.toMutableList()

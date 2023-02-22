@@ -1,10 +1,8 @@
 package com.example.kit.ui.contactlist
 
-import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -12,8 +10,6 @@ import com.example.kit.databinding.ListContactBinding
 import com.example.kit.model.Contact
 import com.example.kit.utils.formatLocalDates
 import com.example.kit.utils.getNextContactLocalDate
-import com.example.kit.utils.parseLocalDates
-import java.util.*
 
 /**
  * This class implements a [RecyclerView] [ListAdapter] which uses Data Binding to present [List]
@@ -59,14 +55,13 @@ class ContactListAdapter(val clickListener: ContactListListener) :
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         val contact = getItem(position)
         val nextContactLocalDate = getNextContactLocalDate(contact)
         holder.bind(clickListener, contact)
         holder.binding.apply {
             cardLastContact.text = contact.lastContacted?.let {
-                formatLocalDates(parseLocalDates(it)) } ?: "Never"
+                formatLocalDates(it) } ?: "Never"
             cardNextContact.text = formatLocalDates(nextContactLocalDate)
         }
     }
