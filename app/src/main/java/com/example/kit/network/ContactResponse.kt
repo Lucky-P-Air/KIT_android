@@ -21,7 +21,7 @@ data class Attributes(
     @Json(name = "phone_number") val phoneNumber: String?,
     val email: String?,
     @Json(name = "reminders_enabled") val remindersEnabled: Boolean,
-    @Json(name = "last_contacted") val lastContacted: String?,
+    @Json(name = "last_contacted_at") val lastContacted: String?,
     @Json(name = "interval_unit") val intervalUnit: String,
     @Json(name = "interval_number") val intervalNumber: Int,
     @Json(name = "created_at") val createdAt: String,

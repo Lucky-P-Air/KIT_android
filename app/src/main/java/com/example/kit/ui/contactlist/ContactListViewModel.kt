@@ -10,6 +10,7 @@ import com.example.kit.data.ContactSource
 import com.example.kit.data.Secrets
 import com.example.kit.model.Contact
 import com.example.kit.model.ContactEntry
+import com.example.kit.model.ContactSubmission
 import kotlinx.coroutines.launch
 
 class ContactListViewModel : ViewModel() {
@@ -52,10 +53,13 @@ class ContactListViewModel : ViewModel() {
         intervalTime: Int,
         intervalUnit: String) {
         Log.d("ContactListViewModel", "addContact method called")
-        dataSource.sourceContactList
-            .add(
-                Contact(firstName, lastName, email, phoneNumber, intervalTime, intervalUnit)
-            )
+        val newContact = ContactSubmission(firstName, lastName, email, phoneNumber, intervalTime, intervalUnit)
+        //TODO serialize newContact into nested structure for POST request
+        //TODO POST newContact to server
+
+        // Commented out during Contact model refactor
+        //dataSource.sourceContactList
+            //.add(Contact(firstName, lastName, email, phoneNumber, intervalTime, intervalUnit))
 
         // Update ._list with appended contact list, sorted by name
         getContactList()
@@ -67,7 +71,8 @@ class ContactListViewModel : ViewModel() {
          * Function is currently implemented to only be called from ContactDetail page
          * and only affects the ViewModels datasource. */
 
-        dataSource.sourceContactList.remove(currentContact.value)
+        // Commented out during Contact model refactor
+        //dataSource.sourceContactList.remove(currentContact.value)
         Log.d("ContactListViewModel", "Contact deleted from dataSource. List not refreshed yet")
         getContactList()
         Log.d("ContactListViewModel", "Contact List Refreshed after contact deletion")
@@ -100,18 +105,24 @@ class ContactListViewModel : ViewModel() {
                 // Transform nested ContactEntry structure to flat Contact class
                 val listContacts = responseList.value?.map() {
                     Contact(
+                        it.id,
                         it.attributes.firstName,
-                        it.attributes.lastName,
-                        it.attributes.email,
-                        it.attributes.phoneNumber,
+                        it.attributes.lastName ?: "",
+                        it.attributes.email ?: "",
+                        it.attributes.phoneNumber ?: "",
                         it.attributes.intervalNumber,
-                        it.attributes.intervalUnit
+                        it.attributes.intervalUnit,
+                        it.attributes.remindersEnabled,
+                        it.attributes.lastContacted,
+                        it.attributes.createdAt,
+                        it.attributes.updatedAt,
+                        it.attributes.status,
                     )
                 }?.toMutableList()
                 Log.d("ContactSource", "Transform produced listContacts of size ${listContacts?.size} entries")
                 Log.d(
                     "ContactSource",
-                    "First entry is ${listContacts?.get(0)?.firstName}"
+                    "First entry is ${listContacts?.get(0)?.firstName} with last contacted date of ${listContacts?.get(0)?.lastContacted}"
                 )
                 // Last name is nullable so don't use it for sorting at this time
                 _list.value = listContacts?.sortedWith(byFirstName)?.toMutableList()
@@ -148,10 +159,12 @@ class ContactListViewModel : ViewModel() {
         intervalUnit: String) {
         Log.d("ContactListViewModel", "updateContact method called")
 
+        /* Commented out during Contact model refactor
         // find position index within UNSORTED data source list
         val sourcePosition = dataSource.sourceContactList.indexOf(currentContact.value)
         dataSource.sourceContactList[sourcePosition] =
-            Contact(firstName, lastName, email, phoneNumber, intervalTime, intervalUnit)
+            ContactSubmission(firstName, lastName, email, phoneNumber, intervalTime, intervalUnit)
+        */
 
         // Update ._list with appended contact list, sorted by name
         getContactList()

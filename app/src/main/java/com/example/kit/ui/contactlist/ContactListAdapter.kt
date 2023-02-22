@@ -1,14 +1,16 @@
 package com.example.kit.ui.contactlist
 
-import android.icu.util.Calendar
+import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kit.databinding.ListContactBinding
 import com.example.kit.model.Contact
+import com.example.kit.utils.DateUtils
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -16,7 +18,7 @@ import java.util.*
  * This class implements a [RecyclerView] [ListAdapter] which uses Data Binding to present [List]
  * data, including computing diffs between lists.
  */
-//class ContactListAdapter(contactList: LiveData<MutableList<Contact>>) : // Removed for ListAdapter conversion
+
 class ContactListAdapter(val clickListener: ContactListListener) :
     ListAdapter<Contact, ContactListAdapter.ContactViewHolder>(DiffCallback) {
 
@@ -49,28 +51,55 @@ class ContactListAdapter(val clickListener: ContactListListener) :
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactListAdapter.ContactViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         return ContactViewHolder(
             ListContactBinding.inflate(layoutInflater, parent, false)
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         val contact = getItem(position)
-        val calendar = Calendar.getInstance() // TODO: Delete this placeholder reference to current time
-        val calendar2 = Calendar.getInstance()  // TODO: Delete this placeholder time+2weeks
-        calendar2.add(Calendar.DATE, 14) // TODO: Delete this placeholder time+2weeks
         holder.bind(clickListener, contact)
+        //TODO Delete
+        //val dateStringParser = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
+        //val dateFormatter = DateTimeFormatter.ofPattern("MMM d, y")
+
+        // LocalDates of createdAt and lastContact
+        val lastContactLocalDate = contact.lastContacted?.let {DateUtils().asLocalDate(parseDates(it)!!)}
+        val createdLocalDate = DateUtils().asLocalDate(parseDates(contact.createdAt)!!)
+        // Set starting point for nextContactDate based on lastContact or createdAt
+        var nextContactLocalDate = lastContactLocalDate ?: createdLocalDate
+        // Increment nextContactLocalDate
+        when (contact.intervalUnit) {
+            "days" -> nextContactLocalDate = nextContactLocalDate.plusDays(contact.intervalTime.toLong())
+            "weeks" -> nextContactLocalDate = nextContactLocalDate.plusWeeks(contact.intervalTime.toLong())
+            "months" -> nextContactLocalDate = nextContactLocalDate.plusMonths(contact.intervalTime.toLong())
+            "years" -> nextContactLocalDate = nextContactLocalDate.plusYears(contact.intervalTime.toLong())
+        }
+
         holder.binding.apply {
-            cardLastContact.text = formatDates(calendar.time) // contact.intervalTime.toString() // TODO: Placeholder for contact date
-            cardNextContact.text = formatDates(calendar2.time) // TODO: Placeholder for contact date
+            cardLastContact.text = contact.lastContacted?.let { formatDates(parseDates(it)!!) } ?: "Never"
+            cardNextContact.text = formatDates(DateUtils().asDate(nextContactLocalDate))
         }
     }
 
     private fun formatDates(date_value: Date): String {
+        /** Return a String, formatted "MMM d, y", from an input Date object
+         * */
         val formatter = SimpleDateFormat("MMM d, y", Locale.getDefault())
+        formatter.timeZone = TimeZone.getDefault()
+        //val formatter = SimpleDateFormat("MMM d, y", )
         return formatter.format(date_value)
+    }
+    private fun parseDates(date_string: String): Date? {
+        /** Return a Date? object from an input Datetime String that is based in UTC
+         * */
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'", Locale.getDefault())
+        formatter.timeZone = TimeZone.getTimeZone("UTC")
+        //val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
+        return formatter.parse(date_string)
     }
 }
 

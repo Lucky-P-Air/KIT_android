@@ -107,7 +107,7 @@ class EditContactFragment : Fragment() {
 
     private fun goToContactList() {
         val action = EditContactFragmentDirections
-            .actionEditContactFragmentToContactDetailFragment(viewModel.position.value!!)
+            .actionEditContactFragmentToContactDetailFragment()
         findNavController().navigate(action)
     }
 

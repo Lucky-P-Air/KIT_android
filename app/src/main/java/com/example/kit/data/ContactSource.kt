@@ -1,29 +1,27 @@
 package com.example.kit.data
 
-import com.example.kit.model.Contact
+import com.example.kit.model.ContactSubmission
 
 class ContactSource {
     /* Builds a list of Contact objects filled with mock data using
     .loadContacts()
      */
-    var sourceContactList: MutableList<Contact> = loadContacts()
+    var sourceContactList: MutableList<ContactSubmission> = loadContacts()
 
-    private fun loadContacts(): MutableList<Contact> {
+    private fun loadContacts(): MutableList<ContactSubmission> {
         //TODO: Alphabetize the list that's returned
         return mutableListOf(
-            Contact("Matt", "Pereira", "mattcpereira@gmail.com", "+13018732741", 2, "days"),
-            Contact("BamBam", "Hermetet", "mattcpereira@gmail.com", "+13018732741", 2, "weeks"),
-            Contact("Lucky", "Pierre", "streetbllplaya@gmail.com", "+12054339837", 4, "days"),
-            Contact("Jean", "Weatherax", "fakeJean@gmail.com", "+852028732741", 1, "days"),
-            Contact("Isaac", "Askew", "fakeIsaac@gmail.com", "+13038732741", 1, "months"),
-            Contact("Celina", "Pereira", "mattcpereira@gmail.com", "+13018732741", 2, "weeks"),
-            Contact("Cira", "Pereira", "streetbllplaya@gmail.com", "+12054339837", 4, "days"),
-            Contact("Sarah", "Taylor", "fakeJean@gmail.com", "+852028732741", 1, "days"),
-            Contact("Bizhan", "Zhumagali", "fakeIsaac@gmail.com", "+13038732741", 1, "months"),
-            Contact("Justin", "Pearse", "mattcpereira@gmail.com", "+13018732741", 2, "weeks"),
-            Contact("Mike", "Neuberger", "streetbllplaya@gmail.com", "+12054339837", 4, "days"),
-            Contact("Sean", "Devlin", "fakeJean@gmail.com", "+852028732741", 1, "days"),
-            Contact("Jayme", "Kogel", "fakeIsaac@gmail.com", "+13038732741", 1, "months")
+            ContactSubmission("Gibran", "Alcocer", "Idea10@gmail.com", "+18675309", 2, "days"),
+            ContactSubmission("BamBam", "Ruder", "bambam@gmail.com", "+18675309", 2, "weeks"),
+            ContactSubmission("Lucky", "Pierre", "threeDeer@gmail.com", "+12058675309", 4, "days"),
+            ContactSubmission("Brandon", "Sanderson", "truthless@gmail.com", "+852028675309", 1, "days"),
+            ContactSubmission("Will", "Wight", "iteration110@gmail.com", "+13308675309", 1, "months"),
+            ContactSubmission("Cixin", "Liu", "threebody@gmail.com", "+12058675309", 4, "days"),
+            ContactSubmission("Bill", "Watterson", "calvin@hobbes.com", "+852208675309", 1, "days"),
+            ContactSubmission("Cher", "", "sonnysEx@gmail.com", "+13308675309", 1, "months"),
+            ContactSubmission("Philter", "", "blossom@chronicles.com", "+13108675309", 2, "weeks"),
+            ContactSubmission("Meursault", "", "albert@camus.com", "+12508675309", 4, "days"),
+            ContactSubmission("Eithan", "Aurelius", "iSee@ozriel.com", "+12508675309", 4, "days"),
         )
 
     }
