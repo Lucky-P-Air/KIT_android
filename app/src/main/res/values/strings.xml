@@ -65,6 +65,7 @@
     <string name="contentDescription_contact_phone_number">Contact Phone Number</string>
     <string name="edit_contact">Edit Contact</string>
     <string name="toast_contact_updated">Contact has been updated</string>
+    <string name="toast_contact_not_added">There was an error adding your new contact</string>
 
 
 </resources>

@@ -31,6 +31,9 @@
             android:id="@+id/action_navigation_addContact_to_navigation_contactlist"
             app:destination="@id/navigation_contactlist"
             app:popUpTo="@id/navigation_home" />
+        <action
+            android:id="@+id/action_navigation_addContact_to_contactDetailFragment"
+            app:destination="@id/contactDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/contactDetailFragment"

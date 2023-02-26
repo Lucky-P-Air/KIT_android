@@ -35,6 +35,16 @@ fun formatLocalDates(dateValue: LocalDate): String {
     return dateValue.format(formatter)
 }
 
+fun formatLocalDatesToUtc(dateValue: LocalDate): String {
+    /** Return a datestring, formatted "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'",
+     * from an input LocalDate object
+     * */
+    //TODO replace this StartofDay call with something that makes more sense
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'")
+        .withZone(ZoneId.of("UTC"))
+    return dateValue.atStartOfDay().format(formatter)
+}
+
 fun formatDates(dateValue: Date): String {
     /** Return a String, formatted "MMM d, y", from an input Date object
      * */

@@ -1,11 +1,9 @@
 package com.example.kit.data
 
-import com.example.kit.model.ContactSubmission
-
-class ContactSource {
+/*class ContactSource {
     /* Builds a list of Contact objects filled with mock data using
     .loadContacts()
-     */
+
     var sourceContactList: MutableList<ContactSubmission> = loadContacts()
 
     private fun loadContacts(): MutableList<ContactSubmission> {
@@ -25,4 +23,5 @@ class ContactSource {
         )
 
     }
-}
+    */
+} */
