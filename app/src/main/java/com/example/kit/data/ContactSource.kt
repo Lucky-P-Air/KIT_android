@@ -1,5 +1,6 @@
 package com.example.kit.data
 
+
 /*class ContactSource {
     /* Builds a list of Contact objects filled with mock data using
     .loadContacts()
@@ -21,7 +22,6 @@ package com.example.kit.data
             ContactSubmission("Meursault", "", "albert@camus.com", "+12508675309", 4, "days"),
             ContactSubmission("Eithan", "Aurelius", "iSee@ozriel.com", "+12508675309", 4, "days"),
         )
-
     }
     */
 } */
