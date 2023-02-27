@@ -19,6 +19,7 @@ import com.example.kit.ui.contactlist.ContactListViewModel
  * Use the [EditContactFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+private const val TAG = "EditContactFragment"
 class EditContactFragment : Fragment() {
     companion object {
         /**
@@ -77,29 +78,31 @@ class EditContactFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("EditContactFragment", "Edit Contact fragment destroyed")
+        Log.d(TAG, "Edit Contact fragment destroyed")
     }
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d("EditContactFragment", "Edit Contact fragment's View destroyed")
+        Log.d(TAG, "Edit Contact fragment's View destroyed")
         _binding = null
     }
 
     fun onSubmitted() {
-        //TODO: Still needs input/value validation on emails/phone?
+        //TODO: Still needs input/value validation on emails
         //TODO: Still needs implementation of the checkbox
-        Log.d("EditContactFragment", "onSubmitted called")
+        Log.d(TAG, "onSubmitted called")
 
         // Validate non-null inputs for required fields
-        if (errorFirstName() or errorIntervalTime()) return
+        if (errorFirstName() or errorIntervalTime() or errorPhoneNumber()) return
 
         viewModel.updateContact(
             binding.textInputEditContactFirstName.text.toString(),
             binding.textInputEditContactLastName.text.toString(),
-            binding.textInputEditContactPhone.text.toString(),
+            if (binding.textInputEditContactPhone.text.isNullOrEmpty()) {""}
+            else {"+1${binding.textInputEditContactPhone.text}"},
             binding.textInputEditContactEmail.text.toString(),
             binding.textInputEditContactIntervalTime.text.toString().toInt(),
             binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),
+            //binding.checkBox.isChecked()
         )
         Toast.makeText(this.requireContext(), R.string.toast_contact_updated, Toast.LENGTH_SHORT).show()
         goToContactList()
@@ -107,7 +110,7 @@ class EditContactFragment : Fragment() {
 
     private fun goToContactList() {
         val action = EditContactFragmentDirections
-            .actionEditContactFragmentToContactDetailFragment(viewModel.position.value!!)
+            .actionEditContactFragmentToContactDetailFragment()
         findNavController().navigate(action)
     }
 
@@ -116,7 +119,7 @@ class EditContactFragment : Fragment() {
         if (firstNameValue.isNullOrEmpty()) {
             binding.textLayoutEditContactFirstName.isErrorEnabled = true
             binding.textLayoutEditContactFirstName.error = getString(R.string.error_first_name)
-            Log.d("EditContactFragment", "First Name value is null or empty")
+            Log.d(TAG, "First Name value is null or empty")
             return true
         } else{
             binding.textLayoutEditContactFirstName.isErrorEnabled = false
@@ -130,7 +133,7 @@ class EditContactFragment : Fragment() {
         if (intervalTimeValue.isNullOrEmpty()) {
             binding.textLayoutEditContactIntervalTime.isErrorEnabled = true
             binding.textLayoutEditContactIntervalTime.error = getString(R.string.error_interval_number)
-            Log.d("EditContactFragment", "IntervalTime value is null or empty")
+            Log.d(TAG, "IntervalTime value is null or empty")
             return true
         } else{
             binding.textLayoutEditContactIntervalTime.isErrorEnabled = false
@@ -138,4 +141,40 @@ class EditContactFragment : Fragment() {
         }
         return false
     }
+
+    private fun errorPhoneNumber() : Boolean {
+        /**
+         * Return 'true' if there's an error in the phone number format.
+         *
+         * Django backend API requires phone numbers to have:
+         *   +1 Country Code (only one currently compatible)
+         *   10 numerical digits
+         */
+        fun isValidLength(phone: String, length: Int = 10 ): Boolean {return phone.length == length}
+
+        val phoneValue = binding.textInputEditContactPhone.text.toString()
+
+        if (phoneValue.isEmpty()) return false
+        // Check string values for provided phone number. Reject any with Country Codes operator +
+        when (phoneValue.first()) {
+            '+' -> {Log.d(TAG, "Phone number ($phoneValue) has prohibited + character")
+                binding.textLayoutEditContactPhone.isErrorEnabled = true
+                binding.textLayoutEditContactPhone.error = getString(R.string.error_phone_number)
+                return true}
+        }
+
+        if (isValidLength(phoneValue)) {
+            Log.d(TAG, "Valid 10-digit phone number ($phoneValue) provided. Will add country code +1")
+            binding.textLayoutEditContactPhone.isErrorEnabled = false
+            binding.textLayoutEditContactPhone.error = null
+        } else {
+            Log.d(TAG, "Phone number ($phoneValue) is an invalid length")
+            binding.textLayoutEditContactPhone.isErrorEnabled = true
+            binding.textLayoutEditContactPhone.error = getString(R.string.error_phone_number)
+            return true
+        }
+        return false
+    }
+
+
 }

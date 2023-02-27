@@ -13,6 +13,8 @@ import androidx.navigation.fragment.findNavController
 import com.example.kit.R
 import com.example.kit.databinding.FragmentContactDetailBinding
 import com.example.kit.ui.contactlist.ContactListViewModel
+import com.example.kit.utils.formatLocalDates
+import com.example.kit.utils.getNextContactLocalDate
 
 private const val TAG = "ContactDetailFragment"
 private const val POSITION = "position"
@@ -38,7 +40,8 @@ class ContactDetailFragment : Fragment() {
         }
         // Set which contact from list will be Detailed. Could be moved to onViewCreated
         // TODO: Replace this position indexing with a contact primary key
-        viewModel.setCurrentContact(position)
+        // Removed after ListAdapter binding
+        //viewModel.setCurrentContact(position)
     }
 
     override fun onCreateView(
@@ -65,6 +68,17 @@ class ContactDetailFragment : Fragment() {
                     ContactDetailFragmentDirections.actionContactDetailFragmentToEditContactFragment()
                 view.findNavController().navigate(action)
             }
+            statusString = currentContact!!.status.replaceFirstChar { it.uppercase() }
+
+            //TODO Test if this updates live with contact detail changes/updates or if XML databinding is needed
+            cardDetailLastContact.text = getString(
+                R.string.last_contact_date,
+                (currentContact!!.lastContacted?.let {formatLocalDates(it)}) ?: "Never"
+            )
+            cardDetailNextContact.text = getString(
+                R.string.next_contact_date,
+                formatLocalDates(getNextContactLocalDate(currentContact!!))
+            )
         }
         //viewModel.setCurrentContact(position)
     }

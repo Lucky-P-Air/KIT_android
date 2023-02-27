@@ -13,6 +13,9 @@
         <variable
             name="contactDetailFragment"
             type="com.example.kit.ui.contactdetail.ContactDetailFragment"/>
+        <variable
+            name="statusString"
+            type="String"/>
     </data>
 
     <ScrollView
@@ -62,7 +65,7 @@
                         android:padding="@dimen/padding_medium_8"
                         android:textAlignment="textEnd"
                         android:textAppearance="?attr/textAppearanceHeadline6"
-                        android:text="@string/placeholder"
+                        android:text="@{statusString}"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/cardDetail_name"
                         app:layout_constraintTop_toTopOf="parent"
@@ -75,7 +78,6 @@
                         android:layout_gravity="start|center"
                         android:layout_marginTop="@dimen/activity_vertical_margin"
                         android:textAppearance="?attr/textAppearanceBody1"
-                        android:text="@{@string/last_contact_date(@string/placeholder_date1)}"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/cardDetail_name"
                         tools:text="Last Contact: Jan 30, 2023" />
@@ -86,7 +88,6 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="start|center"
                         android:textAppearance="?attr/textAppearanceBody1"
-                        android:text="@{@string/next_contact_date(@string/placeholder_date2)}"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/cardDetail_last_contact"
                         tools:text="Next Contact: Aug 30, 2023" />
