@@ -1,14 +1,14 @@
 package com.example.kit.model
 
-import com.example.kit.utils.formatLocalDatesToUtc
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 // @JsonClass(generateAdapter = true)
 data class ContactListResponse(
     val data: List<ContactEntry>
 )
-
-data class ContactRequest(
+@JsonClass(generateAdapter = true)
+data class ContactResponse(
     val data: ContactEntry
 )
 
@@ -34,6 +34,7 @@ data class Attributes(
     val status: String?
     )
 
+/*
 fun entryFromContactSubmissionAdapter(contactSubmission: ContactSubmission) : ContactEntry {
     /**
      * Convert ContactSubmission objects (with NO id) into a ContactEntry suitable for HTTP POSTs
@@ -55,7 +56,6 @@ fun entryFromContactSubmissionAdapter(contactSubmission: ContactSubmission) : Co
             null,
             null)
     }
-
     return ContactEntry(
         type = "Contact",
         id = null,
@@ -82,7 +82,7 @@ fun entryFromContactAdapter(contact: Contact) : ContactEntry {
             contact.intervalTime,
             formatLocalDatesToUtc(contact.createdAt),
             formatLocalDatesToUtc(contact.updatedAt),
-            contact.status)
+            if (contact.status.isNullOrEmpty()) null else contact.status)
     }
 
     return ContactEntry(
@@ -91,7 +91,7 @@ fun entryFromContactAdapter(contact: Contact) : ContactEntry {
         attributes = attributesFromContact(contact)
     )
 }
-
+*/
 /** Optional reformatting of the nested structure of the API contact response
     into the simpler Contact and Complete Contact Models currently implemented
  */

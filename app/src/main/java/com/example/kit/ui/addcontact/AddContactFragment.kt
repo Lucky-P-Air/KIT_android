@@ -59,7 +59,8 @@ class AddContactFragment : Fragment() {
         viewModel.addContact(
             binding.textInputAddContactFirstName.text.toString(),
             binding.textInputAddContactLastName.text.toString(),
-            "+1${binding.textInputAddContactPhone.text.toString()}",
+            if (binding.textInputAddContactPhone.text.isNullOrEmpty()) {""}
+            else {"+1${binding.textInputAddContactPhone.text}"},
             binding.textInputAddContactEmail.text.toString(), // Add +1 Country Code
             binding.textInputAddContactIntervalTime.text.toString().toInt(),
             binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),

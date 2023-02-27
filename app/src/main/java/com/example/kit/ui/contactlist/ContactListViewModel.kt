@@ -7,9 +7,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kit.data.ContactApi
 import com.example.kit.data.Secrets
-import com.example.kit.model.*
+import com.example.kit.model.Contact
+import com.example.kit.model.ContactEntry
+import com.example.kit.model.ContactSubmission
+import com.example.kit.model.contactFromEntryAdapter
+import com.example.kit.network.ContactRequest
+import com.example.kit.network.contactPushFromContactAdapter
+import com.example.kit.network.contactPushFromContactSubmissionAdapter
 import kotlinx.coroutines.launch
 
+private const val TAG = "ContactListViewModel"
 class ContactListViewModel : ViewModel() {
 
     // list of ContactEntry's from API response
@@ -21,8 +28,8 @@ class ContactListViewModel : ViewModel() {
     val list: LiveData<MutableList<Contact>> = _list
 
     // Specific contact detail properties
-    private var _currentContact = MutableLiveData<Contact>()
-    val currentContact: LiveData<Contact> = _currentContact
+    private var _currentContact = MutableLiveData<Contact?>()
+    val currentContact: LiveData<Contact?> = _currentContact
 
 
     init {
@@ -53,26 +60,22 @@ class ContactListViewModel : ViewModel() {
         //val submittalSuccess = viewModelScope.async {
         viewModelScope.launch {
             try {
-                Log.d("ContactListViewModel", "Add Contact coroutine launced for $newContact")
+                Log.d(TAG, "Add Contact coroutine launched for $newContact")
                 //Serialize new contact information into JSON-ready object
-                val contactPost = ContactRequest(entryFromContactSubmissionAdapter(newContact))
-                Log.d("ContactListViewModel", "ContentRequest: $contactPost")
+                val contactPost = ContactRequest(contactPushFromContactSubmissionAdapter(newContact))
+                Log.d(TAG, "ContactRequest: $contactPost")
                 val response = ContactApi.retrofitService.postNewContact(
                     Secrets().headers,
                     contactPost)
-                Log.d("ContactListViewModel", "Add Contact coroutine SUCCESS for ${response.data.attributes.firstName} with id# ${response.data.id}")
+                Log.d(TAG, "Add Contact coroutine SUCCESS for ${response.data.attributes.firstName} with id# ${response.data.id}")
                 //TODO assign response contact to ViewModel's _currentcontact.value
                 _currentContact.value = contactFromEntryAdapter(response.data)
                 //return@async true // Assumed to be true
             } catch (e: Exception) {
-                Log.d("ContactListViewModel", "Exception occurred during Add Contact coroutine: ${e.message}")
+                Log.d(TAG, "Exception occurred during Add Contact coroutine: ${e.message}")
                 //return@async false
             }
         }
-
-        // Commented out during Contact model refactor
-        //dataSource.sourceContactList
-            //.add(Contact(firstName, lastName, email, phoneNumber, intervalTime, intervalUnit))
 
         // Update ._list with appended contact list, sorted by name
         getContactList()
@@ -80,15 +83,23 @@ class ContactListViewModel : ViewModel() {
 
     //  fun deleteContact() disabled during setup of connectivity
     fun deleteContact() {
-        /** Deletes _currentContact.value from the ViewModel's _list of contacts
+        /** Deletes currentContact.value.id from the server
          * Function is currently implemented to only be called from ContactDetail page
-         * and only affects the ViewModels datasource. */
-
-        // Commented out during Contact model refactor
-        //dataSource.sourceContactList.remove(currentContact.value)
-        Log.d("ContactListViewModel", "Contact deleted from dataSource. List not refreshed yet")
+         */
+        viewModelScope.launch {
+            try {
+                Log.d(TAG, "Delete Contact coroutine launched for ${currentContact.value!!.id}")
+                ContactApi.retrofitService.deleteContact(
+                    currentContact.value!!.id,
+                    Secrets().headers)
+                Log.d(TAG, "Delete Contact coroutine SUCCESS")
+                _currentContact.value = null
+            } catch (e: Exception) {
+                Log.d(TAG, "Exception occurred during Add Contact coroutine: ${e.message}")
+            }
+        }
         getContactList()
-        Log.d("ContactListViewModel", "Contact List Refreshed after contact deletion")
+        Log.d(TAG, "Contact List Refreshed after contact deletion")
     }
 
     // Load or refresh full list of contacts, sorted by name
@@ -135,7 +146,8 @@ class ContactListViewModel : ViewModel() {
 
     // fun getContactDetail(position: Int) : {    }
 
-    //  fun updateContact() disabled during setup of connectivity
+    // TODO debug why updating values to null (like phone/email) dont push to server
+    // HAS TO DO WITH DATABINDING IN XML FRAGMENT
     fun updateContact(
         firstName: String,
         lastName: String?,
@@ -145,16 +157,47 @@ class ContactListViewModel : ViewModel() {
         intervalUnit: String) {
         Log.d("ContactListViewModel", "updateContact method called")
 
-        val contactSubmission = ContactSubmission(
+        val contactRevised = Contact(
+            currentContact.value!!.id,
             firstName,
-            lastName,
-            phoneNumber,
-            email,
-            true,
+            lastName ?: "",
+            phoneNumber ?: "",
+            email ?: "",
+            intervalTime,
             intervalUnit,
-            intervalTime)
-        Log.d("ContactListViewModel", "Updating ${contactSubmission}")
-
+            currentContact.value!!.reminderEnabled,
+            currentContact.value!!.lastContacted,
+            currentContact.value!!.createdAt,
+            currentContact.value!!.updatedAt,
+            currentContact.value!!.status
+        )
+        viewModelScope.launch {
+            try {
+                Log.d(
+                    "ContactListViewModel",
+                    "Initiating EditContact PATCH request for $contactRevised"
+                )
+                //Serialize new contact information into JSON-ready object
+                val contactPut = ContactRequest(contactPushFromContactAdapter(contactRevised))
+                Log.d("ContactListViewModel", "ContentRequest(UpdateContact): $contactPut")
+                ContactApi.retrofitService.updateContact(
+                    contactRevised.id,
+                    Secrets().headers,
+                    contactPut
+                )
+                /*Log.d("ContactListViewModel", "EditContact PATCH request sent for ${response.data.attributes.firstName} with id# ${response.data.id}")
+                //TODO assign response contact to ViewModel's _currentcontact.value
+                _currentContact.value = contactFromEntryAdapter(response.data)
+                */
+                //return@async true // Assumed to be true
+            } catch (e: Exception) {
+                Log.d(
+                    "ContactListViewModel",
+                    "Exception occurred during updateContact operation: ${e.message}"
+                )
+                //return@async false
+            }
+        }
         getContactList()
     }
 
