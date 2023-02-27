@@ -30,9 +30,9 @@ class ContactListAdapter(val clickListener: ContactListListener) :
 
     companion object DiffCallback : DiffUtil.ItemCallback<Contact>() {
         override fun areItemsTheSame(oldItem: Contact, newItem: Contact): Boolean {
-            val check:Boolean = oldItem.firstName == newItem.firstName // TODO && ID check
+            val check:Boolean = oldItem.id == newItem.id
             Log.d("ContactListAdapter", "DiffCallback areItemsTheSame: $check")
-            return check // TODO && ID check
+            return check
         }
 
         override fun areContentsTheSame(oldItem: Contact, newItem: Contact): Boolean {
@@ -40,8 +40,10 @@ class ContactListAdapter(val clickListener: ContactListListener) :
                     oldItem.lastName == newItem.lastName &&
                     oldItem.email == newItem.email &&
                     oldItem.phoneNumber == newItem.phoneNumber &&
+                    oldItem.reminderEnabled == newItem.reminderEnabled &&
                     oldItem.intervalUnit == newItem.intervalUnit &&
-                    oldItem.intervalTime == newItem.intervalTime
+                    oldItem.intervalTime == newItem.intervalTime &&
+                    oldItem.status == newItem.status
                     )
             Log.d("ContactListAdapter", "DiffCallback areContentsTheSame: $check")
             return check

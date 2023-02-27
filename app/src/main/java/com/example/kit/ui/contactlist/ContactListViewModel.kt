@@ -6,34 +6,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kit.data.ContactApi
-import com.example.kit.data.ContactSource
 import com.example.kit.data.Secrets
-import com.example.kit.model.Contact
-import com.example.kit.model.ContactEntry
-import com.example.kit.model.ContactSubmission
-import com.example.kit.utils.parseLocalDates
+import com.example.kit.model.*
 import kotlinx.coroutines.launch
 
 class ContactListViewModel : ViewModel() {
-
-    // TODO: Delete these (2) temporary variables used for development
-    val INTERVAL_UNITS = listOf<String>("days", "weeks", "months", "years")
-    // Temporary object for connecting to ContactSource() until a database is used
-    // This particular instance might get lost if ViewModel
-    private var dataSource = ContactSource()
 
     // list of ContactEntry's from API response
     private var _responseList = MutableLiveData<List<ContactEntry>>()
     val responseList: LiveData<List<ContactEntry>> = _responseList
 
     // list of Contacts data
-    private var _list = MutableLiveData<MutableList<Contact>>()
+    private var _list = MutableLiveData<MutableList<Contact>>() //TODO Doesn't need to be MutableList
     val list: LiveData<MutableList<Contact>> = _list
 
-    // TODO Delete positions because they're not really used after clickListener binding implementation.
-    // Need to clean up 'position' references in EditContact fragment
-    private lateinit var _position: MutableLiveData<Int> // position index within sorted list
-    val position : LiveData<Int> get() = _position
     // Specific contact detail properties
     private var _currentContact = MutableLiveData<Contact>()
     val currentContact: LiveData<Contact> = _currentContact
@@ -43,20 +29,46 @@ class ContactListViewModel : ViewModel() {
         //getContactList() // Moved initial GET to ContactListFragment
     }
 
-    /* Adds a contact to the (temporary) ContactSource.sourceContactList
-    that will eventually be replaced by a method connected to a database
-    */
     fun addContact(
         firstName: String,
         lastName: String?,
-        email: String?,
         phoneNumber: String?,
+        email: String?,
         intervalTime: Int,
         intervalUnit: String) {
-        Log.d("ContactListViewModel", "addContact method called")
-        val newContact = ContactSubmission(firstName, lastName, email, phoneNumber, intervalTime, intervalUnit)
-        //TODO serialize newContact into nested structure for POST request
-        //TODO POST newContact to server
+        Log.d("ContactListViewModel", "addContact method called on ${firstName} ${lastName}")
+        val newContact = ContactSubmission(
+            firstName,
+            lastName,
+            phoneNumber,
+            email,
+            true,
+            // null,
+            intervalUnit,
+            intervalTime)
+
+
+        //TODO Error catching, logging, and communication from server responses
+        //TODO update navigation direction after successful POST to contact detail
+        //val submittalSuccess = viewModelScope.async {
+        viewModelScope.launch {
+            try {
+                Log.d("ContactListViewModel", "Add Contact coroutine launced for $newContact")
+                //Serialize new contact information into JSON-ready object
+                val contactPost = ContactRequest(entryFromContactSubmissionAdapter(newContact))
+                Log.d("ContactListViewModel", "ContentRequest: $contactPost")
+                val response = ContactApi.retrofitService.postNewContact(
+                    Secrets().headers,
+                    contactPost)
+                Log.d("ContactListViewModel", "Add Contact coroutine SUCCESS for ${response.data.attributes.firstName} with id# ${response.data.id}")
+                //TODO assign response contact to ViewModel's _currentcontact.value
+                _currentContact.value = contactFromEntryAdapter(response.data)
+                //return@async true // Assumed to be true
+            } catch (e: Exception) {
+                Log.d("ContactListViewModel", "Exception occurred during Add Contact coroutine: ${e.message}")
+                //return@async false
+            }
+        }
 
         // Commented out during Contact model refactor
         //dataSource.sourceContactList
@@ -80,16 +92,6 @@ class ContactListViewModel : ViewModel() {
     }
 
     // Load or refresh full list of contacts, sorted by name
-    /*private fun getContactList() {
-        // Sorting Method
-        val byFirstName  = Comparator.comparing<Contact, String> {
-                contact: Contact -> contact.firstName.lowercase()
-        }
-        // Last name is nullable so don't use it for sorting at this time
-
-        _list = MutableLiveData(dataSource.sourceContactList.sortedWith(byFirstName).toMutableList()
-        )
-    }*/ // local hard-coded data source
     fun getContactList() {
         // Sorting Method
         val byFirstName = Comparator.comparing<Contact, String> { contact: Contact ->
@@ -100,31 +102,23 @@ class ContactListViewModel : ViewModel() {
                 val response = ContactApi.retrofitService.getContacts(Secrets().headers)
                 _responseList.value = response.data
                 Log.d(
-                    "ContactSource",
-                    "Get request successful, retrieved ${responseList.value?.size} entries"
+                    "ContactListViewModel",
+                    "Get request successful, retrieved ${responseList.value?.size} entries."
+                )
+                Log.d(
+                    "ContactListViewModel",
+                    "First Contact Entry: ${responseList.value!![0]}"
                 )
                 // Transform nested ContactEntry structure to flat Contact class
                 val listContacts = responseList.value?.map() {
-                    Contact(
-                        it.id,
-                        it.attributes.firstName,
-                        it.attributes.lastName ?: "",
-                        it.attributes.email ?: "",
-                        it.attributes.phoneNumber ?: "",
-                        it.attributes.intervalNumber,
-                        it.attributes.intervalUnit,
-                        it.attributes.remindersEnabled,
-                        it.attributes.lastContacted?.let { it1 -> parseLocalDates(it1)},
-                        parseLocalDates(it.attributes.createdAt),
-                        parseLocalDates(it.attributes.updatedAt),
-                        it.attributes.status ?: "",
-                    )
+                    contactFromEntryAdapter(it)
                 }?.toMutableList()
                 Log.d("ContactSource", "Transform produced listContacts of size ${listContacts?.size} entries")
                 Log.d(
                     "ContactSource",
-                    "First entry is ${listContacts?.get(0)?.firstName} "
+                    "First entry is ${listContacts?.get(0)?.firstName} ${listContacts?.get(0)?.lastName} "
                 )
+
                 // Last name is nullable so don't use it for sorting at this time
                 _list.value = listContacts?.sortedWith(byFirstName)?.toMutableList()
             } catch (e: java.lang.Exception) {
@@ -133,20 +127,11 @@ class ContactListViewModel : ViewModel() {
                 _list.value = mutableListOf()
             }
         }
-
-
     }
 
     fun onContactClicked(contact: Contact) {
         _currentContact.value = contact
     }
-
-    // Removed for ListAdapter update & binding
-    /*
-    fun setCurrentContact(position: Int) {
-        _position = MutableLiveData(position)
-        _currentContact = MutableLiveData(list.value?.get(position))
-    }*/
 
     // fun getContactDetail(position: Int) : {    }
 
@@ -154,20 +139,22 @@ class ContactListViewModel : ViewModel() {
     fun updateContact(
         firstName: String,
         lastName: String?,
-        email: String?,
         phoneNumber: String?,
+        email: String?,
         intervalTime: Int,
         intervalUnit: String) {
         Log.d("ContactListViewModel", "updateContact method called")
 
-        /* Commented out during Contact model refactor
-        // find position index within UNSORTED data source list
-        val sourcePosition = dataSource.sourceContactList.indexOf(currentContact.value)
-        dataSource.sourceContactList[sourcePosition] =
-            ContactSubmission(firstName, lastName, email, phoneNumber, intervalTime, intervalUnit)
-        */
+        val contactSubmission = ContactSubmission(
+            firstName,
+            lastName,
+            phoneNumber,
+            email,
+            true,
+            intervalUnit,
+            intervalTime)
+        Log.d("ContactListViewModel", "Updating ${contactSubmission}")
 
-        // Update ._list with appended contact list, sorted by name
         getContactList()
     }
 

@@ -1,16 +1,21 @@
 package com.example.kit.model
 
+import com.example.kit.utils.formatLocalDatesToUtc
 import com.squareup.moshi.Json
 
 // @JsonClass(generateAdapter = true)
-data class ContactResponse(
+data class ContactListResponse(
     val data: List<ContactEntry>
+)
+
+data class ContactRequest(
+    val data: ContactEntry
 )
 
 // @JsonClass(generateAdapter = true)
 data class ContactEntry(
     val type: String, // but generally just "Contact"
-    val id: String,
+    val id: String?,
     val attributes: Attributes
 )
 
@@ -24,10 +29,68 @@ data class Attributes(
     @Json(name = "last_contacted_at") val lastContacted: String?,
     @Json(name = "interval_unit") val intervalUnit: String,
     @Json(name = "interval_number") val intervalNumber: Int,
-    @Json(name = "created_at") val createdAt: String,
-    @Json(name = "updated_at") val updatedAt: String,
+    @Json(name = "created_at") val createdAt: String?,
+    @Json(name = "updated_at") val updatedAt: String?,
     val status: String?
     )
+
+fun entryFromContactSubmissionAdapter(contactSubmission: ContactSubmission) : ContactEntry {
+    /**
+     * Convert ContactSubmission objects (with NO id) into a ContactEntry suitable for HTTP POSTs
+     *
+     * Params: <ContactSubmission>
+     * Returns <ContactEntry>
+     */
+    fun attributesFromContactSubmission(contactSubmission: ContactSubmission) : Attributes {
+        return Attributes(
+            contactSubmission.firstName,
+            if (contactSubmission.lastName.isNullOrEmpty()) null else contactSubmission.lastName,
+            if (contactSubmission.phoneNumber.isNullOrEmpty()) null else contactSubmission.phoneNumber,
+            if (contactSubmission.email.isNullOrEmpty()) null else contactSubmission.email,
+            true,
+            null,
+            contactSubmission.intervalUnit,
+            contactSubmission.intervalTime,
+            null,
+            null,
+            null)
+    }
+
+    return ContactEntry(
+        type = "Contact",
+        id = null,
+        attributes = attributesFromContactSubmission(contactSubmission)
+    )
+}
+
+fun entryFromContactAdapter(contact: Contact) : ContactEntry {
+    /**
+     * Convert Contact object into a ContactEntry object with null-values and strings as required
+     *
+     * Params: <Contact>
+     * Returns <ContactEntry>
+     */
+    fun attributesFromContact(contact: Contact) : Attributes {
+        return Attributes(
+            contact.firstName,
+            if (contact.lastName.isNullOrEmpty()) null else contact.lastName,
+            if (contact.phoneNumber.isNullOrEmpty()) null else contact.phoneNumber,
+            if (contact.email.isNullOrEmpty()) null else contact.email,
+            contact.reminderEnabled,
+            contact.lastContacted?.let {it -> formatLocalDatesToUtc(it) },
+            contact.intervalUnit,
+            contact.intervalTime,
+            formatLocalDatesToUtc(contact.createdAt),
+            formatLocalDatesToUtc(contact.updatedAt),
+            contact.status)
+    }
+
+    return ContactEntry(
+        type = "Contact",
+        id = contact.id,
+        attributes = attributesFromContact(contact)
+    )
+}
 
 /** Optional reformatting of the nested structure of the API contact response
     into the simpler Contact and Complete Contact Models currently implemented
