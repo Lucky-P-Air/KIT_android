@@ -147,14 +147,14 @@ class ContactListViewModel : ViewModel() {
     // fun getContactDetail(position: Int) : {    }
 
     // TODO debug why updating values to null (like phone/email) dont push to server
-    // HAS TO DO WITH DATABINDING IN XML FRAGMENT
     fun updateContact(
         firstName: String,
         lastName: String?,
         phoneNumber: String?,
         email: String?,
         intervalTime: Int,
-        intervalUnit: String) {
+        intervalUnit: String,
+        remindersEnabled: Boolean) {
         Log.d("ContactListViewModel", "updateContact method called")
 
         val contactRevised = Contact(
@@ -165,7 +165,7 @@ class ContactListViewModel : ViewModel() {
             email ?: "",
             intervalTime,
             intervalUnit,
-            currentContact.value!!.reminderEnabled,
+            remindersEnabled,
             currentContact.value!!.lastContacted,
             currentContact.value!!.createdAt,
             currentContact.value!!.updatedAt,
@@ -175,20 +175,22 @@ class ContactListViewModel : ViewModel() {
             try {
                 Log.d(
                     "ContactListViewModel",
-                    "Initiating EditContact PATCH request for $contactRevised"
+                    "Initiating EditContact PUT request for $contactRevised"
                 )
                 //Serialize new contact information into JSON-ready object
                 val contactPut = ContactRequest(contactPushFromContactAdapter(contactRevised))
                 Log.d("ContactListViewModel", "ContentRequest(UpdateContact): $contactPut")
-                ContactApi.retrofitService.updateContact(
+                val response = ContactApi.retrofitService.updateContact(
                     contactRevised.id,
                     Secrets().headers,
                     contactPut
                 )
-                /*Log.d("ContactListViewModel", "EditContact PATCH request sent for ${response.data.attributes.firstName} with id# ${response.data.id}")
+                Log.d("ContactListViewModel", "PUT request successful? ${response.isSuccessful}")
+                Log.d("ContactListViewModel", "Response message from PUT request: ${response.message()}")
+                Log.d("ContactListViewModel", "Response from PUT request: ${response.body()!!.data}")
                 //TODO assign response contact to ViewModel's _currentcontact.value
-                _currentContact.value = contactFromEntryAdapter(response.data)
-                */
+                //_currentContact.value = contactFromEntryAdapter(response.data)
+
                 //return@async true // Assumed to be true
             } catch (e: Exception) {
                 Log.d(
@@ -213,6 +215,12 @@ class ContactListViewModel : ViewModel() {
         }
         // Last name is nullable so don't use it for sorting at this time
         return contactList.sortedWith(byFirstName)
+    }
+
+    fun toggleReminders() {
+        /**
+         *  Function to toggle reminders on/off for a particular contact from contact detail page
+         */
     }
 
     }

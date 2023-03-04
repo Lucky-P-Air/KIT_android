@@ -70,7 +70,7 @@ class EditContactFragment : Fragment() {
             currentContact = viewModel.currentContact.value
             spinnerIntervalUnit.setSelection(
                 intervalUnitsArray.indexOf(  // array of possible intervalUnits
-                    viewModel.currentContact.value!!.intervalUnit // Contact's saved intervalUnit
+                    currentContact!!.intervalUnit // Contact's saved intervalUnit
                         .replaceFirstChar {it.uppercase()})  // Capitalize it to match dropdown entries
             )
         }
@@ -102,7 +102,7 @@ class EditContactFragment : Fragment() {
             binding.textInputEditContactEmail.text.toString(),
             binding.textInputEditContactIntervalTime.text.toString().toInt(),
             binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),
-            //binding.checkBox.isChecked()
+            binding.checkBox.isChecked
         )
         Toast.makeText(this.requireContext(), R.string.toast_contact_updated, Toast.LENGTH_SHORT).show()
         goToContactList()
@@ -152,15 +152,17 @@ class EditContactFragment : Fragment() {
          */
         fun isValidLength(phone: String, length: Int = 10 ): Boolean {return phone.length == length}
 
-        val phoneValue = binding.textInputEditContactPhone.text.toString()
+        var phoneValue = binding.textInputEditContactPhone.text.toString()
 
         if (phoneValue.isEmpty()) return false
         // Check string values for provided phone number. Reject any with Country Codes operator +
         when (phoneValue.first()) {
-            '+' -> {Log.d(TAG, "Phone number ($phoneValue) has prohibited + character")
-                binding.textLayoutEditContactPhone.isErrorEnabled = true
-                binding.textLayoutEditContactPhone.error = getString(R.string.error_phone_number)
-                return true}
+            '+' -> {Log.d(TAG, "Phone number ($phoneValue) has prohibited + character. Dropping it and subsequent digit")
+                phoneValue = phoneValue.drop(2)
+                //binding.textLayoutEditContactPhone.isErrorEnabled = true
+                //binding.textLayoutEditContactPhone.error = getString(R.string.error_phone_number)
+                //return true
+            }
         }
 
         if (isValidLength(phoneValue)) {
@@ -175,6 +177,5 @@ class EditContactFragment : Fragment() {
         }
         return false
     }
-
 
 }

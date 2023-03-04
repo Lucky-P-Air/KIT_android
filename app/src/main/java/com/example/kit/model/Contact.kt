@@ -12,7 +12,7 @@ data class Contact(
     val email: String?,
     val intervalTime: Int,
     val intervalUnit: String,
-    val reminderEnabled: Boolean,
+    val remindersEnabled: Boolean,
     val lastContacted: LocalDate?, //String?, //Datetime
     val createdAt: LocalDate, // String, // Datetime
     val updatedAt: LocalDate, //String, // Datetime
@@ -26,7 +26,7 @@ data class ContactSubmission(
     val lastName: String?,
     val phoneNumber: String?,
     val email: String?,
-    val reminderEnabled: Boolean,
+    val remindersEnabled: Boolean,
     //val lastContacted: LocalDate?, // not required for submissions
     val intervalUnit: String,
     val intervalTime: Int

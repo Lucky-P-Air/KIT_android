@@ -1,13 +1,12 @@
 package com.example.kit.model
 
 import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
 
 // @JsonClass(generateAdapter = true)
 data class ContactListResponse(
     val data: List<ContactEntry>
 )
-@JsonClass(generateAdapter = true)
+//@JsonClass(generateAdapter = true)
 data class ContactResponse(
     val data: ContactEntry
 )

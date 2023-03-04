@@ -99,7 +99,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="phone"
-                    android:text="@{currentContact.phoneNumber}"/>
+                    android:text="@{currentContact.phoneNumber.substring(2)}"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -129,7 +129,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_horizontal_margin"
-                android:checked="true"
+                android:checked="@{currentContact.remindersEnabled}"
                 android:text="@string/reminders_on"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                 app:layout_constraintStart_toStartOf="@id/textLayout_editContact_email"
@@ -145,8 +145,6 @@
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                 app:layout_constraintStart_toStartOf="@id/textLayout_editContact_email"
                 app:layout_constraintTop_toBottomOf="@id/checkBox" />
-            <!-- TODO: Needs functionality to checkbox button-->
-
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textLayout_editContact_intervalTime"
