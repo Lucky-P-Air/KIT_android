@@ -176,6 +176,7 @@
                         android:layout_marginEnd="@dimen/padding_small_4"
                         android:text="@string/button_edit"
                         android:backgroundTint="?attr/colorTertiary"
+                        android:onClickListener="@{() -> contactDetailFragment.goToEditContact()}"
                         app:layout_constraintEnd_toStartOf="@+id/cardDetail_button_delete"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toStartOf="parent"

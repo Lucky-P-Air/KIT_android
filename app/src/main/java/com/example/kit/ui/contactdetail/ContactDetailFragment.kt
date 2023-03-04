@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.example.kit.R
 import com.example.kit.databinding.FragmentContactDetailBinding
@@ -51,29 +50,27 @@ class ContactDetailFragment : Fragment() {
     ): View {
         // Initialize Data Binding
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contact_detail, container, false)
-
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        //viewModel.getContactDetail(viewModel.currentContact.value!!.id)
         // val currentContext = view.context
         binding.apply {
             lifecycleOwner = viewLifecycleOwner
             contactListViewModel = viewModel
             contactDetailFragment = this@ContactDetailFragment
             currentContact = viewModel.currentContact.value
-            cardDetailButtonEdit.setOnClickListener {
-                val action =
-                    ContactDetailFragmentDirections.actionContactDetailFragmentToEditContactFragment()
-                view.findNavController().navigate(action)
-            }
+        }
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "ContactDetail View Created")
+        binding.apply {
             statusString = currentContact!!.status.replaceFirstChar { it.uppercase() }
 
             //TODO Test if this updates live with contact detail changes/updates or if XML databinding is needed
             cardDetailLastContact.text = getString(
                 R.string.last_contact_date,
-                (currentContact!!.lastContacted?.let {formatLocalDates(it)}) ?: "Never"
+                (currentContact!!.lastContacted?.let { formatLocalDates(it) }) ?: "Never"
             )
             cardDetailNextContact.text = getString(
                 R.string.next_contact_date,
@@ -99,6 +96,10 @@ class ContactDetailFragment : Fragment() {
         //TODO: Insert a confirmation dialog before executing the rest of this logic
         viewModel.deleteContact()
         goToContactList()
+    }
+
+    fun goToEditContact() {
+        findNavController().navigate(R.id.action_contactDetailFragment_to_editContactFragment)
     }
 
     private fun goToContactList() {
