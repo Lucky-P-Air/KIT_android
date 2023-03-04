@@ -62,6 +62,12 @@
             app:enterAnim="@android:anim/fade_in"
             app:popUpTo="@id/contactDetailFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_editContactFragment_to_navigation_contactList"
+            app:destination="@id/navigation_contactlist"
+            app:enterAnim="@android:anim/fade_in"
+            app:popUpTo="@id/navigation_contactlist"
+            app:popUpToInclusive="true" />
     </fragment>
 
 </navigation>

@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -104,19 +103,20 @@ class EditContactFragment : Fragment() {
             binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),
             binding.checkBox.isChecked
         )
-        Toast.makeText(this.requireContext(), R.string.toast_contact_updated, Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this.requireContext(), R.string.toast_contact_updated, Toast.LENGTH_SHORT).show()
         //goToContactList()
         goToContactDetail()
     }
 
     private fun goToContactDetail() {
-        val action = EditContactFragmentDirections.actionEditContactFragmentToContactDetailFragment()
+        val action = EditContactFragmentDirections
+            .actionEditContactFragmentToContactDetailFragment()
         findNavController().navigate(action)
     }
 
     private fun goToContactList() {
         val action = EditContactFragmentDirections
-            .actionEditContactFragmentToContactDetailFragment()
+            .actionEditContactFragmentToNavigationContactList()
         findNavController().navigate(action)
     }
 
