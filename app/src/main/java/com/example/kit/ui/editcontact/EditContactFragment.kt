@@ -105,7 +105,13 @@ class EditContactFragment : Fragment() {
             binding.checkBox.isChecked
         )
         Toast.makeText(this.requireContext(), R.string.toast_contact_updated, Toast.LENGTH_SHORT).show()
-        goToContactList()
+        //goToContactList()
+        goToContactDetail()
+    }
+
+    private fun goToContactDetail() {
+        val action = EditContactFragmentDirections.actionEditContactFragmentToContactDetailFragment()
+        findNavController().navigate(action)
     }
 
     private fun goToContactList() {

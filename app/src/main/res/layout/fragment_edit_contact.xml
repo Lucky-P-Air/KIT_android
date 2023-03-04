@@ -99,7 +99,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="phone"
-                    android:text="@{currentContact.phoneNumber.substring(2)}"/>
+                    android:text="@{currentContact.phoneNumber.isEmpty()? null : currentContact.phoneNumber.substring(2)}"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
