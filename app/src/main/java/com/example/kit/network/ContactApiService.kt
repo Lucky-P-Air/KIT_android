@@ -44,7 +44,7 @@ interface ContactApiService {
     @DELETE("contacts/delete/{id}/")
     suspend fun deleteContact(
         @Path("id") contactID: String,
-        @HeaderMap headers: Map<String, String>) //: ContactRequest
+        @HeaderMap headers: Map<String, String>) : Response<Unit> //Server responds with 204 (null)
 
 }
 
