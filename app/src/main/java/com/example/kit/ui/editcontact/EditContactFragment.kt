@@ -87,10 +87,8 @@ class EditContactFragment : Fragment() {
 
     fun onSubmitted() {
         //TODO: Still needs input/value validation on emails
-        //TODO: Still needs implementation of the checkbox
         Log.d(TAG, "onSubmitted called")
 
-        // Validate non-null inputs for required fields
         if (errorFirstName() or errorIntervalTime() or errorPhoneNumber()) return
 
         viewModel.updateContact(
@@ -158,16 +156,17 @@ class EditContactFragment : Fragment() {
          */
         fun isValidLength(phone: String, length: Int = 10 ): Boolean {return phone.length == length}
 
-        var phoneValue = binding.textInputEditContactPhone.text.toString()
+        val phoneValue = binding.textInputEditContactPhone.text.toString()
 
         if (phoneValue.isEmpty()) return false
         // Check string values for provided phone number. Reject any with Country Codes operator +
         when (phoneValue.first()) {
-            '+' -> {Log.d(TAG, "Phone number ($phoneValue) has prohibited + character. Dropping it and subsequent digit")
-                phoneValue = phoneValue.drop(2)
-                //binding.textLayoutEditContactPhone.isErrorEnabled = true
-                //binding.textLayoutEditContactPhone.error = getString(R.string.error_phone_number)
-                //return true
+            '+' -> {Log.d(TAG, "Phone number ($phoneValue) has prohibited + character.")
+                //Log.d(TAG, "Phone number ($phoneValue) has prohibited + character. Dropping it and subsequent digit")
+                //phoneValue = phoneValue.drop(2)
+                binding.textLayoutEditContactPhone.isErrorEnabled = true
+                binding.textLayoutEditContactPhone.error = getString(R.string.error_phone_number)
+                return true
             }
         }
 

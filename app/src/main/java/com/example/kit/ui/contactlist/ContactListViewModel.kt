@@ -11,6 +11,8 @@ import com.example.kit.model.contactFromEntryAdapter
 import com.example.kit.network.ContactRequest
 import com.example.kit.network.contactPushFromContactAdapter
 import com.example.kit.network.contactPushFromContactSubmissionAdapter
+import com.example.kit.utils.formatLocalDates
+import com.example.kit.utils.getNextContactLocalDate
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -33,20 +35,21 @@ class ContactListViewModel : ViewModel() {
     //    Includes pre-processing of strings/values for displaying in UI
     val liveFirstName = Transformations.map(_currentContact) { it!!.firstName }
     val liveLastName = Transformations.map(_currentContact) { it!!.lastName }
-    val livePhoneNumber = Transformations.map(_currentContact) { it!!.phoneNumber } // TODO check with Edit fragments about string pre-processing
+    val livePhoneNumber = Transformations.map(_currentContact) { it!!.phoneNumber }
     val liveEmail = Transformations.map(_currentContact) { it!!.email }
     val liveRemindersEnabled = Transformations.map(_currentContact) { it!!.remindersEnabled }
-    val liveIntervalTime = Transformations.map(_currentContact) { it!!.intervalTime }// TODO check with Detail/Edit fragments about string pre-processing
-    val liveIntervalUnit = Transformations.map(_currentContact) { it!!.intervalUnit }// TODO check with Detail/Edit fragments about string pre-processing
-    val liveLastContacted = Transformations.map(_currentContact) { it!!.lastContacted }// TODO check with Detail fragments about string pre-processing
+    val liveIntervalTime = Transformations.map(_currentContact) { it!!.intervalTime }
+    //val liveIntervalUnit = Transformations.map(_currentContact) { it!!.intervalUnit } // unneeded
+    val liveLastContacted = Transformations.map(_currentContact) {
+        it!!.lastContacted?.let { localDate -> formatLocalDates(localDate)} ?: "Never"
+    }
+    val liveNextReminder = Transformations.map(_currentContact) {
+        formatLocalDates(getNextContactLocalDate(it!!))
+    }
     val liveStatus = Transformations.map(_currentContact) {
         it!!.status.let {
             statusString -> statusString.replaceFirstChar {char -> char.uppercase()}
         } }
-
-
-
-
 
     init {
         //getContactList() // Moved initial GET to ContactListFragment
@@ -70,7 +73,6 @@ class ContactListViewModel : ViewModel() {
             intervalUnit,
             intervalTime)
 
-
         //TODO Error catching, logging, and communication from server responses
         //TODO update navigation direction after successful POST to contact detail
         //val submittalSuccess = viewModelScope.async {
@@ -80,24 +82,21 @@ class ContactListViewModel : ViewModel() {
                 //Serialize new contact information into JSON-ready object
                 val contactPost = ContactRequest(contactPushFromContactSubmissionAdapter(newContact))
                 Log.d(TAG, "ContactRequest: $contactPost")
-                val response = ContactApi.retrofitService.postNewContact(
-                    Secrets().headers,
-                    contactPost)
-                Log.d(TAG, "Add Contact coroutine SUCCESS for ${response.data.attributes.firstName} with id# ${response.data.id}")
-                //TODO assign response contact to ViewModel's _currentcontact.value
-                _currentContact.postValue(contactFromEntryAdapter(response.data))
-                //return@async true // Assumed to be true
+                val response = async {
+                    ContactApi.retrofitService.postNewContact(
+                        Secrets().headers,
+                        contactPost)
+                }
+                Log.d(TAG, "Add Contact coroutine SUCCESS for ${response.await().data.attributes.firstName} with id# ${response.await().data.id}")
+                _currentContact.postValue(contactFromEntryAdapter(response.await().data))
             } catch (e: Exception) {
                 Log.d(TAG, "Exception occurred during Add Contact coroutine: ${e.message}")
-                //return@async false
             }
         }
-
         // Update ._list with appended contact list, sorted by name
         getContactList()
     }
 
-    //  fun deleteContact() disabled during setup of connectivity
     fun deleteContact() {
         /** Deletes currentContact.value.id from the server
          * Function is currently implemented to only be called from ContactDetail page
@@ -111,7 +110,7 @@ class ContactListViewModel : ViewModel() {
                 Log.d(TAG, "Delete Contact coroutine SUCCESS")
                 _currentContact.postValue(null)
             } catch (e: Exception) {
-                Log.d(TAG, "Exception occurred during Add Contact coroutine: ${e.message}")
+                Log.d(TAG, "Exception occurred during Delete Contact coroutine: ${e.message}")
             }
         }
         getContactList()
@@ -129,22 +128,14 @@ class ContactListViewModel : ViewModel() {
                 val response = ContactApi.retrofitService.getContacts(Secrets().headers)
                 _responseList.value = response.data
                 Log.d(
-                    "ContactListViewModel",
+                    TAG,
                     "Get request successful, retrieved ${responseList.value?.size} entries."
-                )
-                Log.d(
-                    "ContactListViewModel",
-                    "First Contact Entry: ${responseList.value!![0]}"
                 )
                 // Transform nested ContactEntry structure to flat Contact class
                 val listContacts = responseList.value?.map() {
                     contactFromEntryAdapter(it)
                 }
-                Log.d("ContactSource", "Transform produced listContacts of size ${listContacts?.size} entries")
-                Log.d(
-                    "ContactSource",
-                    "First entry is ${listContacts?.get(0)?.firstName} ${listContacts?.get(0)?.lastName} "
-                )
+                Log.d(TAG, "Transform produced listContacts of size ${listContacts?.size} entries")
 
                 // Last name is nullable so don't use it for sorting at this time
                 _list.value = listContacts?.sortedWith(byFirstName)

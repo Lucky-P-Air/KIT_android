@@ -12,8 +12,6 @@ import androidx.navigation.fragment.findNavController
 import com.example.kit.R
 import com.example.kit.databinding.FragmentContactDetailBinding
 import com.example.kit.ui.contactlist.ContactListViewModel
-import com.example.kit.utils.formatLocalDates
-import com.example.kit.utils.getNextContactLocalDate
 
 private const val TAG = "ContactDetailFragment"
 
@@ -45,7 +43,6 @@ class ContactDetailFragment : Fragment() {
             lifecycleOwner = viewLifecycleOwner
             contactListViewModel = viewModel
             contactDetailFragment = this@ContactDetailFragment
-            currentContact = viewModel.currentContact.value
         }
         return binding.root
     }
@@ -53,17 +50,6 @@ class ContactDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d(TAG, "ContactDetail View Created")
-        binding.apply {
-            //TODO Test if this updates live with contact detail changes/updates or if XML databinding is needed
-            cardDetailLastContact.text = getString(
-                R.string.last_contact_date,
-                (currentContact!!.lastContacted?.let { formatLocalDates(it) }) ?: "Never"
-            )
-            cardDetailNextContact.text = getString(
-                R.string.next_contact_date,
-                formatLocalDates(getNextContactLocalDate(currentContact!!))
-            )
-        }
     }
 
     override fun onDestroy() {
@@ -78,7 +64,6 @@ class ContactDetailFragment : Fragment() {
     }
 
     fun deleteContact() {
-
         //TODO: Insert a confirmation dialog before executing the rest of this logic
         viewModel.deleteContact()
         goToContactList()
