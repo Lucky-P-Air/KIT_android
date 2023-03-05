@@ -4,6 +4,7 @@ import com.example.kit.model.*
 import com.example.kit.network.ContactRequest
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
@@ -38,12 +39,12 @@ interface ContactApiService {
     suspend fun updateContact(
         @Path("id") contactID: String,
         @HeaderMap headers: Map<String, String>,
-        @Body contactRequest: ContactRequest) : ContactResponse
+        @Body contactRequest: ContactRequest) : Response<ContactResponse>
 
     @DELETE("contacts/delete/{id}/")
     suspend fun deleteContact(
         @Path("id") contactID: String,
-        @HeaderMap headers: Map<String, String>) //: ContactRequest
+        @HeaderMap headers: Map<String, String>) : Response<Unit> //Server responds with 204 (null)
 
 }
 

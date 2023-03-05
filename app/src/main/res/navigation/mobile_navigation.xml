@@ -33,7 +33,10 @@
             app:popUpTo="@id/navigation_home" />
         <action
             android:id="@+id/action_navigation_addContact_to_contactDetailFragment"
-            app:destination="@id/contactDetailFragment" />
+            app:destination="@id/contactDetailFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:popUpTo="@id/navigation_addContact"
+            app:popUpToInclusive="true"/>
     </fragment>
     <fragment
         android:id="@+id/contactDetailFragment"
@@ -61,6 +64,12 @@
             app:destination="@id/contactDetailFragment"
             app:enterAnim="@android:anim/fade_in"
             app:popUpTo="@id/contactDetailFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_editContactFragment_to_navigation_contactList"
+            app:destination="@id/navigation_contactlist"
+            app:enterAnim="@android:anim/fade_in"
+            app:popUpTo="@id/navigation_contactlist"
             app:popUpToInclusive="true" />
     </fragment>
 

@@ -40,7 +40,7 @@ class ContactListAdapter(val clickListener: ContactListListener) :
                     oldItem.lastName == newItem.lastName &&
                     oldItem.email == newItem.email &&
                     oldItem.phoneNumber == newItem.phoneNumber &&
-                    oldItem.reminderEnabled == newItem.reminderEnabled &&
+                    oldItem.remindersEnabled == newItem.remindersEnabled &&
                     oldItem.intervalUnit == newItem.intervalUnit &&
                     oldItem.intervalTime == newItem.intervalTime &&
                     oldItem.status == newItem.status

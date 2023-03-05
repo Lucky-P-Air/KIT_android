@@ -71,7 +71,7 @@ fun contactPushFromContactAdapter(contact: Contact) : ContactPush {
             if (contact.lastName.isNullOrEmpty()) null else contact.lastName,
             if (contact.phoneNumber.isNullOrEmpty()) null else contact.phoneNumber,
             if (contact.email.isNullOrEmpty()) null else contact.email,
-            contact.reminderEnabled,
+            contact.remindersEnabled,
             //contact.lastContacted?.let {it -> formatLocalDatesToUtc(it) }, //TODO uncomment this
             contact.intervalUnit,
             contact.intervalTime)

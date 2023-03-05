@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -70,7 +69,7 @@ class EditContactFragment : Fragment() {
             currentContact = viewModel.currentContact.value
             spinnerIntervalUnit.setSelection(
                 intervalUnitsArray.indexOf(  // array of possible intervalUnits
-                    viewModel.currentContact.value!!.intervalUnit // Contact's saved intervalUnit
+                    currentContact!!.intervalUnit // Contact's saved intervalUnit
                         .replaceFirstChar {it.uppercase()})  // Capitalize it to match dropdown entries
             )
         }
@@ -88,10 +87,8 @@ class EditContactFragment : Fragment() {
 
     fun onSubmitted() {
         //TODO: Still needs input/value validation on emails
-        //TODO: Still needs implementation of the checkbox
         Log.d(TAG, "onSubmitted called")
 
-        // Validate non-null inputs for required fields
         if (errorFirstName() or errorIntervalTime() or errorPhoneNumber()) return
 
         viewModel.updateContact(
@@ -102,15 +99,22 @@ class EditContactFragment : Fragment() {
             binding.textInputEditContactEmail.text.toString(),
             binding.textInputEditContactIntervalTime.text.toString().toInt(),
             binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),
-            //binding.checkBox.isChecked()
+            binding.checkBox.isChecked
         )
-        Toast.makeText(this.requireContext(), R.string.toast_contact_updated, Toast.LENGTH_SHORT).show()
-        goToContactList()
+        //Toast.makeText(this.requireContext(), R.string.toast_contact_updated, Toast.LENGTH_SHORT).show()
+        //goToContactList()
+        goToContactDetail()
+    }
+
+    private fun goToContactDetail() {
+        val action = EditContactFragmentDirections
+            .actionEditContactFragmentToContactDetailFragment()
+        findNavController().navigate(action)
     }
 
     private fun goToContactList() {
         val action = EditContactFragmentDirections
-            .actionEditContactFragmentToContactDetailFragment()
+            .actionEditContactFragmentToNavigationContactList()
         findNavController().navigate(action)
     }
 
@@ -157,10 +161,13 @@ class EditContactFragment : Fragment() {
         if (phoneValue.isEmpty()) return false
         // Check string values for provided phone number. Reject any with Country Codes operator +
         when (phoneValue.first()) {
-            '+' -> {Log.d(TAG, "Phone number ($phoneValue) has prohibited + character")
+            '+' -> {Log.d(TAG, "Phone number ($phoneValue) has prohibited + character.")
+                //Log.d(TAG, "Phone number ($phoneValue) has prohibited + character. Dropping it and subsequent digit")
+                //phoneValue = phoneValue.drop(2)
                 binding.textLayoutEditContactPhone.isErrorEnabled = true
                 binding.textLayoutEditContactPhone.error = getString(R.string.error_phone_number)
-                return true}
+                return true
+            }
         }
 
         if (isValidLength(phoneValue)) {
@@ -175,6 +182,5 @@ class EditContactFragment : Fragment() {
         }
         return false
     }
-
 
 }
