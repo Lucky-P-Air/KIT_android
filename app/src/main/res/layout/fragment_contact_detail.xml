@@ -13,9 +13,6 @@
         <variable
             name="contactDetailFragment"
             type="com.example.kit.ui.contactdetail.ContactDetailFragment"/>
-        <variable
-            name="statusString"
-            type="String"/>
     </data>
 
     <ScrollView
@@ -35,7 +32,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent">
-                <!-- android:layout_margin="8dp"-->
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -51,7 +47,7 @@
                         android:ellipsize="middle"
                         android:maxLines="2"
                         android:textAppearance="?attr/textAppearanceHeadline5"
-                        android:text="@{@string/text_fullname(currentContact.firstName,currentContact.lastName)}"
+                        android:text="@{@string/text_fullname(contactListViewModel.liveFirstName,contactListViewModel.liveLastName)}"
                         app:layout_constraintEnd_toStartOf="@+id/cardDetail_status"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -65,7 +61,7 @@
                         android:padding="@dimen/padding_medium_8"
                         android:textAlignment="textEnd"
                         android:textAppearance="?attr/textAppearanceHeadline6"
-                        android:text="@{statusString}"
+                        android:text="@{contactListViewModel.liveStatus}"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/cardDetail_name"
                         app:layout_constraintTop_toTopOf="parent"
@@ -110,7 +106,7 @@
                         android:layout_marginStart="@dimen/activity_horizontal_margin"
                         android:padding="@dimen/card_padding_internal"
                         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                        android:text="@{currentContact.email}"
+                        android:text="@{contactListViewModel.liveEmail}"
                         app:layout_constraintBottom_toBottomOf="@id/contactDetail_icon_email"
                         app:layout_constraintStart_toEndOf="@id/contactDetail_icon_email"
                         app:layout_constraintTop_toTopOf="@id/contactDetail_icon_email"
@@ -134,7 +130,7 @@
                         android:layout_marginStart="@dimen/activity_horizontal_margin"
                         android:padding="@dimen/card_padding_internal"
                         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                        android:text="@{currentContact.phoneNumber}"
+                        android:text="@{contactListViewModel.livePhoneNumber}"
                         app:layout_constraintBottom_toBottomOf="@id/contactDetail_icon_phone"
                         app:layout_constraintStart_toEndOf="@id/contactDetail_icon_phone"
                         app:layout_constraintTop_toTopOf="@id/contactDetail_icon_phone"
@@ -145,7 +141,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/activity_horizontal_margin"
-                        android:checked="@{currentContact.remindersEnabled}"
+                        android:checked="@{contactListViewModel.liveRemindersEnabled}"
                         android:text="@string/reminders_on"
                         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
                         android:clickable="false"
@@ -198,22 +194,6 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
-
-            <!--<TextView
-                android:id="@+id/text_contact_detail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:textAlignment="center"
-                android:textSize="20sp"
-                android:text="@{contactListViewModel.text}"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" /> -->
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 </layout>

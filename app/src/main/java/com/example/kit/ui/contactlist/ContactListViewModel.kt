@@ -22,15 +22,31 @@ class ContactListViewModel : ViewModel() {
     val responseList: LiveData<List<ContactEntry>> = _responseList
 
     // list of Contacts data
-    private var _list = MutableLiveData<MutableList<Contact>>() //TODO Doesn't need to be MutableList
-    val list: LiveData<MutableList<Contact>> get() = _list
+    private var _list = MutableLiveData<List<Contact>>()
+    val list: LiveData<List<Contact>> get() = _list
 
     // Specific contact detail properties
     private var _currentContact = MutableLiveData<Contact?>()
     val currentContact: LiveData<Contact?> get() = _currentContact
 
-    // LiveData for remindersEnabled boolean
-    val reminderLiveData = Transformations.map(_currentContact) { it!!.remindersEnabled }
+    // LiveData for specific attributes of the currentContact.
+    //    Includes pre-processing of strings/values for displaying in UI
+    val liveFirstName = Transformations.map(_currentContact) { it!!.firstName }
+    val liveLastName = Transformations.map(_currentContact) { it!!.lastName }
+    val livePhoneNumber = Transformations.map(_currentContact) { it!!.phoneNumber } // TODO check with Edit fragments about string pre-processing
+    val liveEmail = Transformations.map(_currentContact) { it!!.email }
+    val liveRemindersEnabled = Transformations.map(_currentContact) { it!!.remindersEnabled }
+    val liveIntervalTime = Transformations.map(_currentContact) { it!!.intervalTime }// TODO check with Detail/Edit fragments about string pre-processing
+    val liveIntervalUnit = Transformations.map(_currentContact) { it!!.intervalUnit }// TODO check with Detail/Edit fragments about string pre-processing
+    val liveLastContacted = Transformations.map(_currentContact) { it!!.lastContacted }// TODO check with Detail fragments about string pre-processing
+    val liveStatus = Transformations.map(_currentContact) {
+        it!!.status.let {
+            statusString -> statusString.replaceFirstChar {char -> char.uppercase()}
+        } }
+
+
+
+
 
     init {
         //getContactList() // Moved initial GET to ContactListFragment
@@ -123,7 +139,7 @@ class ContactListViewModel : ViewModel() {
                 // Transform nested ContactEntry structure to flat Contact class
                 val listContacts = responseList.value?.map() {
                     contactFromEntryAdapter(it)
-                }?.toMutableList()
+                }
                 Log.d("ContactSource", "Transform produced listContacts of size ${listContacts?.size} entries")
                 Log.d(
                     "ContactSource",
@@ -131,11 +147,11 @@ class ContactListViewModel : ViewModel() {
                 )
 
                 // Last name is nullable so don't use it for sorting at this time
-                _list.value = listContacts?.sortedWith(byFirstName)?.toMutableList()
+                _list.value = listContacts?.sortedWith(byFirstName)
             } catch (e: java.lang.Exception) {
                 Log.d("ContactSource", "Exception during getContactList coroutine: ${e.toString()}")
                 _responseList.value = listOf()
-                _list.value = mutableListOf()
+                _list.value = listOf()
             }
         }
     }
@@ -208,23 +224,21 @@ class ContactListViewModel : ViewModel() {
                 Log.d("ContactListViewModel", "PUT request successful? ${response.await().isSuccessful}")
                 Log.d("ContactListViewModel", "Response message from PUT request: ${response.await().message()}")
                 Log.d("ContactListViewModel", "Response from PUT request: ${response.await().body()!!.data}")
-                //TODO assign response contact to ViewModel's _currentcontact.value
                 _currentContact.postValue(contactFromEntryAdapter(response.await().body()!!.data))
             } catch (e: Exception) {
                 Log.d(
                     "ContactListViewModel",
                     "Exception occurred during updateContact operation: ${e.message}"
                 )
-                //return@async false
+                getContactDetail(currentContact.value!!.id)
             }
         }
-        getContactDetail(currentContact.value!!.id)
         getContactList()
     }
 
     override fun onCleared() {
         super.onCleared()
-        Log.d("ContactListViewModel", "Instance of ContactViewModel has been cleared. Any updates to contact list have been lost")
+        Log.d("ContactListViewModel", "Instance of ContactViewModel has been cleared")
     }
     // fun sortContactList Not currently needed
     private fun sortContactList(contactList: List<Contact>) : List<Contact> {
