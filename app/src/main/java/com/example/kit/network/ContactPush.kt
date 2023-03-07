@@ -3,25 +3,26 @@ package com.example.kit.network
 import com.example.kit.model.Contact
 import com.example.kit.model.ContactSubmission
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * Data Classes used for pushing data to server via HTTP Requests.
  * They contain a subset of the properties received from server responses,
  * represented in ContactResponse.kt
  */
-
+@JsonClass(generateAdapter = true)
 data class ContactRequest(
     val data: ContactPush
 )
 
-// @JsonClass(generateAdapter = true)
+@JsonClass(generateAdapter = true)
 data class ContactPush(
     val type: String, // but generally just "Contact"
     val id: String?,
     val attributes: PushAttributes
 )
 
-//@JsonClass(generateAdapter = true)
+@JsonClass(generateAdapter = true)
 data class PushAttributes(
     @Json(name = "first_name") val firstName: String,
     @Json(name = "last_name") val lastName: String?,

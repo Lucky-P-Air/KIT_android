@@ -11,13 +11,23 @@ import retrofit2.http.*
 
 private const val BASE_URL = "https://reminder-django-backend.herokuapp.com/api/" //contacts/
 
+// HTTP request Logging.. sort of
+/*
+private val logging: HttpLoggingInterceptor = HttpLoggingInterceptor()
+    .setLevel(HttpLoggingInterceptor.Level.HEADERS)
+
+private val httpClient = OkHttpClient.Builder()
+    .addInterceptor(logging)
+ */
+
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
     .build()
 
 private val retrofit = Retrofit.Builder()
-    .addConverterFactory(MoshiConverterFactory.create(moshi))
+    .addConverterFactory(MoshiConverterFactory.create(moshi).withNullSerialization())
     .baseUrl(BASE_URL)
+//    .client(httpClient.build())
     .build()
 
 interface ContactApiService {
