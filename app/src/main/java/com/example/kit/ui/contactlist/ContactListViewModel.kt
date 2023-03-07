@@ -15,6 +15,9 @@ import com.example.kit.utils.formatLocalDateTimes
 import com.example.kit.utils.getNextContactLocalDateTime
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 private const val TAG = "ContactListViewModel"
 class ContactListViewModel : ViewModel() {
@@ -173,7 +176,23 @@ class ContactListViewModel : ViewModel() {
         */
     }
 
-    // TODO debug why updating values to null (like phone/email) dont push to server
+    fun markContacted() {
+        val timeNow = Instant.now().atZone(ZoneId.of("UTC"))
+            .toLocalDateTime()
+        with(currentContact.value!!) {
+            updateContact(
+                this.firstName,
+                this.lastName,
+                this.phoneNumber,
+                this.email,
+                this.intervalTime,
+                this.intervalUnit,
+                this.remindersEnabled,
+                timeNow
+            )
+        }
+    }
+
     fun updateContact(
         firstName: String,
         lastName: String?,
@@ -181,7 +200,8 @@ class ContactListViewModel : ViewModel() {
         email: String?,
         intervalTime: Int,
         intervalUnit: String,
-        remindersEnabled: Boolean) {
+        remindersEnabled: Boolean,
+        lastContacted: LocalDateTime? = currentContact.value!!.lastContacted) {
         Log.d("ContactListViewModel", "updateContact method called")
 
         val contactRevised = Contact(
@@ -193,7 +213,7 @@ class ContactListViewModel : ViewModel() {
             intervalTime,
             intervalUnit,
             remindersEnabled,
-            currentContact.value!!.lastContacted,
+            lastContacted,
             currentContact.value!!.createdAt,
             currentContact.value!!.updatedAt,
             currentContact.value!!.status

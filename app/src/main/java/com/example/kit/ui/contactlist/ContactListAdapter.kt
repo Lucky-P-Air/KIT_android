@@ -36,14 +36,15 @@ class ContactListAdapter(val clickListener: ContactListListener) :
         }
 
         override fun areContentsTheSame(oldItem: Contact, newItem: Contact): Boolean {
-            val check: Boolean = (oldItem.firstName == newItem.firstName && //TODO ID check
+            val check: Boolean = (oldItem.firstName == newItem.firstName &&
                     oldItem.lastName == newItem.lastName &&
                     oldItem.email == newItem.email &&
                     oldItem.phoneNumber == newItem.phoneNumber &&
                     oldItem.remindersEnabled == newItem.remindersEnabled &&
                     oldItem.intervalUnit == newItem.intervalUnit &&
                     oldItem.intervalTime == newItem.intervalTime &&
-                    oldItem.status == newItem.status
+                    oldItem.status == newItem.status &&
+                    oldItem.lastContacted == newItem.lastContacted
                     )
             Log.d("ContactListAdapter", "DiffCallback areContentsTheSame: $check")
             return check

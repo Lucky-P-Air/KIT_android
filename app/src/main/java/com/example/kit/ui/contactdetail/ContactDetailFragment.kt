@@ -76,4 +76,8 @@ class ContactDetailFragment : Fragment() {
     private fun goToContactList() {
         findNavController().navigate(R.id.action_contactDetailFragment_to_navigation_contactlist)
     }
+
+    fun markDone() {
+        viewModel.markContacted()
+    }
 }
