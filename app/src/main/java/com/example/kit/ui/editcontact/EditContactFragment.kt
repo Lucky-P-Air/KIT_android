@@ -102,7 +102,6 @@ class EditContactFragment : Fragment() {
             binding.checkBox.isChecked
         )
         //Toast.makeText(this.requireContext(), R.string.toast_contact_updated, Toast.LENGTH_SHORT).show()
-        //goToContactList()
         goToContactDetail()
     }
 
@@ -112,11 +111,12 @@ class EditContactFragment : Fragment() {
         findNavController().navigate(action)
     }
 
+    /*
     private fun goToContactList() {
         val action = EditContactFragmentDirections
             .actionEditContactFragmentToNavigationContactList()
         findNavController().navigate(action)
-    }
+    }*/
 
     private fun errorFirstName() : Boolean {
         val firstNameValue = binding.textInputEditContactFirstName.text

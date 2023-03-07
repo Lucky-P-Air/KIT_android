@@ -13,14 +13,20 @@ import com.example.kit.network.contactPushFromContactAdapter
 import com.example.kit.network.contactPushFromContactSubmissionAdapter
 import com.example.kit.utils.formatLocalDateTimes
 import com.example.kit.utils.getNextContactLocalDateTime
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
 private const val TAG = "ContactListViewModel"
 class ContactListViewModel : ViewModel() {
+    // Sorting Method
+    val byFirstName = Comparator.comparing<Contact, String> { contact: Contact ->
+        contact.firstName.lowercase()
+    }
 
     // list of ContactEntry's from API response
     private var _responseList = MutableLiveData<List<ContactEntry>>()
@@ -122,10 +128,6 @@ class ContactListViewModel : ViewModel() {
 
     // Load or refresh full list of contacts, sorted by name
     fun getContactList() {
-        // Sorting Method
-        val byFirstName = Comparator.comparing<Contact, String> { contact: Contact ->
-            contact.firstName.lowercase()
-        }
         viewModelScope.launch {
             try {
                 val response = ContactApi.retrofitService.getContacts(Secrets().headers)
@@ -153,11 +155,11 @@ class ContactListViewModel : ViewModel() {
     fun onContactClicked(contact: Contact) {
         Log.d(TAG,"Contact ${contact.id} clicked in RecyclerView")
         _currentContact.postValue(contact) // Locally cached value from List GET until replace by next GET request
-        //getContactDetail(contact.id)
+        getContactDetail(contact.id)
     }
 
     fun getContactDetail(contactID: String) {
-        /*
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val singleContactResponse = ContactApi.retrofitService.getSingleContact(
@@ -173,7 +175,6 @@ class ContactListViewModel : ViewModel() {
                 Log.d(TAG,"Exception occurred during getContactDetail operation: ${e.message}")
             }
         }
-        */
     }
 
     fun markContacted() {
@@ -251,20 +252,5 @@ class ContactListViewModel : ViewModel() {
         super.onCleared()
         Log.d("ContactListViewModel", "Instance of ContactViewModel has been cleared")
     }
-    // fun sortContactList Not currently needed
-    private fun sortContactList(contactList: List<Contact>) : List<Contact> {
-        // Function for sorting names
-        val byFirstName  = Comparator.comparing<Contact, String> {
-                contact: Contact -> contact.firstName.lowercase()
-        }
-        // Last name is nullable so don't use it for sorting at this time
-        return contactList.sortedWith(byFirstName)
-    }
 
-    fun toggleReminders() {
-        /**
-         *  Function to toggle reminders on/off for a particular contact from contact detail page
-         */
-    }
-
-    }
+}
