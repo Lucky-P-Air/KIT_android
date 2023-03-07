@@ -33,31 +33,35 @@ private val retrofit = Retrofit.Builder()
 interface ContactApiService {
 
     @GET("contacts/")
-    suspend fun getContacts(@HeaderMap headers: Map<String, String>) : ContactListResponse
+    suspend fun getContacts(@HeaderMap headers: Map<String, String>): ContactListResponse
 
     @GET("contacts/{id}/")
     suspend fun getSingleContact(
         @Path("id") contactID: String,
-        @HeaderMap headers: Map<String, String>) : ContactResponse
+        @HeaderMap headers: Map<String, String>
+    ): ContactResponse
 
     @POST("contacts/create/")
     suspend fun postNewContact(
         @HeaderMap headers: Map<String, String>,
-        @Body contactRequest: ContactRequest) : ContactResponse
+        @Body contactRequest: ContactRequest
+    ): ContactResponse
 
     @PUT("contacts/update/{id}/")
     suspend fun updateContact(
         @Path("id") contactID: String,
         @HeaderMap headers: Map<String, String>,
-        @Body contactRequest: ContactRequest) : Response<ContactResponse>
+        @Body contactRequest: ContactRequest
+    ): Response<ContactResponse>
 
     @DELETE("contacts/delete/{id}/")
     suspend fun deleteContact(
         @Path("id") contactID: String,
-        @HeaderMap headers: Map<String, String>) : Response<Unit> //Server responds with 204 (null)
+        @HeaderMap headers: Map<String, String>
+    ): Response<Unit> //Server responds with 204 (null)
 
 }
 
 object ContactApi {
-    val retrofitService : ContactApiService by lazy { retrofit.create(ContactApiService::class.java) }
+    val retrofitService: ContactApiService by lazy { retrofit.create(ContactApiService::class.java) }
 }

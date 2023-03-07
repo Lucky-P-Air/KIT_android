@@ -35,14 +35,14 @@ data class PushAttributes(
     @Json(name = "interval_number") val intervalNumber: Int
 )
 
-fun contactPushFromContactSubmissionAdapter(contactSubmission: ContactSubmission) : ContactPush {
+fun contactPushFromContactSubmissionAdapter(contactSubmission: ContactSubmission): ContactPush {
     /**
      * Convert ContactSubmission objects (with NO id) into a ContactPush suitable for HTTP POST/PUT
      *
      * Params: <ContactSubmission>
      * Returns <ContactPush>
      */
-    fun pushAttributesFromContactSubmission(contactSubmission: ContactSubmission) : PushAttributes {
+    fun pushAttributesFromContactSubmission(contactSubmission: ContactSubmission): PushAttributes {
         return PushAttributes(
             contactSubmission.firstName,
             if (contactSubmission.lastName.isNullOrEmpty()) null else contactSubmission.lastName,
@@ -51,7 +51,8 @@ fun contactPushFromContactSubmissionAdapter(contactSubmission: ContactSubmission
             true,
             null,
             contactSubmission.intervalUnit,
-            contactSubmission.intervalTime)
+            contactSubmission.intervalTime
+        )
     }
     return ContactPush(
         type = "Contact",
@@ -60,16 +61,16 @@ fun contactPushFromContactSubmissionAdapter(contactSubmission: ContactSubmission
     )
 }
 
-fun contactPushFromContactAdapter(contact: Contact) : ContactPush {
+fun contactPushFromContactAdapter(contact: Contact): ContactPush {
     /**
      * Convert Contact object into a ContactPush object with null-values and strings as required
      *
      * Params: <Contact>
      * Returns <ContactPush>
      */
-    val lastContactedString = contact.lastContacted?.let {it -> formatLocalDateTimesToUtc(it) }
+    val lastContactedString = contact.lastContacted?.let { it -> formatLocalDateTimesToUtc(it) }
 
-    fun pushAttributesFromContact(contact: Contact) : PushAttributes {
+    fun pushAttributesFromContact(contact: Contact): PushAttributes {
         return PushAttributes(
             contact.firstName,
             if (contact.lastName.isNullOrEmpty()) null else contact.lastName,
@@ -78,7 +79,8 @@ fun contactPushFromContactAdapter(contact: Contact) : ContactPush {
             contact.remindersEnabled,
             if (lastContactedString.isNullOrEmpty()) null else lastContactedString,
             contact.intervalUnit,
-            contact.intervalTime)
+            contact.intervalTime
+        )
     }
 
     return ContactPush(

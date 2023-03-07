@@ -16,7 +16,7 @@ data class Contact(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
     val status: String
-    )
+)
 
 // TODO: Overwrite null values for constructor parameters to avoid always writing null
 
@@ -30,9 +30,9 @@ data class ContactSubmission(
     //val lastContacted: LocalDateTime?, // not required for POST submissions
     val intervalUnit: String,
     val intervalTime: Int
-    )
+)
 
-fun contactFromEntryAdapter(contactEntry: ContactEntry) : Contact {
+fun contactFromEntryAdapter(contactEntry: ContactEntry): Contact {
     /**
      * Convert ContactEntry object into a Contact object with LocalDates and null-values replaced
      * by empty strings.

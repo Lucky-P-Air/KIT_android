@@ -6,6 +6,7 @@ import com.squareup.moshi.Json
 data class ContactListResponse(
     val data: List<ContactEntry>
 )
+
 //@JsonClass(generateAdapter = true)
 data class ContactResponse(
     val data: ContactEntry
@@ -31,4 +32,4 @@ data class Attributes(
     @Json(name = "created_at") val createdAt: String?,
     @Json(name = "updated_at") val updatedAt: String?,
     val status: String?
-    )
+)

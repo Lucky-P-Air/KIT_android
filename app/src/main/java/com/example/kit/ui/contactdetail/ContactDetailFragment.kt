@@ -37,7 +37,8 @@ class ContactDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Initialize Data Binding
-        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contact_detail, container, false)
+        _binding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_contact_detail, container, false)
         // val currentContext = view.context
         binding.apply {
             lifecycleOwner = viewLifecycleOwner

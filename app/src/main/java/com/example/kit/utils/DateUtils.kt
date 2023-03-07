@@ -28,7 +28,7 @@ fun asLocalDateTime(date: Date): LocalDateTime {
 
 fun asLocalDateTimeFromUtc(date: Date): LocalDateTime {
     /** Convert a Date object to LocalDateTime in the timezone of UTC
-      */
+     */
     return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.of("UTC"))
         .toLocalDateTime()
 }
@@ -39,7 +39,8 @@ fun formatLocalDateTimes(dateValue: LocalDateTime): String {
      * */
     val formatter = DateTimeFormatter.ofPattern("MMM d, y")
         .withZone(ZoneId.systemDefault()) // format the output using this timezone
-    return dateValue.atZone(ZoneId.of("UTC")).format(formatter) // .atZone dictates the timezone of the input(dateValue)
+    return dateValue.atZone(ZoneId.of("UTC"))
+        .format(formatter) // .atZone dictates the timezone of the input(dateValue)
 }
 
 fun formatLocalDateTimesToUtc(dateValue: LocalDateTime): String {
@@ -92,7 +93,7 @@ fun getNextContactLocalDateTime(contact: Contact): LocalDateTime {
     // Set starting point for next reminderDate based on lastContact or createdAt
     var reminderDate = lastContactLocalDate ?: createdLocalDate
     // Increment next reminderDate
-    with (contact.intervalTime.toLong()) {
+    with(contact.intervalTime.toLong()) {
         when (contact.intervalUnit) {
             "days" -> reminderDate = reminderDate.plusDays(this)
             "weeks" -> reminderDate = reminderDate.plusWeeks(this)

@@ -19,6 +19,7 @@ import com.example.kit.ui.contactlist.ContactListViewModel
  * create an instance of this fragment.
  */
 private const val TAG = "EditContactFragment"
+
 class EditContactFragment : Fragment() {
     companion object {
         /**
@@ -50,7 +51,8 @@ class EditContactFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_contact, container, false)
+        _binding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_edit_contact, container, false)
         // Inflate the layout for this fragment
         return binding.root
     }
@@ -70,7 +72,7 @@ class EditContactFragment : Fragment() {
             spinnerIntervalUnit.setSelection(
                 intervalUnitsArray.indexOf(  // array of possible intervalUnits
                     currentContact!!.intervalUnit // Contact's saved intervalUnit
-                        .replaceFirstChar {it.uppercase()})  // Capitalize it to match dropdown entries
+                        .replaceFirstChar { it.uppercase() })  // Capitalize it to match dropdown entries
             )
         }
     }
@@ -79,6 +81,7 @@ class EditContactFragment : Fragment() {
         super.onDestroy()
         Log.d(TAG, "Edit Contact fragment destroyed")
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         Log.d(TAG, "Edit Contact fragment's View destroyed")
@@ -94,8 +97,11 @@ class EditContactFragment : Fragment() {
         viewModel.updateContact(
             binding.textInputEditContactFirstName.text.toString(),
             binding.textInputEditContactLastName.text.toString(),
-            if (binding.textInputEditContactPhone.text.isNullOrEmpty()) {""}
-            else {"+1${binding.textInputEditContactPhone.text}"},
+            if (binding.textInputEditContactPhone.text.isNullOrEmpty()) {
+                ""
+            } else {
+                "+1${binding.textInputEditContactPhone.text}"
+            },
             binding.textInputEditContactEmail.text.toString(),
             binding.textInputEditContactIntervalTime.text.toString().toInt(),
             binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),
@@ -118,35 +124,36 @@ class EditContactFragment : Fragment() {
         findNavController().navigate(action)
     }*/
 
-    private fun errorFirstName() : Boolean {
+    private fun errorFirstName(): Boolean {
         val firstNameValue = binding.textInputEditContactFirstName.text
         if (firstNameValue.isNullOrEmpty()) {
             binding.textLayoutEditContactFirstName.isErrorEnabled = true
             binding.textLayoutEditContactFirstName.error = getString(R.string.error_first_name)
             Log.d(TAG, "First Name value is null or empty")
             return true
-        } else{
+        } else {
             binding.textLayoutEditContactFirstName.isErrorEnabled = false
             binding.textLayoutEditContactFirstName.error = null
         }
         return false
     }
 
-    private fun errorIntervalTime() : Boolean {
+    private fun errorIntervalTime(): Boolean {
         val intervalTimeValue = binding.textInputEditContactIntervalTime.text
         if (intervalTimeValue.isNullOrEmpty()) {
             binding.textLayoutEditContactIntervalTime.isErrorEnabled = true
-            binding.textLayoutEditContactIntervalTime.error = getString(R.string.error_interval_number)
+            binding.textLayoutEditContactIntervalTime.error =
+                getString(R.string.error_interval_number)
             Log.d(TAG, "IntervalTime value is null or empty")
             return true
-        } else{
+        } else {
             binding.textLayoutEditContactIntervalTime.isErrorEnabled = false
             binding.textLayoutEditContactIntervalTime.error = null
         }
         return false
     }
 
-    private fun errorPhoneNumber() : Boolean {
+    private fun errorPhoneNumber(): Boolean {
         /**
          * Return 'true' if there's an error in the phone number format.
          *
@@ -154,14 +161,17 @@ class EditContactFragment : Fragment() {
          *   +1 Country Code (only one currently compatible)
          *   10 numerical digits
          */
-        fun isValidLength(phone: String, length: Int = 10 ): Boolean {return phone.length == length}
+        fun isValidLength(phone: String, length: Int = 10): Boolean {
+            return phone.length == length
+        }
 
         val phoneValue = binding.textInputEditContactPhone.text.toString()
 
         if (phoneValue.isEmpty()) return false
         // Check string values for provided phone number. Reject any with Country Codes operator +
         when (phoneValue.first()) {
-            '+' -> {Log.d(TAG, "Phone number ($phoneValue) has prohibited + character.")
+            '+' -> {
+                Log.d(TAG, "Phone number ($phoneValue) has prohibited + character.")
                 //Log.d(TAG, "Phone number ($phoneValue) has prohibited + character. Dropping it and subsequent digit")
                 //phoneValue = phoneValue.drop(2)
                 binding.textLayoutEditContactPhone.isErrorEnabled = true
@@ -171,7 +181,10 @@ class EditContactFragment : Fragment() {
         }
 
         if (isValidLength(phoneValue)) {
-            Log.d(TAG, "Valid 10-digit phone number ($phoneValue) provided. Will add country code +1")
+            Log.d(
+                TAG,
+                "Valid 10-digit phone number ($phoneValue) provided. Will add country code +1"
+            )
             binding.textLayoutEditContactPhone.isErrorEnabled = false
             binding.textLayoutEditContactPhone.error = null
         } else {
