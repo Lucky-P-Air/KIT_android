@@ -11,8 +11,8 @@ import com.example.kit.model.contactFromEntryAdapter
 import com.example.kit.network.ContactRequest
 import com.example.kit.network.contactPushFromContactAdapter
 import com.example.kit.network.contactPushFromContactSubmissionAdapter
-import com.example.kit.utils.formatLocalDates
-import com.example.kit.utils.getNextContactLocalDate
+import com.example.kit.utils.formatLocalDateTimes
+import com.example.kit.utils.getNextContactLocalDateTime
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -41,10 +41,10 @@ class ContactListViewModel : ViewModel() {
     val liveIntervalTime = Transformations.map(_currentContact) { it!!.intervalTime }
     //val liveIntervalUnit = Transformations.map(_currentContact) { it!!.intervalUnit } // unneeded
     val liveLastContacted = Transformations.map(_currentContact) {
-        it!!.lastContacted?.let { localDate -> formatLocalDates(localDate)} ?: "Never"
+        it!!.lastContacted?.let { localDateTime -> formatLocalDateTimes(localDateTime)} ?: "Never"
     }
     val liveNextReminder = Transformations.map(_currentContact) {
-        formatLocalDates(getNextContactLocalDate(it!!))
+        formatLocalDateTimes(getNextContactLocalDateTime(it!!))
     }
     val liveStatus = Transformations.map(_currentContact) {
         it!!.status.let {

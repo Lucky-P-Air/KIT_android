@@ -2,6 +2,7 @@ package com.example.kit.network
 
 import com.example.kit.model.Contact
 import com.example.kit.model.ContactSubmission
+import com.example.kit.utils.formatLocalDateTimesToUtc
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -29,7 +30,7 @@ data class PushAttributes(
     @Json(name = "phone_number") val phoneNumber: String?,
     val email: String?,
     @Json(name = "reminders_enabled") val remindersEnabled: Boolean,
-    // @Json(name = "last_contacted_at") val lastContacted: String?, //TODO uncomment this after Datetime fix
+    @Json(name = "last_contacted_at") val lastContacted: String?,
     @Json(name = "interval_unit") val intervalUnit: String,
     @Json(name = "interval_number") val intervalNumber: Int
 )
@@ -48,7 +49,7 @@ fun contactPushFromContactSubmissionAdapter(contactSubmission: ContactSubmission
             if (contactSubmission.phoneNumber.isNullOrEmpty()) null else contactSubmission.phoneNumber,
             if (contactSubmission.email.isNullOrEmpty()) null else contactSubmission.email,
             true,
-            // null, //TODO uncomment this after Datetime fix
+            null,
             contactSubmission.intervalUnit,
             contactSubmission.intervalTime)
     }
@@ -66,6 +67,8 @@ fun contactPushFromContactAdapter(contact: Contact) : ContactPush {
      * Params: <Contact>
      * Returns <ContactPush>
      */
+    val lastContactedString = contact.lastContacted?.let {it -> formatLocalDateTimesToUtc(it) }
+
     fun pushAttributesFromContact(contact: Contact) : PushAttributes {
         return PushAttributes(
             contact.firstName,
@@ -73,7 +76,7 @@ fun contactPushFromContactAdapter(contact: Contact) : ContactPush {
             if (contact.phoneNumber.isNullOrEmpty()) null else contact.phoneNumber,
             if (contact.email.isNullOrEmpty()) null else contact.email,
             contact.remindersEnabled,
-            //contact.lastContacted?.let {it -> formatLocalDatesToUtc(it) }, //TODO uncomment this
+            if (lastContactedString.isNullOrEmpty()) null else lastContactedString,
             contact.intervalUnit,
             contact.intervalTime)
     }
