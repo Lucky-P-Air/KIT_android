@@ -65,7 +65,9 @@ class ContactListAdapter(val clickListener: ContactListListener) :
         holder.binding.apply {
             cardLastContact.text = contact.lastContacted?.let {
                 formatLocalDateTimes(it) } ?: "Never"
-            cardNextContact.text = formatLocalDateTimes(nextContactLocalDate)
+            cardNextContact.text =
+                if (contact.remindersEnabled) formatLocalDateTimes(nextContactLocalDate)
+                else "Reminders disabled"
         }
     }
 }
