@@ -11,13 +11,23 @@ import com.example.kit.model.contactFromEntryAdapter
 import com.example.kit.network.ContactRequest
 import com.example.kit.network.contactPushFromContactAdapter
 import com.example.kit.network.contactPushFromContactSubmissionAdapter
-import com.example.kit.utils.formatLocalDates
-import com.example.kit.utils.getNextContactLocalDate
+import com.example.kit.utils.formatLocalDateTimes
+import com.example.kit.utils.getNextContactLocalDateTime
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 private const val TAG = "ContactListViewModel"
+
 class ContactListViewModel : ViewModel() {
+    // Sorting Method
+    val byFirstName = Comparator.comparing<Contact, String> { contact: Contact ->
+        contact.firstName.lowercase()
+    }
 
     // list of ContactEntry's from API response
     private var _responseList = MutableLiveData<List<ContactEntry>>()
@@ -39,17 +49,19 @@ class ContactListViewModel : ViewModel() {
     val liveEmail = Transformations.map(_currentContact) { it!!.email }
     val liveRemindersEnabled = Transformations.map(_currentContact) { it!!.remindersEnabled }
     val liveIntervalTime = Transformations.map(_currentContact) { it!!.intervalTime }
+
     //val liveIntervalUnit = Transformations.map(_currentContact) { it!!.intervalUnit } // unneeded
     val liveLastContacted = Transformations.map(_currentContact) {
-        it!!.lastContacted?.let { localDate -> formatLocalDates(localDate)} ?: "Never"
+        it!!.lastContacted?.let { localDateTime -> formatLocalDateTimes(localDateTime) } ?: "Never"
     }
     val liveNextReminder = Transformations.map(_currentContact) {
-        formatLocalDates(getNextContactLocalDate(it!!))
+        formatLocalDateTimes(getNextContactLocalDateTime(it!!))
     }
     val liveStatus = Transformations.map(_currentContact) {
-        it!!.status.let {
-            statusString -> statusString.replaceFirstChar {char -> char.uppercase()}
-        } }
+        it!!.status.let { statusString ->
+            statusString.replaceFirstChar { char -> char.uppercase() }
+        }
+    }
 
     init {
         //getContactList() // Moved initial GET to ContactListFragment
@@ -61,7 +73,8 @@ class ContactListViewModel : ViewModel() {
         phoneNumber: String?,
         email: String?,
         intervalTime: Int,
-        intervalUnit: String) {
+        intervalUnit: String
+    ) {
         Log.d("ContactListViewModel", "addContact method called on ${firstName} ${lastName}")
         val newContact = ContactSubmission(
             firstName,
@@ -71,7 +84,8 @@ class ContactListViewModel : ViewModel() {
             true,
             // null,
             intervalUnit,
-            intervalTime)
+            intervalTime
+        )
 
         //TODO Error catching, logging, and communication from server responses
         //TODO update navigation direction after successful POST to contact detail
@@ -80,14 +94,19 @@ class ContactListViewModel : ViewModel() {
             try {
                 Log.d(TAG, "Add Contact coroutine launched for $newContact")
                 //Serialize new contact information into JSON-ready object
-                val contactPost = ContactRequest(contactPushFromContactSubmissionAdapter(newContact))
+                val contactPost =
+                    ContactRequest(contactPushFromContactSubmissionAdapter(newContact))
                 Log.d(TAG, "ContactRequest: $contactPost")
                 val response = async {
                     ContactApi.retrofitService.postNewContact(
                         Secrets().headers,
-                        contactPost)
+                        contactPost
+                    )
                 }
-                Log.d(TAG, "Add Contact coroutine SUCCESS for ${response.await().data.attributes.firstName} with id# ${response.await().data.id}")
+                Log.d(
+                    TAG,
+                    "Add Contact coroutine SUCCESS for ${response.await().data.attributes.firstName} with id# ${response.await().data.id}"
+                )
                 _currentContact.postValue(contactFromEntryAdapter(response.await().data))
             } catch (e: Exception) {
                 Log.d(TAG, "Exception occurred during Add Contact coroutine: ${e.message}")
@@ -106,7 +125,8 @@ class ContactListViewModel : ViewModel() {
                 Log.d(TAG, "Delete Contact coroutine launched for ${currentContact.value!!.id}")
                 ContactApi.retrofitService.deleteContact(
                     currentContact.value!!.id,
-                    Secrets().headers)
+                    Secrets().headers
+                )
                 Log.d(TAG, "Delete Contact coroutine SUCCESS")
                 _currentContact.postValue(null)
             } catch (e: Exception) {
@@ -119,10 +139,6 @@ class ContactListViewModel : ViewModel() {
 
     // Load or refresh full list of contacts, sorted by name
     fun getContactList() {
-        // Sorting Method
-        val byFirstName = Comparator.comparing<Contact, String> { contact: Contact ->
-            contact.firstName.lowercase()
-        }
         viewModelScope.launch {
             try {
                 val response = ContactApi.retrofitService.getContacts(Secrets().headers)
@@ -148,32 +164,47 @@ class ContactListViewModel : ViewModel() {
     }
 
     fun onContactClicked(contact: Contact) {
-        Log.d(TAG,"Contact ${contact.id} clicked in RecyclerView")
+        Log.d(TAG, "Contact ${contact.id} clicked in RecyclerView")
         _currentContact.postValue(contact) // Locally cached value from List GET until replace by next GET request
-        //getContactDetail(contact.id)
+        getContactDetail(contact.id)
     }
 
     fun getContactDetail(contactID: String) {
-        /*
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val singleContactResponse = ContactApi.retrofitService.getSingleContact(
                     contactID,
                     Secrets().headers
                 )
-                Log.d(TAG,"Contact ${singleContactResponse.data} retrieved from API")
+                Log.d(TAG, "Contact ${singleContactResponse.data} retrieved from API")
                 withContext(Dispatchers.Main) {
                     _currentContact.value = contactFromEntryAdapter(singleContactResponse.data)
-                    Log.d(TAG,"_currentContact.value has been updated")
+                    Log.d(TAG, "_currentContact.value has been updated")
                 }
             } catch (e: Exception) {
-                Log.d(TAG,"Exception occurred during getContactDetail operation: ${e.message}")
+                Log.d(TAG, "Exception occurred during getContactDetail operation: ${e.message}")
             }
         }
-        */
     }
 
-    // TODO debug why updating values to null (like phone/email) dont push to server
+    fun markContacted() {
+        val timeNow = Instant.now().atZone(ZoneId.of("UTC"))
+            .toLocalDateTime()
+        with(currentContact.value!!) {
+            updateContact(
+                this.firstName,
+                this.lastName,
+                this.phoneNumber,
+                this.email,
+                this.intervalTime,
+                this.intervalUnit,
+                this.remindersEnabled,
+                timeNow
+            )
+        }
+    }
+
     fun updateContact(
         firstName: String,
         lastName: String?,
@@ -181,7 +212,9 @@ class ContactListViewModel : ViewModel() {
         email: String?,
         intervalTime: Int,
         intervalUnit: String,
-        remindersEnabled: Boolean) {
+        remindersEnabled: Boolean,
+        lastContacted: LocalDateTime? = currentContact.value!!.lastContacted
+    ) {
         Log.d("ContactListViewModel", "updateContact method called")
 
         val contactRevised = Contact(
@@ -193,7 +226,7 @@ class ContactListViewModel : ViewModel() {
             intervalTime,
             intervalUnit,
             remindersEnabled,
-            currentContact.value!!.lastContacted,
+            lastContacted,
             currentContact.value!!.createdAt,
             currentContact.value!!.updatedAt,
             currentContact.value!!.status
@@ -207,14 +240,25 @@ class ContactListViewModel : ViewModel() {
                 //Serialize new contact information into JSON-ready object
                 val contactPut = ContactRequest(contactPushFromContactAdapter(contactRevised))
                 Log.d("ContactListViewModel", "ContentRequest(UpdateContact): $contactPut")
-                val response = async { ContactApi.retrofitService.updateContact(
-                    contactRevised.id,
-                    Secrets().headers,
-                    contactPut
-                )}
-                Log.d("ContactListViewModel", "PUT request successful? ${response.await().isSuccessful}")
-                Log.d("ContactListViewModel", "Response message from PUT request: ${response.await().message()}")
-                Log.d("ContactListViewModel", "Response from PUT request: ${response.await().body()!!.data}")
+                val response = async {
+                    ContactApi.retrofitService.updateContact(
+                        contactRevised.id,
+                        Secrets().headers,
+                        contactPut
+                    )
+                }
+                Log.d(
+                    "ContactListViewModel",
+                    "PUT request successful? ${response.await().isSuccessful}"
+                )
+                Log.d(
+                    "ContactListViewModel",
+                    "Response message from PUT request: ${response.await().message()}"
+                )
+                Log.d(
+                    "ContactListViewModel",
+                    "Response from PUT request: ${response.await().body()!!.data}"
+                )
                 _currentContact.postValue(contactFromEntryAdapter(response.await().body()!!.data))
             } catch (e: Exception) {
                 Log.d(
@@ -231,20 +275,5 @@ class ContactListViewModel : ViewModel() {
         super.onCleared()
         Log.d("ContactListViewModel", "Instance of ContactViewModel has been cleared")
     }
-    // fun sortContactList Not currently needed
-    private fun sortContactList(contactList: List<Contact>) : List<Contact> {
-        // Function for sorting names
-        val byFirstName  = Comparator.comparing<Contact, String> {
-                contact: Contact -> contact.firstName.lowercase()
-        }
-        // Last name is nullable so don't use it for sorting at this time
-        return contactList.sortedWith(byFirstName)
-    }
 
-    fun toggleReminders() {
-        /**
-         *  Function to toggle reminders on/off for a particular contact from contact detail page
-         */
-    }
-
-    }
+}

@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kit.databinding.ListContactBinding
 import com.example.kit.model.Contact
-import com.example.kit.utils.formatLocalDates
-import com.example.kit.utils.getNextContactLocalDate
+import com.example.kit.utils.formatLocalDateTimes
+import com.example.kit.utils.getNextContactLocalDateTime
 
 /**
  * This class implements a [RecyclerView] [ListAdapter] which uses Data Binding to present [List]
@@ -36,14 +36,15 @@ class ContactListAdapter(val clickListener: ContactListListener) :
         }
 
         override fun areContentsTheSame(oldItem: Contact, newItem: Contact): Boolean {
-            val check: Boolean = (oldItem.firstName == newItem.firstName && //TODO ID check
+            val check: Boolean = (oldItem.firstName == newItem.firstName &&
                     oldItem.lastName == newItem.lastName &&
                     oldItem.email == newItem.email &&
                     oldItem.phoneNumber == newItem.phoneNumber &&
                     oldItem.remindersEnabled == newItem.remindersEnabled &&
                     oldItem.intervalUnit == newItem.intervalUnit &&
                     oldItem.intervalTime == newItem.intervalTime &&
-                    oldItem.status == newItem.status
+                    oldItem.status == newItem.status &&
+                    oldItem.lastContacted == newItem.lastContacted
                     )
             Log.d("ContactListAdapter", "DiffCallback areContentsTheSame: $check")
             return check
@@ -59,12 +60,14 @@ class ContactListAdapter(val clickListener: ContactListListener) :
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
         val contact = getItem(position)
-        val nextContactLocalDate = getNextContactLocalDate(contact)
+        val nextContactLocalDate = getNextContactLocalDateTime(contact)
         holder.bind(clickListener, contact)
         holder.binding.apply {
             cardLastContact.text = contact.lastContacted?.let {
-                formatLocalDates(it) } ?: "Never"
-            cardNextContact.text = formatLocalDates(nextContactLocalDate)
+                formatLocalDateTimes(it) } ?: "Never"
+            cardNextContact.text =
+                if (contact.remindersEnabled) formatLocalDateTimes(nextContactLocalDate)
+                else "Reminders disabled"
         }
     }
 }

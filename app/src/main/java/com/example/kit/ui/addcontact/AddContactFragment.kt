@@ -16,7 +16,7 @@ import com.example.kit.ui.contactlist.ContactListViewModel
 class AddContactFragment : Fragment() {
 
     companion object {
-        fun newInstance() = AddContactFragment()
+        // fun newInstance() = AddContactFragment()
     }
 
     private val viewModel: ContactListViewModel by activityViewModels()
@@ -34,7 +34,8 @@ class AddContactFragment : Fragment() {
                 inflater,
                 R.layout.fragment_add_contact,
                 container,
-                false)
+                false
+            )
         _binding = fragmentBinding
         return binding.root
     }
@@ -59,8 +60,11 @@ class AddContactFragment : Fragment() {
         viewModel.addContact(
             binding.textInputAddContactFirstName.text.toString(),
             binding.textInputAddContactLastName.text.toString(),
-            if (binding.textInputAddContactPhone.text.isNullOrEmpty()) {""}
-            else {"+1${binding.textInputAddContactPhone.text}"},
+            if (binding.textInputAddContactPhone.text.isNullOrEmpty()) {
+                ""
+            } else {
+                "+1${binding.textInputAddContactPhone.text}"
+            },
             binding.textInputAddContactEmail.text.toString(), // Add +1 Country Code
             binding.textInputAddContactIntervalTime.text.toString().toInt(),
             binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),
@@ -76,6 +80,7 @@ class AddContactFragment : Fragment() {
         }
         */
         goToContactList()
+        //goToContactDetail()
     }
 
     private fun goToContactDetail() {
@@ -86,33 +91,34 @@ class AddContactFragment : Fragment() {
         findNavController().navigate(R.id.action_navigation_addContact_to_navigation_contactlist)
     }
 
-    private fun errorFirstName() : Boolean {
+    private fun errorFirstName(): Boolean {
         val firstNameValue = binding.textInputAddContactFirstName.text
         if (firstNameValue.isNullOrEmpty()) {
             binding.textLayoutAddContactFirstName.isErrorEnabled = true
             binding.textLayoutAddContactFirstName.error = getString(R.string.error_first_name)
             return true
-        } else{
+        } else {
             binding.textLayoutAddContactFirstName.isErrorEnabled = false
             binding.textLayoutAddContactFirstName.error = null
         }
         return false
     }
 
-    private fun errorIntervalTime() : Boolean {
+    private fun errorIntervalTime(): Boolean {
         val intervalTimeValue = binding.textInputAddContactIntervalTime.text
         if (intervalTimeValue.isNullOrEmpty()) {
             binding.textLayoutAddContactIntervalTime.isErrorEnabled = true
-            binding.textLayoutAddContactIntervalTime.error = getString(R.string.error_interval_number)
+            binding.textLayoutAddContactIntervalTime.error =
+                getString(R.string.error_interval_number)
             return true
-        } else{
+        } else {
             binding.textLayoutAddContactIntervalTime.isErrorEnabled = false
             binding.textLayoutAddContactIntervalTime.error = null
         }
         return false
     }
 
-    private fun errorPhoneNumber() : Boolean {
+    private fun errorPhoneNumber(): Boolean {
         /**
          * Return 'true' if there's an error in the phone number format.
          *
@@ -120,21 +126,28 @@ class AddContactFragment : Fragment() {
          *   +1 Country Code (only one currently compatible)
          *   10 numerical digits
          */
-        fun isValidLength(phone: String, length: Int = 10 ): Boolean {return phone.length == length}
+        fun isValidLength(phone: String, length: Int = 10): Boolean {
+            return phone.length == length
+        }
 
         val phoneValue = binding.textInputAddContactPhone.text.toString()
 
         if (phoneValue.isEmpty()) return false
         // Check string values for provided phone number. Reject any with Country Codes operator +
         when (phoneValue.first()) {
-            '+' -> {Log.d("AddContactFragment", "Phone number ($phoneValue) has prohibited + character")
-                    binding.textLayoutAddContactPhone.isErrorEnabled = true
-                    binding.textLayoutAddContactPhone.error = getString(R.string.error_phone_number)
-                    return true}
+            '+' -> {
+                Log.d("AddContactFragment", "Phone number ($phoneValue) has prohibited + character")
+                binding.textLayoutAddContactPhone.isErrorEnabled = true
+                binding.textLayoutAddContactPhone.error = getString(R.string.error_phone_number)
+                return true
+            }
         }
 
         if (isValidLength(phoneValue)) {
-            Log.d("AddContactFragment", "Valid 10-digit phone number ($phoneValue) provided. Will add country code +1")
+            Log.d(
+                "AddContactFragment",
+                "Valid 10-digit phone number ($phoneValue) provided. Will add country code +1"
+            )
             binding.textLayoutAddContactPhone.isErrorEnabled = false
             binding.textLayoutAddContactPhone.error = null
         } else {

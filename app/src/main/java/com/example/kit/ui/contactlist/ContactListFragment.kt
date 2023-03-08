@@ -16,8 +16,9 @@ import com.example.kit.databinding.FragmentContactListBinding
 class ContactListFragment : Fragment() {
 
     companion object {
-        fun newInstance() = ContactListFragment()
+        // fun newInstance() = ContactListFragment()
     }
+
     // View Model & Data Binding Declarations
     private val viewModel: ContactListViewModel by activityViewModels() //viewModels()
     private var _binding: FragmentContactListBinding? = null
@@ -29,17 +30,18 @@ class ContactListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Initialize Data Binding
-        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_contact_list, container, false)
+        _binding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_contact_list, container, false)
         binding.contactListViewModel = viewModel
 
         // Set Data Binding properties
         binding.lifecycleOwner = viewLifecycleOwner
         // Declare RecyclerView
         binding.recycleContactList.layoutManager = LinearLayoutManager(context)
-        binding.recycleContactList.adapter = ContactListAdapter(ContactListListener {
-                contact -> viewModel.onContactClicked(contact)
-                findNavController()
-                    .navigate(R.id.action_navigation_contactlist_to_contactDetailFragment)
+        binding.recycleContactList.adapter = ContactListAdapter(ContactListListener { contact ->
+            viewModel.onContactClicked(contact)
+            findNavController()
+                .navigate(R.id.action_navigation_contactlist_to_contactDetailFragment)
         })
         viewModel.getContactList()
         return binding.root

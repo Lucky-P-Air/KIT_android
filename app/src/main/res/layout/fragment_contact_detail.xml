@@ -161,6 +161,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginVertical="@dimen/activity_horizontal_margin"
                         android:text="@string/button_markDone"
+                        android:onClickListener="@{() -> contactDetailFragment.markDone()}"
                         app:layout_constraintTop_toBottomOf="@id/cardDetail_div1" />
 
                     <Button
