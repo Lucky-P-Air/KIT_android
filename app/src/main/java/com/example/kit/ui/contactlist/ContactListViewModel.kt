@@ -116,15 +116,15 @@ class ContactListViewModel : ViewModel() {
         getContactList()
     }
 
-    fun deleteContact() {
-        /** Deletes currentContact.value.id from the server
+    fun deleteContact(contactID: String = currentContact.value!!.id) {
+        /** Deletes contact (default to currentContact.value.id) from the server
          * Function is currently implemented to only be called from ContactDetail page
          */
         viewModelScope.launch {
             try {
-                Log.d(TAG, "Delete Contact coroutine launched for ${currentContact.value!!.id}")
+                Log.d(TAG, "Delete Contact coroutine launched for $contactID")
                 ContactApi.retrofitService.deleteContact(
-                    currentContact.value!!.id,
+                    contactID,
                     Secrets().headers
                 )
                 Log.d(TAG, "Delete Contact coroutine SUCCESS")
