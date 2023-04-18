@@ -1,11 +1,13 @@
 package com.example.kit.ui.contactlist
 
+import android.app.Application
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.kit.data.ContactApi
+import com.example.kit.data.ContactRepository
 import com.example.kit.data.Secrets
+import com.example.kit.data.getDatabase
 import com.example.kit.model.Contact
-import com.example.kit.model.ContactEntry
 import com.example.kit.model.ContactSubmission
 import com.example.kit.model.contactFromEntryAdapter
 import com.example.kit.network.ContactRequest
@@ -23,18 +25,13 @@ import java.time.ZoneId
 
 private const val TAG = "ContactListViewModel"
 
-class ContactListViewModel : ViewModel() {
-    // Sorting Method
-    val byFirstName = Comparator.comparing<Contact, String> { contact: Contact ->
-        contact.firstName.lowercase()
-    }
+class ContactListViewModel(application: Application) : AndroidViewModel(application) {
 
-    // list of ContactEntry's from API response
-    private var _responseList = MutableLiveData<List<ContactEntry>>()
-    val responseList: LiveData<List<ContactEntry>> = _responseList
+    private val contactRepository = ContactRepository(getDatabase(application))
 
     // list of Contacts data
-    private var _list = MutableLiveData<List<Contact>>()
+    //private var _list = MutableLiveData<List<Contact>>() // Replaced when repository pattern was added
+    private var _list = contactRepository.allContacts
     val list: LiveData<List<Contact>> get() = _list
 
     // Specific contact detail properties
@@ -139,28 +136,7 @@ class ContactListViewModel : ViewModel() {
 
     // Load or refresh full list of contacts, sorted by name
     fun getContactList() {
-        viewModelScope.launch {
-            try {
-                val response = ContactApi.retrofitService.getContacts(Secrets().headers)
-                _responseList.value = response.data
-                Log.d(
-                    TAG,
-                    "Get request successful, retrieved ${responseList.value?.size} entries."
-                )
-                // Transform nested ContactEntry structure to flat Contact class
-                val listContacts = responseList.value?.map() {
-                    contactFromEntryAdapter(it)
-                }
-                Log.d(TAG, "Transform produced listContacts of size ${listContacts?.size} entries")
-
-                // Last name is nullable so don't use it for sorting at this time
-                _list.value = listContacts?.sortedWith(byFirstName)
-            } catch (e: java.lang.Exception) {
-                Log.d("ContactSource", "Exception during getContactList coroutine: ${e.toString()}")
-                _responseList.value = listOf()
-                _list.value = listOf()
-            }
-        }
+        viewModelScope.launch { contactRepository.refreshContacts() }
     }
 
     fun onContactClicked(contact: Contact) {
@@ -233,13 +209,10 @@ class ContactListViewModel : ViewModel() {
         )
         viewModelScope.launch {
             try {
-                Log.d(
-                    "ContactListViewModel",
-                    "Initiating EditContact PUT request for $contactRevised"
-                )
+                Log.d(TAG,"Initiating EditContact PUT request for $contactRevised")
                 //Serialize new contact information into JSON-ready object
                 val contactPut = ContactRequest(contactPushFromContactAdapter(contactRevised))
-                Log.d("ContactListViewModel", "ContentRequest(UpdateContact): $contactPut")
+                Log.d(TAG, "ContentRequest(UpdateContact): $contactPut")
                 val response = async {
                     ContactApi.retrofitService.updateContact(
                         contactRevised.id,
@@ -247,24 +220,12 @@ class ContactListViewModel : ViewModel() {
                         contactPut
                     )
                 }
-                Log.d(
-                    "ContactListViewModel",
-                    "PUT request successful? ${response.await().isSuccessful}"
-                )
-                Log.d(
-                    "ContactListViewModel",
-                    "Response message from PUT request: ${response.await().message()}"
-                )
-                Log.d(
-                    "ContactListViewModel",
-                    "Response from PUT request: ${response.await().body()!!.data}"
-                )
+                Log.d(TAG,"PUT request successful? ${response.await().isSuccessful}")
+                Log.d(TAG,"Response message from PUT request: ${response.await().message()}"                )
+                Log.d(TAG,"Response from PUT request: ${response.await().body()!!.data}"                )
                 _currentContact.postValue(contactFromEntryAdapter(response.await().body()!!.data))
             } catch (e: Exception) {
-                Log.d(
-                    "ContactListViewModel",
-                    "Exception occurred during updateContact operation: ${e.message}"
-                )
+                Log.d(TAG,"Exception occurred during updateContact operation: ${e.message}")
                 getContactDetail(currentContact.value!!.id)
             }
         }
@@ -273,7 +234,19 @@ class ContactListViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        Log.d("ContactListViewModel", "Instance of ContactViewModel has been cleared")
+        Log.d(TAG, "Instance of ContactViewModel has been cleared")
     }
 
+    /**
+     * Factory for constructing ContactListViewModel with parameter
+     */
+    class Factory(val app: Application) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(ContactListViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return ContactListViewModel(app) as T
+            }
+            throw IllegalArgumentException("Unable to construct viewmodel")
+        }
+    }
 }

@@ -7,6 +7,15 @@ data class ContactListResponse(
     val data: List<ContactEntry>
 )
 
+/**
+ * Convert Network results to database objects
+ */
+fun ContactListResponse.asDatabaseContacts(): List<DatabaseContact> {
+    return data.map {
+        databaseContactFromEntryAdapter(it)
+    }
+}
+
 //@JsonClass(generateAdapter = true)
 data class ContactResponse(
     val data: ContactEntry
