@@ -10,13 +10,9 @@ import com.example.kit.data.getDatabase
 import com.example.kit.model.Contact
 import com.example.kit.model.ContactSubmission
 import com.example.kit.model.contactFromEntryAdapter
-import com.example.kit.network.ContactRequest
-import com.example.kit.network.contactPushFromContactAdapter
-import com.example.kit.network.contactPushFromContactSubmissionAdapter
 import com.example.kit.utils.formatLocalDateTimes
 import com.example.kit.utils.getNextContactLocalDateTime
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -72,7 +68,6 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
         intervalTime: Int,
         intervalUnit: String
     ) {
-        Log.d("ContactListViewModel", "addContact method called on ${firstName} ${lastName}")
         val newContact = ContactSubmission(
             firstName,
             lastName,
@@ -85,29 +80,9 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
         )
 
         //TODO Error catching, logging, and communication from server responses
-        //TODO update navigation direction after successful POST to contact detail
         //val submittalSuccess = viewModelScope.async {
         viewModelScope.launch {
-            try {
-                Log.d(TAG, "Add Contact coroutine launched for $newContact")
-                //Serialize new contact information into JSON-ready object
-                val contactPost =
-                    ContactRequest(contactPushFromContactSubmissionAdapter(newContact))
-                Log.d(TAG, "ContactRequest: $contactPost")
-                val response = async {
-                    ContactApi.retrofitService.postNewContact(
-                        Secrets().headers,
-                        contactPost
-                    )
-                }
-                Log.d(
-                    TAG,
-                    "Add Contact coroutine SUCCESS for ${response.await().data.attributes.firstName} with id# ${response.await().data.id}"
-                )
-                _currentContact.postValue(contactFromEntryAdapter(response.await().data))
-            } catch (e: Exception) {
-                Log.d(TAG, "Exception occurred during Add Contact coroutine: ${e.message}")
-            }
+            contactRepository.postContact(newContact)
         }
         // Update ._list with appended contact list, sorted by name
         getContactList()
@@ -167,17 +142,11 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
     fun markContacted() {
         val timeNow = Instant.now().atZone(ZoneId.of("UTC"))
             .toLocalDateTime()
-        with(currentContact.value!!) {
-            updateContact(
-                this.firstName,
-                this.lastName,
-                this.phoneNumber,
-                this.email,
-                this.intervalTime,
-                this.intervalUnit,
-                this.remindersEnabled,
-                timeNow
-            )
+        viewModelScope.launch {
+            with(currentContact.value!!) {
+                val responseContact = contactRepository.putContact(this.copy(lastContacted = timeNow))
+                _currentContact.postValue(responseContact)
+            }
         }
     }
 
@@ -208,26 +177,8 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
             currentContact.value!!.status
         )
         viewModelScope.launch {
-            try {
-                Log.d(TAG,"Initiating EditContact PUT request for $contactRevised")
-                //Serialize new contact information into JSON-ready object
-                val contactPut = ContactRequest(contactPushFromContactAdapter(contactRevised))
-                Log.d(TAG, "ContentRequest(UpdateContact): $contactPut")
-                val response = async {
-                    ContactApi.retrofitService.updateContact(
-                        contactRevised.id,
-                        Secrets().headers,
-                        contactPut
-                    )
-                }
-                Log.d(TAG,"PUT request successful? ${response.await().isSuccessful}")
-                Log.d(TAG,"Response message from PUT request: ${response.await().message()}"                )
-                Log.d(TAG,"Response from PUT request: ${response.await().body()!!.data}"                )
-                _currentContact.postValue(contactFromEntryAdapter(response.await().body()!!.data))
-            } catch (e: Exception) {
-                Log.d(TAG,"Exception occurred during updateContact operation: ${e.message}")
-                getContactDetail(currentContact.value!!.id)
-            }
+            val responseContact = contactRepository.putContact(contactRevised)
+            _currentContact.postValue(responseContact)
         }
         getContactList()
     }

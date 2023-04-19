@@ -4,11 +4,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.asLiveData
-import com.example.kit.model.Contact
-import com.example.kit.model.DatabaseContact
-import com.example.kit.model.asContacts
-import com.example.kit.model.asDatabaseContacts
+import com.example.kit.model.*
+import com.example.kit.network.ContactRequest
+import com.example.kit.network.contactPushFromContactAdapter
+import com.example.kit.network.contactPushFromContactSubmissionAdapter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 
 private const val TAG = "ContactRepository"
@@ -21,6 +22,62 @@ class ContactRepository(private val database: ContactsDatabase) {
                 .sortedWith(byFirstName)
     }
 
+    suspend fun postContact(contactSubmission: ContactSubmission) {
+        /**
+         * Suspend function to POST a new ContactSubmission to the webserver for a new contact
+         */
+        withContext(Dispatchers.IO) {
+            try {
+                Log.d(TAG, "Add Contact coroutine launched for $contactSubmission")
+                //Serialize new contact information into JSON-ready object
+                val contactPost =
+                    ContactRequest(contactPushFromContactSubmissionAdapter(contactSubmission))
+                Log.d(TAG, "ContactRequest: $contactPost")
+                val response = async {
+                    ContactApi.retrofitService.postNewContact(
+                        Secrets().headers,
+                        contactPost
+                    )
+                }
+                Log.d(TAG,
+                    "Add Contact coroutine SUCCESS for " +
+                            "${response.await().data.attributes.firstName} " +
+                            "with id# ${response.await().data.id}"
+                )
+                //_currentContact.postValue(contactFromEntryAdapter(response.await().data))
+            } catch (e: Exception) {
+                Log.d(TAG, "Exception occurred during Add Contact coroutine: ${e.message}")
+            }
+        }
+    }
+
+    suspend fun putContact(contact: Contact): Contact { // TODO: should probably return a Contact for updating currentContact in viewmodel
+         /**
+         * Suspend function to PUT a revised Contact to the webserver
+         */
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d(TAG,"Initiating EditContact PUT request for $contact")
+                //Serialize new contact information into JSON-ready object
+                val contactPut = ContactRequest(contactPushFromContactAdapter(contact))
+                Log.d(TAG, "ContentRequest(UpdateContact): $contactPut")
+                val response = async {
+                    ContactApi.retrofitService.updateContact(
+                        contact.id,
+                        Secrets().headers,
+                        contactPut
+                    )
+                }
+                Log.d(TAG,"PUT request successful? ${response.await().isSuccessful}")
+                Log.d(TAG,"Response message from PUT request: ${response.await().message()}")
+                Log.d(TAG,"Response from PUT request: ${response.await().body()!!.data}")
+                return@withContext contactFromEntryAdapter(response.await().body()!!.data)
+            } catch (e: Exception) {
+                Log.d(TAG,"Exception occurred during updateContact operation: ${e.message}")
+                return@withContext contact
+            }
+        }
+    }
 
     suspend fun refreshContacts() {
         withContext(Dispatchers.IO) {
@@ -36,7 +93,6 @@ class ContactRepository(private val database: ContactsDatabase) {
         }
     }
     // TODO: synchronize database of contacts with returned HTTP response list. Delete any not present
-
 
     // TODO: UPDATE a single contact
     // TODO: query database for all contacts

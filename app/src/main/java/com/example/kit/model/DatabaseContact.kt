@@ -23,25 +23,25 @@ data class DatabaseContact(
 
 fun List<DatabaseContact>.asContacts(): List<Contact> {
     return map {
-        it.asContact(it)
+        it.asContact()
     }
 }
 
 // TODO: Potentially remove this messy method by moving its code into List<>.asContacts() above
-fun DatabaseContact.asContact(databaseContact: DatabaseContact): Contact {
+fun DatabaseContact.asContact(): Contact {
     return Contact(
-        id = databaseContact.id,
-        firstName = databaseContact.firstName,
-        lastName = databaseContact.lastName,
-        phoneNumber = databaseContact.phoneNumber,
-        email = databaseContact.email,
-        intervalTime = databaseContact.intervalTime,
-        intervalUnit = databaseContact.intervalUnit,
-        remindersEnabled = databaseContact.remindersEnabled,
-        lastContacted = databaseContact.lastContacted?.let { it1 -> parseLocalDateTimes(it1) },
-        createdAt = parseLocalDateTimes(databaseContact.createdAt),
-        updatedAt = parseLocalDateTimes(databaseContact.updatedAt),
-        status = databaseContact.status
+        id = this.id,
+        firstName = this.firstName,
+        lastName = this.lastName,
+        phoneNumber = this.phoneNumber,
+        email = this.email,
+        intervalTime = this.intervalTime,
+        intervalUnit = this.intervalUnit,
+        remindersEnabled = this.remindersEnabled,
+        lastContacted = this.lastContacted?.let { it1 -> parseLocalDateTimes(it1) },
+        createdAt = parseLocalDateTimes(this.createdAt),
+        updatedAt = parseLocalDateTimes(this.updatedAt),
+        status = this.status
     )
 }
 
