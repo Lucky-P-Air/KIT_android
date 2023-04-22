@@ -8,10 +8,13 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.kit.R
 import com.example.kit.databinding.FragmentContactDetailBinding
+import com.example.kit.model.Contact
 import com.example.kit.ui.contactlist.ContactListViewModel
+import com.example.kit.ui.contactlist.ContactListViewModelFactory
 
 private const val TAG = "ContactDetailFragment"
 
@@ -21,7 +24,13 @@ class ContactDetailFragment : Fragment() {
         //fun newInstance() = ContactDetailFragment()
     }
 
-    private val viewModel: ContactListViewModel by activityViewModels()
+    //private val viewModel: ContactListViewModel by activityViewModels()
+    // View Model & Data Binding Declarations
+    private val viewModel: ContactListViewModel by activityViewModels {
+        ContactListViewModelFactory(
+            requireNotNull(this.activity).application)
+    }
+
     private var _binding: FragmentContactDetailBinding? = null
     private val binding get() = _binding!!
 
@@ -45,6 +54,9 @@ class ContactDetailFragment : Fragment() {
             contactListViewModel = viewModel
             contactDetailFragment = this@ContactDetailFragment
         }
+        viewModel.databaseReturn.observe(viewLifecycleOwner, Observer<Contact>(){
+            Log.d(TAG, "Contact ${it.id} : ${it.firstName}")
+        })
         return binding.root
     }
 

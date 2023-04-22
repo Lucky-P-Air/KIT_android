@@ -6,13 +6,13 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ContactDao {
-    @Query("SELECT * FROM contacts_table ORDER BY first_name ASC") // Alphabetical by first name
+    @Query("SELECT * FROM contacts_table ORDER BY LOWER(first_name) ASC") // Alphabetical by first name
     fun getAllContacts(): Flow<List<DatabaseContact>>
 
-    @Query("SELECT * FROM contacts_table WHERE status IS NOT NULL ORDER BY status ASC")
+    @Query("SELECT * FROM contacts_table WHERE status IS NOT '' ORDER BY status, last_contacted ASC")
     fun getStatusContacts(): Flow<List<DatabaseContact>>
 
-    @Query("SELECT * FROM contacts_table WHERE id = :id")
+    @Query("SELECT * FROM contacts_table WHERE id IS :id")
     fun getContact(id: String): Flow<DatabaseContact>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -24,6 +24,6 @@ interface ContactDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun updateContact(contact: DatabaseContact)
 
-    //@Delete //TODO
-    //fun deleteContact
+    @Delete
+    fun deleteContact(contact: DatabaseContact)
 }

@@ -20,12 +20,10 @@ class ContactListFragment : Fragment() {
     }
 
     // View Model & Data Binding Declarations
-    private val viewModel: ContactListViewModel by activityViewModels() //viewModels()
-    /*private val viewModel: ContactListViewModel by lazy {
-        val activity = requireNotNull(this.activity) {}
-        ViewModelProvider(this, ContactListViewModel.Factory(activity.application))
-            .get(ContactListViewModel::class.java)
-    }*/
+    private val viewModel: ContactListViewModel by activityViewModels {
+        ContactListViewModelFactory(
+            requireNotNull(this.activity).application)
+    }
 
     private var _binding: FragmentContactListBinding? = null
     private val binding get() = _binding!!

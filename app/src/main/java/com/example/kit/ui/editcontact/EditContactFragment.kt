@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.kit.R
 import com.example.kit.databinding.FragmentEditContactBinding
 import com.example.kit.ui.contactlist.ContactListViewModel
+import com.example.kit.ui.contactlist.ContactListViewModelFactory
 
 /**
  * A simple [Fragment] subclass.
@@ -33,7 +34,12 @@ class EditContactFragment : Fragment() {
         fun newInstance() = EditContactFragment()
     }
 
-    private val viewModel: ContactListViewModel by activityViewModels()
+    //private val viewModel: ContactListViewModel by activityViewModels()
+    // View Model & Data Binding Declarations
+    private val viewModel: ContactListViewModel by activityViewModels {    //viewModels()
+        ContactListViewModelFactory(
+            requireNotNull(this.activity).application)
+    }
     private var _binding: FragmentEditContactBinding? = null
     private val binding get() = _binding!!
 

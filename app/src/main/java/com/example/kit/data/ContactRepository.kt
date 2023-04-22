@@ -4,22 +4,87 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.map
 import com.example.kit.model.*
 import com.example.kit.network.ContactRequest
 import com.example.kit.network.contactPushFromContactAdapter
 import com.example.kit.network.contactPushFromContactSubmissionAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.withContext
 
 private const val TAG = "ContactRepository"
 class ContactRepository(private val database: ContactsDatabase) {
 
-    val dbContacts: LiveData<List<DatabaseContact>> = database.contactDao.getAllContacts().asLiveData()
+    private val dbContacts: LiveData<List<DatabaseContact>> = database.contactDao.getAllContacts().asLiveData()
     // Convert list of DbContacts to Contacts (Domain Model)
     val allContacts: LiveData<List<Contact>> = Transformations.map(dbContacts) {
             it.asContacts()
                 .sortedWith(byFirstName)
+    }
+
+    suspend fun deleteContact(contactID: String) {
+        /**
+         * Delete contact record from database & network server
+         */
+        //TODO Test this. Doesn't seem to work
+        withContext(Dispatchers.IO) {
+            val contact = database.contactDao.getContact(contactID).last()
+            database.contactDao.deleteContact(contact)
+
+            // Delete from Network server
+            try {
+                Log.d(TAG, "Delete Contact coroutine launched for $contactID")
+                ContactApi.retrofitService.deleteContact(
+                    contactID,
+                    Secrets().headers
+                )
+                Log.d(TAG, "Delete Contact coroutine SUCCESS")
+            } catch (e: Exception) {
+                Log.d(TAG, "Exception occurred during Delete Contact coroutine: ${e.message}")
+            }
+        }
+    }
+
+    suspend fun fetchContactDetail(contactID: String) {
+        /**
+         * GET request Contact Record for specific ID number and
+         * insert it into application database
+         */
+        withContext(Dispatchers.IO) {
+            try {
+                val singleContactResponse = ContactApi.retrofitService.getSingleContact(
+                    contactID,
+                    Secrets().headers
+                )
+                database.contactDao.insertContact(
+                    databaseContactFromEntryAdapter(singleContactResponse.data)
+                )
+                withContext(Dispatchers.Main) {
+                    Log.d(TAG,"Contact ${singleContactResponse.data} retrieved from API")
+                    //_currentContact.value = contactFromEntryAdapter(singleContactResponse.data)
+                    //Log.d(TAG,"_currentContact.value has been updated")
+                }
+            } catch (e: Exception) {
+                Log.d(TAG,"Exception occurred during fetchContactDetail from API: ${e.message}")
+            }
+        }
+    }
+
+    suspend fun getContactDetail(contactID: String): LiveData<Contact> {
+        /**
+         * Retrieve DatabaseContact Record for specific ID number and
+         * Return Contact
+         */
+        Log.d(TAG, "Requesting $contactID from database")
+        //val contactData = withContext(Dispatchers.IO) {
+        val contactFlow = database.contactDao.getContact(contactID).asLiveData()
+        Log.d(TAG, "Flow value of ${contactFlow.value} was pulled from database")
+        val contactData = contactFlow.map {it.asContact()}
+        //}
+        Log.d(TAG, "Contact ${contactData.value} was pulled from database")
+        return contactData
     }
 
     suspend fun postContact(contactSubmission: ContactSubmission) {
@@ -44,7 +109,6 @@ class ContactRepository(private val database: ContactsDatabase) {
                             "${response.await().data.attributes.firstName} " +
                             "with id# ${response.await().data.id}"
                 )
-                //_currentContact.postValue(contactFromEntryAdapter(response.await().data))
             } catch (e: Exception) {
                 Log.d(TAG, "Exception occurred during Add Contact coroutine: ${e.message}")
             }
@@ -94,11 +158,9 @@ class ContactRepository(private val database: ContactsDatabase) {
     }
     // TODO: synchronize database of contacts with returned HTTP response list. Delete any not present
 
-    // TODO: UPDATE a single contact
     // TODO: query database for all contacts
     // TODO: query database for contacts with an overdue/upcoming status
     // TODO: query database for a specific contact
-    // TODO: POST a newly added contact to server
     // TODO: DELETE a specific contact from server... then:
         // TODO: DELETE a specific contact from database
 
