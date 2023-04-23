@@ -2,6 +2,7 @@ package com.example.kit.ui.contactlist
 
 import android.app.Application
 import android.util.Log
+import android.util.Patterns
 import androidx.lifecycle.*
 import com.example.kit.data.ContactRepository
 import com.example.kit.data.getDatabase
@@ -156,6 +157,40 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
     override fun onCleared() {
         super.onCleared()
         Log.d(TAG, "Instance of ContactViewModel has been cleared")
+    }
+
+    fun errorEmail(emailValue: String): Boolean {
+        /**
+         * Return 'true' if there's an error in the email format.
+         * Format-pattern-matching via Patterns.EMAIL_ADDRESS
+         */
+        if (emailValue.isEmpty()) return false
+        // Return true if emailValue does not match EMAIL_ADDRESS pattern
+        return !Patterns.EMAIL_ADDRESS.matcher(emailValue).matches()
+    }
+
+    fun errorPhoneNumber(phoneValue: String): Boolean {
+        /**
+         * Return 'true' if there's an error in the phone number format.
+         *
+         * Django backend API requires phone numbers to have:
+         *   +1 Country Code (only one currently compatible)
+         *   10 numerical digits
+         */
+        fun isValidLength(phone: String, length: Int = 10): Boolean {
+            return phone.length == length
+        }
+        // Reject any with Country Codes operator +
+        when (phoneValue.first()) {
+            '+' -> return true
+        }
+
+        return if (isValidLength(phoneValue)) {
+            Log.d(TAG,"Valid 10-digit phone number ($phoneValue) provided. Adding country code +1")
+            false
+        } else {
+            true
+        }
     }
 }
 

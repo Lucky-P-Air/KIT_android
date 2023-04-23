@@ -2,7 +2,6 @@ package com.example.kit.ui.addcontact
 
 import android.os.Bundle
 import android.util.Log
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -55,11 +54,10 @@ class AddContactFragment : Fragment() {
     }
 
     fun onSubmitted() {
-        Log.d("AddContactFragment", "onSubmitted called")
+        Log.d(TAG, "onSubmitted called")
 
-        // Validate non-null inputs for required fields
-        // TODO: Still needs input/value validation on emails
-        if (errorFirstName() or errorPhoneNumber() or errorEmail() or errorIntervalTime() ) return
+        // Escape if invalid inputs provided
+        if (invalidFirstName() or invalidPhoneNumber() or invalidEmail() or invalidIntervalTime()) return
 
         try {
             viewModel.addContact(
@@ -81,7 +79,7 @@ class AddContactFragment : Fragment() {
         if (submittalSuccess) {
             Toast.makeText(this.requireContext(), R.string.toast_contact_added, Toast.LENGTH_SHORT).show()
             //goToContactDetail()
-            goToContactList() // TODO replace goToContactList() with goToContactDetail() of newly added contact
+            goToContactList()
         } else {
             Toast.makeText(this.requireContext(), R.string.toast_contact_not_added, Toast.LENGTH_SHORT).show()
             goToContactList()
@@ -99,28 +97,26 @@ class AddContactFragment : Fragment() {
         findNavController().navigate(R.id.action_navigation_addContact_to_navigation_contactlist)
     }
 
-    private fun errorEmail(): Boolean {
+    private fun invalidEmail(): Boolean {
         /**
          * Return 'true' if there's an error in the email format.
          * Format-pattern-matching via Patterns.EMAIL_ADDRESS
          */
         val emailValue = binding.textInputAddContactEmail.text.toString()
-        if (emailValue.isEmpty()) return false
-        // Return true if emailValue does not match EMAIL_ADDRESS pattern
-        return if (!Patterns.EMAIL_ADDRESS.matcher(emailValue).matches()) {
+        val isInvalid = viewModel.errorEmail(emailValue)
+        if (isInvalid) {
             binding.textLayoutAddContactEmail.isErrorEnabled = true
             binding.textLayoutAddContactEmail.error = getString(R.string.error_email)
-            true
         } else {
             binding.textLayoutAddContactEmail.isErrorEnabled = false
             binding.textLayoutAddContactEmail.error = null
-            false
         }
+        return isInvalid
     }
 
-    private fun errorFirstName(): Boolean {
-        val firstNameValue = binding.textInputAddContactFirstName.text
-        if (firstNameValue.isNullOrEmpty()) {
+    private fun invalidFirstName(): Boolean {
+        val firstNameValue = binding.textInputAddContactFirstName.text.toString()
+        if (firstNameValue.isEmpty()) {
             binding.textLayoutAddContactFirstName.isErrorEnabled = true
             binding.textLayoutAddContactFirstName.error = getString(R.string.error_first_name)
             return true
@@ -131,9 +127,9 @@ class AddContactFragment : Fragment() {
         return false
     }
 
-    private fun errorIntervalTime(): Boolean {
-        val intervalTimeValue = binding.textInputAddContactIntervalTime.text
-        if (intervalTimeValue.isNullOrEmpty()) {
+    private fun invalidIntervalTime(): Boolean {
+        val intervalTimeValue = binding.textInputAddContactIntervalTime.text.toString()
+        if (intervalTimeValue.isEmpty()) {
             binding.textLayoutAddContactIntervalTime.isErrorEnabled = true
             binding.textLayoutAddContactIntervalTime.error =
                 getString(R.string.error_interval_number)
@@ -145,7 +141,7 @@ class AddContactFragment : Fragment() {
         return false
     }
 
-    private fun errorPhoneNumber(): Boolean {
+    private fun invalidPhoneNumber(): Boolean {
         /**
          * Return 'true' if there's an error in the phone number format.
          *
@@ -153,48 +149,30 @@ class AddContactFragment : Fragment() {
          *   +1 Country Code (only one currently compatible)
          *   10 numerical digits
          */
-        fun isValidLength(phone: String, length: Int = 10): Boolean {
-            return phone.length == length
-        }
-
         val phoneValue = binding.textInputAddContactPhone.text.toString()
-
         if (phoneValue.isEmpty()) return false
-        // Check string values for provided phone number. Reject any with Country Codes operator +
-        when (phoneValue.first()) {
-            '+' -> {
-                Log.d("AddContactFragment", "Phone number ($phoneValue) has prohibited + character")
-                binding.textLayoutAddContactPhone.isErrorEnabled = true
-                binding.textLayoutAddContactPhone.error = getString(R.string.error_phone_number)
-                return true
-            }
-        }
+        val isInvalid = viewModel.errorPhoneNumber(phoneValue)
 
-        if (isValidLength(phoneValue)) {
-            Log.d(
-                "AddContactFragment",
-                "Valid 10-digit phone number ($phoneValue) provided. Will add country code +1"
-            )
-            binding.textLayoutAddContactPhone.isErrorEnabled = false
-            binding.textLayoutAddContactPhone.error = null
-        } else {
-            Log.d("AddContactFragment", "Phone number ($phoneValue) is an invalid length")
+        // Set or reset errors
+        if (isInvalid) {
             binding.textLayoutAddContactPhone.isErrorEnabled = true
             binding.textLayoutAddContactPhone.error = getString(R.string.error_phone_number)
-            return true
+        } else {
+            binding.textLayoutAddContactPhone.isErrorEnabled = false
+            binding.textLayoutAddContactPhone.error = null
         }
-        return false
+        return isInvalid
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("AddContactFragment", "Add Contact Fragment destroyed")
+        Log.d(TAG, "Add Contact Fragment destroyed")
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        Log.d("AddContactFragment", "Add Contact Fragment's View destroyed")
+        Log.d(TAG, "Add Contact Fragment's View destroyed")
     }
 
 }
