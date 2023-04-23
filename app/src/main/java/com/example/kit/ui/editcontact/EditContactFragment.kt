@@ -8,9 +8,11 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.kit.R
 import com.example.kit.databinding.FragmentEditContactBinding
+import com.example.kit.model.Contact
 import com.example.kit.ui.contactlist.ContactListViewModel
 import com.example.kit.ui.contactlist.ContactListViewModelFactory
 
@@ -42,6 +44,7 @@ class EditContactFragment : Fragment() {
     }
     private var _binding: FragmentEditContactBinding? = null
     private val binding get() = _binding!!
+    private lateinit var currentContact: Contact
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,24 +63,45 @@ class EditContactFragment : Fragment() {
         _binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_edit_contact, container, false)
         // Inflate the layout for this fragment
+        binding.apply {
+            lifecycleOwner = viewLifecycleOwner
+            contactListViewModel = viewModel
+            editContactFragment = this@EditContactFragment
+        }
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "EditDetail View Created")
 
+        val contactObserver = Observer<Contact> {
+            Log.d(TAG, "Contact ${it.id} : ${it.firstName}")
+            currentContact = it
+            bindContact(view)
+        }
+        viewModel.currentContact.observe(viewLifecycleOwner, contactObserver)
+    }
+
+    private fun bindContact(view: View) {
         // Access array of possible interval units
         val intervalUnitsArray = view.context.resources
             .getStringArray(R.array.intervalUnit_array)
 
         binding.apply {
-            lifecycleOwner = viewLifecycleOwner
-            contactListViewModel = viewModel
-            editContactFragment = this@EditContactFragment
-            currentContact = viewModel.currentContact.value
+            textInputEditContactFirstName.setText(currentContact.firstName)
+            textInputEditContactLastName.setText(currentContact.lastName)
+            textInputEditContactPhone.setText(
+                if (currentContact.phoneNumber.isNullOrEmpty()) {
+                        null
+                } else {currentContact.phoneNumber?.substring(2)})
+            textInputEditContactEmail.setText(currentContact.email)
+            checkBox.isChecked = currentContact.remindersEnabled
+            textInputEditContactIntervalTime.setText(currentContact.intervalTime.toString())
             spinnerIntervalUnit.setSelection(
                 intervalUnitsArray.indexOf(  // array of possible intervalUnits
-                    currentContact!!.intervalUnit // Contact's saved intervalUnit
+                    currentContact.intervalUnit // Contact's saved intervalUnit
                         .replaceFirstChar { it.uppercase() })  // Capitalize it to match dropdown entries
             )
         }

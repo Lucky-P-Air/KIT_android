@@ -7,8 +7,7 @@ import com.example.kit.data.ContactRepository
 import com.example.kit.data.getDatabase
 import com.example.kit.model.Contact
 import com.example.kit.model.ContactSubmission
-import com.example.kit.utils.formatLocalDateTimes
-import com.example.kit.utils.getNextContactLocalDateTime
+import com.example.kit.model.DatabaseContact
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -21,50 +20,13 @@ private const val TAG = "ContactListViewModel"
 class ContactListViewModel(application: Application) : AndroidViewModel(application) {
 
     private val contactRepository = ContactRepository(getDatabase(application))
-    lateinit var databaseReturn: LiveData<Contact>
-    // list of Contacts data
-    //private var _list = MutableLiveData<List<Contact>>() // Replaced when repository pattern was added
+    private lateinit var _currentContact: LiveData<Contact>
+    lateinit var databaseContact: LiveData<DatabaseContact>
     private var _list = contactRepository.allContacts
     val list: LiveData<List<Contact>> get() = _list
 
     // Specific contact detail properties
-    private var _currentContact = MutableLiveData<Contact?>()
-    //val currentContact: LiveData<Contact?> get() = _currentContact
-    val currentContact: LiveData<Contact> get() = databaseReturn//_currentContact
-
-    lateinit var liveFirstName : LiveData<String?>
-    lateinit var liveLastName : LiveData<String>
-    lateinit var livePhoneNumber : LiveData<String>
-    lateinit var liveEmail : LiveData<String>
-    lateinit var liveRemindersEnabled : LiveData<Boolean>
-    lateinit var liveIntervalTime : LiveData<Int>
-    lateinit var liveLastContacted : LiveData<String>
-    lateinit var liveNextReminder : LiveData<String>
-    lateinit var liveStatus : LiveData<String>
-
-    // LiveData for specific attributes of the currentContact.
-    //    Includes pre-processing of strings/values for displaying in UI
-    /*
-    val liveFirstName = Transformations.map(_currentContact) { it!!.firstName }
-    val liveLastName = Transformations.map(_currentContact) { it!!.lastName }
-    val livePhoneNumber = Transformations.map(_currentContact) { it!!.phoneNumber }
-    val liveEmail = Transformations.map(_currentContact) { it!!.email }
-    val liveRemindersEnabled = Transformations.map(_currentContact) { it!!.remindersEnabled }
-    val liveIntervalTime = Transformations.map(_currentContact) { it!!.intervalTime }
-
-    //val liveIntervalUnit = Transformations.map(_currentContact) { it!!.intervalUnit } // unneeded
-    val liveLastContacted = Transformations.map(_currentContact) {
-        it!!.lastContacted?.let { localDateTime -> formatLocalDateTimes(localDateTime) } ?: "Never"
-    }
-    val liveNextReminder = Transformations.map(_currentContact) {
-        formatLocalDateTimes(getNextContactLocalDateTime(it!!))
-    }
-    val liveStatus = Transformations.map(_currentContact) {
-        it!!.status.let { statusString ->
-            statusString.replaceFirstChar { char -> char.uppercase() }
-        }
-    }
-    */
+    val currentContact: LiveData<Contact> get() = _currentContact
 
     init {
         //getContactList() // Moved initial GET to ContactListFragment
@@ -94,73 +56,59 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
         viewModelScope.launch {
             contactRepository.postContact(newContact)
         }
-        // Update ._list with appended contact list, sorted by name
         getContactList()
     }
 
-    fun deleteContact(contactID: String = currentContact.value!!.id) {
-        /** Deletes contact (default to currentContact.value.id) from the server
+    fun deleteContact(dbContact: DatabaseContact = databaseContact.value!!) {
+        /** Deletes contact (default to databaseContact.value) from the server & database
          * Function is currently implemented to only be called from ContactDetail page
          */
+        Log.d(TAG, "Deleting ${dbContact.id}")
         viewModelScope.launch {
-            contactRepository.deleteContact(contactID)
+            contactRepository.deleteContact(dbContact)
         }
-        getContactList()
+        //getContactList()
         Log.d(TAG, "Contact List Refreshed after contact deletion")
     }
 
-    // Load or refresh full list of contacts, sorted by name
+    // Load / refresh full list of contacts, sorted by name
     fun getContactList() {
         viewModelScope.launch { contactRepository.refreshContacts() }
     }
 
-    fun onContactClicked(contact: Contact) {
-        Log.d(TAG, "Contact ${contact.id} clicked in RecyclerView")
-        //_currentContact.value = contact // Locally cached value from List GET until replace by next GET request
-        runBlocking {
-            databaseReturn = contactRepository.getContactDetail(contact.id)
-        }
-        setCurrentContact()
-        getContactDetail(contact.id)
-    }
-
-    fun setCurrentContact() {
-        // LiveData for specific attributes of the currentContact.
-        //    Includes pre-processing of strings/values for displaying in UI
-        liveFirstName = Transformations.map(databaseReturn) { it!!.firstName }
-        liveLastName = Transformations.map(databaseReturn) { it!!.lastName }
-        livePhoneNumber = Transformations.map(databaseReturn) { it!!.phoneNumber }
-        liveEmail = Transformations.map(databaseReturn) { it!!.email }
-        liveRemindersEnabled = Transformations.map(databaseReturn) { it!!.remindersEnabled }
-        liveIntervalTime = Transformations.map(databaseReturn) { it!!.intervalTime }
-        liveLastContacted = Transformations.map(databaseReturn) {
-            it!!.lastContacted?.let { localDateTime -> formatLocalDateTimes(localDateTime) } ?: "Never"
-        }
-        liveNextReminder = Transformations.map(databaseReturn) {
-            formatLocalDateTimes(getNextContactLocalDateTime(it!!))
-        }
-        liveStatus = Transformations.map(databaseReturn) {
-            it!!.status.let { statusString ->
-                statusString.replaceFirstChar { char -> char.uppercase() }
-            }
-        }
-    }
-
-    fun getContactDetail(contactID: String) {
-
+    // GET updated data from API & insert into database
+    private fun fetchContactDetail(contactID: String) {
         viewModelScope.launch(Dispatchers.IO) {
             contactRepository.fetchContactDetail(contactID)
         }
     }
 
-    fun markContacted() {
+    private fun getContactDetail(contactID: String) {
+        fetchContactDetail(contactID)
+        // GET data record from database
+        runBlocking {
+            _currentContact = contactRepository.getContactDetail(contactID)
+        }
+        databaseContact = contactRepository.getDatabaseContact(contactID)
+    }
+
+    fun markContacted(contact: Contact) {
         val timeNow = Instant.now().atZone(ZoneId.of("UTC"))
             .toLocalDateTime()
+        Log.d(TAG, "$timeNow for ${contact.firstName}")
+        sendUpdate(contact.copy(lastContacted = timeNow))
+    }
+
+    fun onContactClicked(contact: Contact) {
+        Log.d(TAG, "Contact ${contact.id} clicked in RecyclerView")
+        getContactDetail(contact.id)
+    }
+
+    private fun sendUpdate(contact: Contact) {
         viewModelScope.launch {
-            with(currentContact.value!!) {
-                val responseContact = contactRepository.putContact(this.copy(lastContacted = timeNow))
+            val responseContact = contactRepository.putContact(contact)
+            getContactDetail(responseContact.id)
             }
-        }
     }
 
     fun updateContact(
@@ -189,10 +137,7 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
             currentContact.value!!.updatedAt,
             currentContact.value!!.status
         )
-        viewModelScope.launch {
-            val responseContact = contactRepository.putContact(contactRevised)
-        }
-        getContactDetail(contactRevised.id)
+        sendUpdate(contactRevised)
         getContactList()
     }
 
@@ -200,9 +145,8 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
         super.onCleared()
         Log.d(TAG, "Instance of ContactViewModel has been cleared")
     }
-
-
 }
+
 /**
  * Factory for constructing ContactListViewModel with parameter
  */

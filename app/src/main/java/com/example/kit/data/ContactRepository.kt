@@ -11,7 +11,6 @@ import com.example.kit.network.contactPushFromContactAdapter
 import com.example.kit.network.contactPushFromContactSubmissionAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.withContext
 
 private const val TAG = "ContactRepository"
@@ -24,22 +23,22 @@ class ContactRepository(private val database: ContactsDatabase) {
                 .sortedWith(byFirstName)
     }
 
-    suspend fun deleteContact(contactID: String) {
+    suspend fun deleteContact(dbContact: DatabaseContact) {
         /**
          * Delete contact record from database & network server
          */
-        //TODO Test this. Doesn't seem to work
+        val id = dbContact.id
         withContext(Dispatchers.IO) {
-            val contact = database.contactDao.getContact(contactID).last()
-            database.contactDao.deleteContact(contact)
-
             // Delete from Network server
             try {
-                Log.d(TAG, "Delete Contact coroutine launched for $contactID")
+                Log.d(TAG, "Delete Contact coroutine launched for $id")
                 ContactApi.retrofitService.deleteContact(
-                    contactID,
+                    id,
                     Secrets().headers
                 )
+
+                // Delete from database
+                database.contactDao.deleteContact(dbContact)
                 Log.d(TAG, "Delete Contact coroutine SUCCESS")
             } catch (e: Exception) {
                 Log.d(TAG, "Exception occurred during Delete Contact coroutine: ${e.message}")
@@ -63,8 +62,6 @@ class ContactRepository(private val database: ContactsDatabase) {
                 )
                 withContext(Dispatchers.Main) {
                     Log.d(TAG,"Contact ${singleContactResponse.data} retrieved from API")
-                    //_currentContact.value = contactFromEntryAdapter(singleContactResponse.data)
-                    //Log.d(TAG,"_currentContact.value has been updated")
                 }
             } catch (e: Exception) {
                 Log.d(TAG,"Exception occurred during fetchContactDetail from API: ${e.message}")
@@ -72,24 +69,24 @@ class ContactRepository(private val database: ContactsDatabase) {
         }
     }
 
-    suspend fun getContactDetail(contactID: String): LiveData<Contact> {
+    fun getContactDetail(contactID: String): LiveData<Contact> {
         /**
          * Retrieve DatabaseContact Record for specific ID number and
          * Return Contact
          */
         Log.d(TAG, "Requesting $contactID from database")
+        return getDatabaseContact(contactID).map {it.asContact()}
+    }
+
+    fun getDatabaseContact(contactID: String): LiveData<DatabaseContact> {
         //val contactData = withContext(Dispatchers.IO) {
-        val contactFlow = database.contactDao.getContact(contactID).asLiveData()
-        Log.d(TAG, "Flow value of ${contactFlow.value} was pulled from database")
-        val contactData = contactFlow.map {it.asContact()}
-        //}
-        Log.d(TAG, "Contact ${contactData.value} was pulled from database")
-        return contactData
+        return database.contactDao.getContact(contactID).asLiveData()
     }
 
     suspend fun postContact(contactSubmission: ContactSubmission) {
         /**
-         * Suspend function to POST a new ContactSubmission to the webserver for a new contact
+         * Suspend function to POST a new ContactSubmission to the webserver for a new contact.
+         * Catches the response contact and updates database
          */
         withContext(Dispatchers.IO) {
             try {
@@ -104,8 +101,19 @@ class ContactRepository(private val database: ContactsDatabase) {
                         contactPost
                     )
                 }
+                //TODO: Change API response type to Response<ContactResponse> so .isSuccessful checking can occur
                 Log.d(TAG,
                     "Add Contact coroutine SUCCESS for " +
+                            "${response.await().data.attributes.firstName} " +
+                            "with id# ${response.await().data.id}"
+                )
+
+                // Insert into database
+                database.contactDao.insertContact(
+                    databaseContactFromEntryAdapter(response.await().data)
+                )
+                Log.d(TAG,
+                    "Inserted into database: " +
                             "${response.await().data.attributes.firstName} " +
                             "with id# ${response.await().data.id}"
                 )
@@ -117,11 +125,11 @@ class ContactRepository(private val database: ContactsDatabase) {
 
     suspend fun putContact(contact: Contact): Contact { // TODO: should probably return a Contact for updating currentContact in viewmodel
          /**
-         * Suspend function to PUT a revised Contact to the webserver
+         * Suspend function to PUT a revised Contact to the webserver.
+         * Catches the response contact and updates database
          */
         return withContext(Dispatchers.IO) {
             try {
-                Log.d(TAG,"Initiating EditContact PUT request for $contact")
                 //Serialize new contact information into JSON-ready object
                 val contactPut = ContactRequest(contactPushFromContactAdapter(contact))
                 Log.d(TAG, "ContentRequest(UpdateContact): $contactPut")
@@ -134,8 +142,23 @@ class ContactRepository(private val database: ContactsDatabase) {
                 }
                 Log.d(TAG,"PUT request successful? ${response.await().isSuccessful}")
                 Log.d(TAG,"Response message from PUT request: ${response.await().message()}")
-                Log.d(TAG,"Response from PUT request: ${response.await().body()!!.data}")
-                return@withContext contactFromEntryAdapter(response.await().body()!!.data)
+                if (response.await().isSuccessful) {
+                    with(response.await().body()!!) {
+                        Log.d(TAG, "Response from PUT request: ${this.data}")
+
+                        // Insert into database
+                        database.contactDao.insertContact(databaseContactFromEntryAdapter(this.data))
+                        Log.d(TAG,
+                            "Inserted into database: " +
+                                    "${this.data.attributes.firstName} " +
+                                    "with id# ${this.data.id}"
+                        )
+                        return@withContext contactFromEntryAdapter(response.await().body()!!.data)
+                }
+                } else {
+                    //Log.d(TAG,"Error response from PUT request: ${response.await().errorBody()}")
+                    return@withContext contact
+                }
             } catch (e: Exception) {
                 Log.d(TAG,"Exception occurred during updateContact operation: ${e.message}")
                 return@withContext contact
@@ -158,16 +181,11 @@ class ContactRepository(private val database: ContactsDatabase) {
     }
     // TODO: synchronize database of contacts with returned HTTP response list. Delete any not present
 
-    // TODO: query database for all contacts
     // TODO: query database for contacts with an overdue/upcoming status
-    // TODO: query database for a specific contact
-    // TODO: DELETE a specific contact from server... then:
-        // TODO: DELETE a specific contact from database
-
 
 
     // Sorting Method
-    val byFirstName = Comparator.comparing<Contact, String> { contact: Contact ->
+    private val byFirstName = Comparator.comparing<Contact, String> { contact: Contact ->
         contact.firstName.lowercase()
     }
 }

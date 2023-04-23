@@ -13,8 +13,11 @@ import androidx.navigation.fragment.findNavController
 import com.example.kit.R
 import com.example.kit.databinding.FragmentContactDetailBinding
 import com.example.kit.model.Contact
+import com.example.kit.model.DatabaseContact
 import com.example.kit.ui.contactlist.ContactListViewModel
 import com.example.kit.ui.contactlist.ContactListViewModelFactory
+import com.example.kit.utils.formatLocalDateTimes
+import com.example.kit.utils.getNextContactLocalDateTime
 
 private const val TAG = "ContactDetailFragment"
 
@@ -33,6 +36,14 @@ class ContactDetailFragment : Fragment() {
 
     private var _binding: FragmentContactDetailBinding? = null
     private val binding get() = _binding!!
+    private lateinit var currentContact: Contact
+    private lateinit var databaseContact: DatabaseContact
+
+    private val contactObserver = Observer<Contact> {
+        Log.d(TAG, "Contact ${it.id} : ${it.firstName}")
+        currentContact = it
+        bindContact()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,15 +65,34 @@ class ContactDetailFragment : Fragment() {
             contactListViewModel = viewModel
             contactDetailFragment = this@ContactDetailFragment
         }
-        viewModel.databaseReturn.observe(viewLifecycleOwner, Observer<Contact>(){
-            Log.d(TAG, "Contact ${it.id} : ${it.firstName}")
-        })
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.d(TAG, "ContactDetail View Created")
+
+        viewModel.currentContact.observe(viewLifecycleOwner, contactObserver)
+        viewModel.databaseContact.observe(viewLifecycleOwner) { databaseContact = it }
+    }
+
+    private fun bindContact() {
+        binding.apply {
+            cardDetailName.text = getString(R.string.text_fullname, currentContact.firstName, currentContact.lastName)
+            cardDetailStatus.text = currentContact.status.let {
+                    it -> it.replaceFirstChar {char -> char.uppercase()} }
+            cardDetailLastContact.text = getString(R.string.last_contact_date,
+                currentContact.lastContacted?.let {
+                        localDateTime -> formatLocalDateTimes(localDateTime) } ?: "Never"
+            )
+            cardDetailNextContact.text = getString(R.string.next_contact_date,
+                formatLocalDateTimes(getNextContactLocalDateTime(currentContact))
+            )
+            cardDetailEmail.text = currentContact.email
+            cardDetailPhone.text = currentContact.phoneNumber
+            checkBox.isChecked = currentContact.remindersEnabled
+        }
     }
 
     override fun onDestroy() {
@@ -78,7 +108,9 @@ class ContactDetailFragment : Fragment() {
 
     fun deleteContact() {
         //TODO: Insert a confirmation dialog before executing the rest of this logic
-        viewModel.deleteContact()
+        Log.d(TAG, "Observing to delete ${databaseContact.id}")
+        viewModel.deleteContact(databaseContact)
+
         goToContactList()
     }
 
@@ -91,6 +123,6 @@ class ContactDetailFragment : Fragment() {
     }
 
     fun markDone() {
-        viewModel.markContacted()
+        viewModel.markContacted(currentContact)
     }
 }
