@@ -42,6 +42,7 @@ class ContactRepository(private val database: ContactsDatabase) {
                 Log.d(TAG, "Delete Contact coroutine SUCCESS")
             } catch (e: Exception) {
                 Log.d(TAG, "Exception occurred during Delete Contact coroutine: ${e.message}")
+                throw e
             }
         }
     }
@@ -119,6 +120,7 @@ class ContactRepository(private val database: ContactsDatabase) {
                 )
             } catch (e: Exception) {
                 Log.d(TAG, "Exception occurred during Add Contact coroutine: ${e.message}")
+                throw e
             }
         }
     }
@@ -153,15 +155,16 @@ class ContactRepository(private val database: ContactsDatabase) {
                                     "${this.data.attributes.firstName} " +
                                     "with id# ${this.data.id}"
                         )
-                        return@withContext contactFromEntryAdapter(response.await().body()!!.data)
+                        return@withContext contactFromEntryAdapter(this.data)
                 }
                 } else {
                     //Log.d(TAG,"Error response from PUT request: ${response.await().errorBody()}")
-                    return@withContext contact
+                    //return@withContext contact
+                    throw Exception("PUT request was unsuccessful. ${response.await().message()}")
                 }
             } catch (e: Exception) {
                 Log.d(TAG,"Exception occurred during updateContact operation: ${e.message}")
-                return@withContext contact
+                throw e
             }
         }
     }
@@ -174,7 +177,7 @@ class ContactRepository(private val database: ContactsDatabase) {
                 )
                 database.contactDao.insertAll(response.asDatabaseContacts())
                 Log.d(TAG,"Contact List inserted into database")
-            } catch (e: java.lang.Exception) {
+            } catch (e: Exception) {
                 Log.d(TAG, "Exception during refreshContacts coroutine: ${e.toString()}")
             }
         }

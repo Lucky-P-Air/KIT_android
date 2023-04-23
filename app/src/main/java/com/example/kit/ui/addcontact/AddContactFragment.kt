@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -57,18 +58,22 @@ class AddContactFragment : Fragment() {
         // TODO: Still needs input/value validation on emails
         if (errorFirstName() or errorIntervalTime() or errorPhoneNumber()) return
 
-        viewModel.addContact(
-            binding.textInputAddContactFirstName.text.toString(),
-            binding.textInputAddContactLastName.text.toString(),
-            if (binding.textInputAddContactPhone.text.isNullOrEmpty()) {
-                ""
-            } else {
-                "+1${binding.textInputAddContactPhone.text}"
-            },
-            binding.textInputAddContactEmail.text.toString(), // Add +1 Country Code
-            binding.textInputAddContactIntervalTime.text.toString().toInt(),
-            binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),
-        )
+        try {
+            viewModel.addContact(
+                binding.textInputAddContactFirstName.text.toString(),
+                binding.textInputAddContactLastName.text.toString(),
+                if (binding.textInputAddContactPhone.text.isNullOrEmpty()) {
+                    ""
+                } else {
+                    "+1${binding.textInputAddContactPhone.text}"
+                },
+                binding.textInputAddContactEmail.text.toString(), // Add +1 Country Code
+                binding.textInputAddContactIntervalTime.text.toString().toInt(),
+                binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),
+            )
+        } catch (e: Exception) {
+            Toast.makeText(this.requireContext(), R.string.toast_contact_not_added, Toast.LENGTH_SHORT).show()
+        }
         /*
         if (submittalSuccess) {
             Toast.makeText(this.requireContext(), R.string.toast_contact_added, Toast.LENGTH_SHORT).show()

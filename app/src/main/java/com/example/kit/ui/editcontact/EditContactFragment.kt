@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -123,21 +124,24 @@ class EditContactFragment : Fragment() {
         Log.d(TAG, "onSubmitted called")
 
         if (errorFirstName() or errorIntervalTime() or errorPhoneNumber()) return
-
-        viewModel.updateContact(
-            binding.textInputEditContactFirstName.text.toString(),
-            binding.textInputEditContactLastName.text.toString(),
-            if (binding.textInputEditContactPhone.text.isNullOrEmpty()) {
-                ""
-            } else {
-                "+1${binding.textInputEditContactPhone.text}"
-            },
-            binding.textInputEditContactEmail.text.toString(),
-            binding.textInputEditContactIntervalTime.text.toString().toInt(),
-            binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),
-            binding.checkBox.isChecked
-        )
-        //Toast.makeText(this.requireContext(), R.string.toast_contact_updated, Toast.LENGTH_SHORT).show()
+        try {
+            viewModel.updateContact(
+                binding.textInputEditContactFirstName.text.toString(),
+                binding.textInputEditContactLastName.text.toString(),
+                if (binding.textInputEditContactPhone.text.isNullOrEmpty()) {
+                    ""
+                } else {
+                    "+1${binding.textInputEditContactPhone.text}"
+                },
+                binding.textInputEditContactEmail.text.toString(),
+                binding.textInputEditContactIntervalTime.text.toString().toInt(),
+                binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),
+                binding.checkBox.isChecked
+            )
+            Toast.makeText(this.requireContext(), R.string.toast_contact_updated, Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(this.requireContext(),R.string.toast_contact_not_updated,Toast.LENGTH_SHORT).show()
+        }
         goToContactDetail()
     }
 

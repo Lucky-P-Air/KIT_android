@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -109,8 +110,10 @@ class ContactDetailFragment : Fragment() {
     fun deleteContact() {
         //TODO: Insert a confirmation dialog before executing the rest of this logic
         Log.d(TAG, "Observing to delete ${databaseContact.id}")
-        viewModel.deleteContact(databaseContact)
-
+        try { viewModel.deleteContact(databaseContact) }
+        catch (e: Exception) {
+            Toast.makeText(this.requireContext(), R.string.toast_contact_not_deleted, Toast.LENGTH_SHORT).show()
+        }
         goToContactList()
     }
 
@@ -123,6 +126,10 @@ class ContactDetailFragment : Fragment() {
     }
 
     fun markDone() {
-        viewModel.markContacted(currentContact)
+        try {
+            viewModel.markContacted(currentContact)
+        } catch (e: Exception) {
+            Toast.makeText(this.requireContext(),R.string.toast_contact_not_updated, Toast.LENGTH_SHORT).show()
+        }
     }
 }

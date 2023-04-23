@@ -53,8 +53,14 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
 
         //TODO Error catching, logging, and communication from server responses
         //val submittalSuccess = viewModelScope.async {
-        viewModelScope.launch {
-            contactRepository.postContact(newContact)
+        try {
+            //viewModelScope.launch {
+            runBlocking {
+                contactRepository.postContact(newContact)
+            }
+        } catch (e: Exception) {
+            Log.d(TAG, "Error occurred trying to add contact. ${e.message}")
+            throw e
         }
         getContactList()
     }
@@ -64,11 +70,14 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
          * Function is currently implemented to only be called from ContactDetail page
          */
         Log.d(TAG, "Deleting ${dbContact.id}")
-        viewModelScope.launch {
-            contactRepository.deleteContact(dbContact)
+        //viewModelScope.launch {
+        runBlocking {
+            try {
+                contactRepository.deleteContact(dbContact)
+                Log.d(TAG, "Contact List Refreshed after contact deletion")
+            } catch (e: Exception) {throw e}
         }
         //getContactList()
-        Log.d(TAG, "Contact List Refreshed after contact deletion")
     }
 
     // Load / refresh full list of contacts, sorted by name
@@ -105,10 +114,13 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     private fun sendUpdate(contact: Contact) {
-        viewModelScope.launch {
-            val responseContact = contactRepository.putContact(contact)
-            getContactDetail(responseContact.id)
-            }
+        //viewModelScope.launch {
+        runBlocking {
+            try {
+                val responseContact = contactRepository.putContact(contact)
+                getContactDetail(responseContact.id)
+            } catch (e: Exception) {throw e}
+        }
     }
 
     fun updateContact(
