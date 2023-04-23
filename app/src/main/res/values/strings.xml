@@ -72,6 +72,7 @@
     <string name="toast_contact_not_added">There was an error adding your new contact</string>
     <string name="toast_contact_not_deleted">There was an error deleting your contact</string>
     <string name="error_phone_number">Phone Number must be 10 numerical digits, or blank</string>
+    <string name="error_email">Invalid e-mail format</string>
     <string name="junktest">Reminders disabled</string>
 
 

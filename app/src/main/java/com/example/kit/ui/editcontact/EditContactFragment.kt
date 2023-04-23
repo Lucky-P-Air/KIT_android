@@ -2,6 +2,7 @@ package com.example.kit.ui.editcontact
 
 import android.os.Bundle
 import android.util.Log
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,14 +48,14 @@ class EditContactFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var currentContact: Contact
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    /*override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /* Not necessary since ViewModel tracks the currentContact's position from ContactDetail
         arguments?.let {
             val position = it.getInt(POSITION)
             viewModel.setCurrentContact(position)
         }*/
-    }
+    }*/
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -123,7 +124,7 @@ class EditContactFragment : Fragment() {
         //TODO: Still needs input/value validation on emails
         Log.d(TAG, "onSubmitted called")
 
-        if (errorFirstName() or errorIntervalTime() or errorPhoneNumber()) return
+        if (errorFirstName() or errorPhoneNumber() or errorEmail() or errorIntervalTime()) return
         try {
             viewModel.updateContact(
                 binding.textInputEditContactFirstName.text.toString(),
@@ -157,6 +158,25 @@ class EditContactFragment : Fragment() {
             .actionEditContactFragmentToNavigationContactList()
         findNavController().navigate(action)
     }*/
+
+    private fun errorEmail(): Boolean {
+        /**
+         * Return 'true' if there's an error in the email format.
+         * Format-pattern-matching via Patterns.EMAIL_ADDRESS
+         */
+        val emailValue = binding.textInputEditContactEmail.text.toString()
+        if (emailValue.isEmpty()) return false
+        // Return true if emailValue does not match EMAIL_ADDRESS pattern
+        return if(!Patterns.EMAIL_ADDRESS.matcher(emailValue).matches()) {
+            binding.textLayoutEditContactEmail.isErrorEnabled = true
+            binding.textLayoutEditContactEmail.error = getString(R.string.error_email)
+            true
+        } else {
+            binding.textLayoutEditContactEmail.isErrorEnabled = false
+            binding.textLayoutEditContactEmail.error = null
+            false
+        }
+    }
 
     private fun errorFirstName(): Boolean {
         val firstNameValue = binding.textInputEditContactFirstName.text

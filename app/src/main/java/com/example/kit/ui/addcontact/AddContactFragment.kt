@@ -2,6 +2,7 @@ package com.example.kit.ui.addcontact
 
 import android.os.Bundle
 import android.util.Log
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,8 @@ import androidx.navigation.fragment.findNavController
 import com.example.kit.R
 import com.example.kit.databinding.FragmentAddContactBinding
 import com.example.kit.ui.contactlist.ContactListViewModel
+
+private const val TAG = "AddContactFragment"
 
 class AddContactFragment : Fragment() {
 
@@ -56,7 +59,7 @@ class AddContactFragment : Fragment() {
 
         // Validate non-null inputs for required fields
         // TODO: Still needs input/value validation on emails
-        if (errorFirstName() or errorIntervalTime() or errorPhoneNumber()) return
+        if (errorFirstName() or errorPhoneNumber() or errorEmail() or errorIntervalTime() ) return
 
         try {
             viewModel.addContact(
@@ -94,6 +97,25 @@ class AddContactFragment : Fragment() {
 
     private fun goToContactList() {
         findNavController().navigate(R.id.action_navigation_addContact_to_navigation_contactlist)
+    }
+
+    private fun errorEmail(): Boolean {
+        /**
+         * Return 'true' if there's an error in the email format.
+         * Format-pattern-matching via Patterns.EMAIL_ADDRESS
+         */
+        val emailValue = binding.textInputAddContactEmail.text.toString()
+        if (emailValue.isEmpty()) return false
+        // Return true if emailValue does not match EMAIL_ADDRESS pattern
+        return if (!Patterns.EMAIL_ADDRESS.matcher(emailValue).matches()) {
+            binding.textLayoutAddContactEmail.isErrorEnabled = true
+            binding.textLayoutAddContactEmail.error = getString(R.string.error_email)
+            true
+        } else {
+            binding.textLayoutAddContactEmail.isErrorEnabled = false
+            binding.textLayoutAddContactEmail.error = null
+            false
+        }
     }
 
     private fun errorFirstName(): Boolean {
