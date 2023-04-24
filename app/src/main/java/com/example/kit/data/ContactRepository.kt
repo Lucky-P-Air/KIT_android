@@ -39,6 +39,7 @@ class ContactRepository(private val database: ContactsDatabase) {
 
                 // Delete from database
                 database.contactDao.deleteContact(dbContact)
+                //TODO: This potentially leaves room for a success DELETE http request, but unsuccessful database deletion?
                 Log.d(TAG, "Delete Contact coroutine SUCCESS")
             } catch (e: Exception) {
                 Log.d(TAG, "Exception occurred during Delete Contact coroutine: ${e.message}")
@@ -178,7 +179,7 @@ class ContactRepository(private val database: ContactsDatabase) {
                 database.contactDao.insertAll(response.asDatabaseContacts())
                 Log.d(TAG,"Contact List inserted into database")
             } catch (e: Exception) {
-                Log.d(TAG, "Exception during refreshContacts coroutine: ${e.toString()}")
+                Log.d(TAG, "Exception during refreshContacts coroutine: $e")
             }
         }
     }

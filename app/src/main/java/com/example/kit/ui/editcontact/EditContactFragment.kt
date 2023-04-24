@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.kit.R
@@ -45,16 +46,9 @@ class EditContactFragment : Fragment() {
     }
     private var _binding: FragmentEditContactBinding? = null
     private val binding get() = _binding!!
+    private lateinit var liveContact: LiveData<Contact>
     private lateinit var currentContact: Contact
-
-    /*override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        /* Not necessary since ViewModel tracks the currentContact's position from ContactDetail
-        arguments?.let {
-            val position = it.getInt(POSITION)
-            viewModel.setCurrentContact(position)
-        }*/
-    }*/
+    private lateinit var id: String
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,7 +63,8 @@ class EditContactFragment : Fragment() {
             contactListViewModel = viewModel
             editContactFragment = this@EditContactFragment
         }
-
+        id = viewModel.currentId
+        liveContact = viewModel.getContactDetail(id)
         return binding.root
     }
 
@@ -82,7 +77,8 @@ class EditContactFragment : Fragment() {
             currentContact = it
             bindContact(view)
         }
-        viewModel.currentContact.observe(viewLifecycleOwner, contactObserver)
+
+        liveContact.observe(viewLifecycleOwner, contactObserver)
     }
 
     private fun bindContact(view: View) {
@@ -96,7 +92,10 @@ class EditContactFragment : Fragment() {
             textInputEditContactPhone.setText(
                 if (currentContact.phoneNumber.isNullOrEmpty()) {
                         null
-                } else {currentContact.phoneNumber?.substring(2)})
+                } else {
+                    currentContact.phoneNumber?.substring(2)
+                }
+            )
             textInputEditContactEmail.setText(currentContact.email)
             checkBox.isChecked = currentContact.remindersEnabled
             textInputEditContactIntervalTime.setText(currentContact.intervalTime.toString())
@@ -115,6 +114,7 @@ class EditContactFragment : Fragment() {
 
         try {
             viewModel.updateContact(
+                currentContact.id,
                 binding.textInputEditContactFirstName.text.toString(),
                 binding.textInputEditContactLastName.text.toString(),
                 if (binding.textInputEditContactPhone.text.isNullOrEmpty()) {
@@ -125,7 +125,11 @@ class EditContactFragment : Fragment() {
                 binding.textInputEditContactEmail.text.toString(),
                 binding.textInputEditContactIntervalTime.text.toString().toInt(),
                 binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),
-                binding.checkBox.isChecked
+                binding.checkBox.isChecked,
+                currentContact.lastContacted,
+                currentContact.createdAt,
+                currentContact.updatedAt,
+                currentContact.status
             )
             Toast.makeText(this.requireContext(), R.string.toast_contact_updated, Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
@@ -139,13 +143,6 @@ class EditContactFragment : Fragment() {
             .actionEditContactFragmentToContactDetailFragment()
         findNavController().navigate(action)
     }
-
-    /*
-    private fun goToContactList() {
-        val action = EditContactFragmentDirections
-            .actionEditContactFragmentToNavigationContactList()
-        findNavController().navigate(action)
-    }*/
 
     private fun invalidEmail(): Boolean {
         /**

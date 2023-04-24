@@ -21,13 +21,9 @@ private const val TAG = "ContactListViewModel"
 class ContactListViewModel(application: Application) : AndroidViewModel(application) {
 
     private val contactRepository = ContactRepository(getDatabase(application))
-    private lateinit var _currentContact: LiveData<Contact>
-    lateinit var databaseContact: LiveData<DatabaseContact>
+    lateinit var currentId: String
     private var _list = contactRepository.allContacts
     val list: LiveData<List<Contact>> get() = _list
-
-    // Specific contact detail properties
-    val currentContact: LiveData<Contact> get() = _currentContact
 
     init {
         //getContactList() // Moved initial GET to ContactListFragment
@@ -66,7 +62,7 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
         getContactList()
     }
 
-    fun deleteContact(dbContact: DatabaseContact = databaseContact.value!!) {
+    fun deleteContact(dbContact: DatabaseContact) {
         /** Deletes contact (default to databaseContact.value) from the server & database
          * Function is currently implemented to only be called from ContactDetail page
          */
@@ -78,12 +74,7 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
                 Log.d(TAG, "Contact List Refreshed after contact deletion")
             } catch (e: Exception) {throw e}
         }
-        //getContactList()
-    }
-
-    // Load / refresh full list of contacts, sorted by name
-    fun getContactList() {
-        viewModelScope.launch { contactRepository.refreshContacts() }
+        currentId = "0"
     }
 
     // GET updated data from API & insert into database
@@ -93,13 +84,19 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
-    private fun getContactDetail(contactID: String) {
+    fun getContactDetail(contactID: String): LiveData<Contact> {
         fetchContactDetail(contactID)
-        // GET data record from database
-        runBlocking {
-            _currentContact = contactRepository.getContactDetail(contactID)
-        }
-        databaseContact = contactRepository.getDatabaseContact(contactID)
+        return contactRepository.getContactDetail(contactID)
+    }
+
+    fun getDatabaseContactDetail(contactID: String): LiveData<DatabaseContact> {
+        fetchContactDetail(contactID)
+        return contactRepository.getDatabaseContact(contactID)
+    }
+
+    // Load / refresh full list of contacts, sorted by name
+    fun getContactList() {
+        viewModelScope.launch { contactRepository.refreshContacts() }
     }
 
     fun markContacted(contact: Contact) {
@@ -111,20 +108,25 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
 
     fun onContactClicked(contact: Contact) {
         Log.d(TAG, "Contact ${contact.id} clicked in RecyclerView")
-        getContactDetail(contact.id)
+        setContactId(contact.id)
+        fetchContactDetail(contact.id)
     }
 
     private fun sendUpdate(contact: Contact) {
         //viewModelScope.launch {
         runBlocking {
             try {
-                val responseContact = contactRepository.putContact(contact)
-                getContactDetail(responseContact.id)
+                contactRepository.putContact(contact)
             } catch (e: Exception) {throw e}
         }
     }
 
+    private fun setContactId(id: String) {
+        currentId = id
+    }
+
     fun updateContact(
+        id: String,
         firstName: String,
         lastName: String?,
         phoneNumber: String?,
@@ -132,12 +134,15 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
         intervalTime: Int,
         intervalUnit: String,
         remindersEnabled: Boolean,
-        lastContacted: LocalDateTime? = currentContact.value!!.lastContacted
+        lastContacted: LocalDateTime?,
+        createdAt: LocalDateTime,
+        updatedAt: LocalDateTime,
+        status: String,
     ) {
         Log.d("ContactListViewModel", "updateContact method called")
 
         val contactRevised = Contact(
-            currentContact.value!!.id,
+            id,
             firstName,
             lastName ?: "",
             phoneNumber ?: "",
@@ -146,9 +151,9 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
             intervalUnit,
             remindersEnabled,
             lastContacted,
-            currentContact.value!!.createdAt,
-            currentContact.value!!.updatedAt,
-            currentContact.value!!.status
+            createdAt,
+            updatedAt,
+            status
         )
         sendUpdate(contactRevised)
         getContactList()
