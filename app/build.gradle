@@ -67,6 +67,12 @@ dependencies {
 
 
     testImplementation 'junit:junit:4.13.2'
+    // AndroidX Test - JVM testing
+    testImplementation "androidx.test.ext:junit-ktx:1.1.5"
+    testImplementation "androidx.test:core-ktx:1.5.0"
+    testImplementation "org.robolectric:robolectric:4.9.2" // For AndroidJUnit4::class
+    testImplementation "androidx.arch.core:core-testing:2.2.0"  // For InstantTaskExecutorRule & testing LiveData
+
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.0.2'
