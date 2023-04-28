@@ -22,13 +22,15 @@ class ContactRepository(private val database: ContactsDatabase) {
             it.asContacts()
                 .sortedWith(byFirstName)
     }
+    val ioDispatcher = Dispatchers.IO
+    val mainDispatcher = Dispatchers.Main
 
     suspend fun deleteContact(dbContact: DatabaseContact) {
         /**
          * Delete contact record from database & network server
          */
         val id = dbContact.id
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             // Delete from Network server
             try {
                 Log.d(TAG, "Delete Contact coroutine launched for $id")
@@ -53,7 +55,7 @@ class ContactRepository(private val database: ContactsDatabase) {
          * GET request Contact Record for specific ID number and
          * insert it into application database
          */
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             try {
                 val singleContactResponse = ContactApi.retrofitService.getSingleContact(
                     contactID,
@@ -62,7 +64,7 @@ class ContactRepository(private val database: ContactsDatabase) {
                 database.contactDao.insertContact(
                     databaseContactFromEntryAdapter(singleContactResponse.data)
                 )
-                withContext(Dispatchers.Main) {
+                withContext(mainDispatcher) {
                     Log.d(TAG,"Contact ${singleContactResponse.data} retrieved from API")
                 }
             } catch (e: Exception) {
@@ -81,7 +83,7 @@ class ContactRepository(private val database: ContactsDatabase) {
     }
 
     fun getDatabaseContact(contactID: String): LiveData<DatabaseContact> {
-        //val contactData = withContext(Dispatchers.IO) {
+        //val contactData = withContext(ioDispatcher) {
         return database.contactDao.getContact(contactID).asLiveData()
     }
 
@@ -90,7 +92,7 @@ class ContactRepository(private val database: ContactsDatabase) {
          * Suspend function to POST a new ContactSubmission to the webserver for a new contact.
          * Catches the response contact and updates database
          */
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             try {
                 Log.d(TAG, "Add Contact coroutine launched for $contactSubmission")
                 //Serialize new contact information into JSON-ready object
@@ -131,7 +133,7 @@ class ContactRepository(private val database: ContactsDatabase) {
          * Suspend function to PUT a revised Contact to the webserver.
          * Catches the response contact and updates database
          */
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
             try {
                 //Serialize new contact information into JSON-ready object
                 val contactPut = ContactRequest(contactPushFromContactAdapter(contact))
@@ -171,7 +173,7 @@ class ContactRepository(private val database: ContactsDatabase) {
     }
 
     suspend fun refreshContacts() {
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             try {
                 val response = ContactApi.retrofitService.getContacts(Secrets().headers)
                 Log.d(TAG,"Get request successful, retrieved ${response.data.size} entries."
