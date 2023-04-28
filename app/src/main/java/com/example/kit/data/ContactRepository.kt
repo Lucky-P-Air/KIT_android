@@ -22,8 +22,8 @@ class ContactRepository(private val database: ContactsDatabase) {
             it.asContacts()
                 .sortedWith(byFirstName)
     }
-    val ioDispatcher = Dispatchers.IO
-    val mainDispatcher = Dispatchers.Main
+    private val ioDispatcher = Dispatchers.IO
+    private val mainDispatcher = Dispatchers.Main
 
     suspend fun deleteContact(dbContact: DatabaseContact) {
         /**

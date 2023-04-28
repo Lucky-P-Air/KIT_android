@@ -185,12 +185,12 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
         fun isValidLength(phone: String, length: Int = 10): Boolean {
             return phone.length == length
         }
-        // Reject any with Country Codes operator +
-        when (phoneValue.first()) {
-            '+' -> return true
-        }
 
         return if (isValidLength(phoneValue)) {
+            // Reject any with Country Codes operator +
+            when (phoneValue.first()) {
+                '+' -> return true
+            }
             Log.d(TAG,"Valid 10-digit phone number ($phoneValue) provided. Adding country code +1")
             false
         } else {
