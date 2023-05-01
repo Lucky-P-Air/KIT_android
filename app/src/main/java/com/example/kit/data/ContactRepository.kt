@@ -2,10 +2,11 @@ package com.example.kit.data
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.map
-import com.example.kit.model.*
+import com.example.kit.model.Contact
+import com.example.kit.model.ContactSubmission
+import com.example.kit.model.asContacts
+import com.example.kit.model.contactFromEntryAdapter
 import com.example.kit.network.ContactRequest
 import com.example.kit.network.contactPushFromContactAdapter
 import com.example.kit.network.contactPushFromContactSubmissionAdapter
@@ -16,20 +17,15 @@ import kotlinx.coroutines.withContext
 private const val TAG = "ContactRepository"
 class ContactRepository(private val database: ContactsDatabase) {
 
-    private val dbContacts: LiveData<List<DatabaseContact>> = database.contactDao.getAllContacts().asLiveData()
-    // Convert list of DbContacts to Contacts (Domain Model)
-    val allContacts: LiveData<List<Contact>> = Transformations.map(dbContacts) {
-            it.asContacts()
-                .sortedWith(byFirstName)
-    }
+    val allContacts: LiveData<List<Contact>> = database.contactDao.getAllContacts().asLiveData()
     private val ioDispatcher = Dispatchers.IO
     private val mainDispatcher = Dispatchers.Main
 
-    suspend fun deleteContact(dbContact: DatabaseContact) {
+    suspend fun deleteContact(contact: Contact) {
         /**
          * Delete contact record from database & network server
          */
-        val id = dbContact.id
+        val id = contact.id
         withContext(ioDispatcher) {
             // Delete from Network server
             try {
@@ -40,7 +36,7 @@ class ContactRepository(private val database: ContactsDatabase) {
                 )
 
                 // Delete from database
-                database.contactDao.deleteContact(dbContact)
+                database.contactDao.deleteContact(contact)
                 //TODO: This potentially leaves room for a success DELETE http request, but unsuccessful database deletion?
                 Log.d(TAG, "Delete Contact coroutine SUCCESS")
             } catch (e: Exception) {
@@ -62,7 +58,7 @@ class ContactRepository(private val database: ContactsDatabase) {
                     Secrets().headers
                 )
                 database.contactDao.insertContact(
-                    databaseContactFromEntryAdapter(singleContactResponse.data)
+                    contactFromEntryAdapter(singleContactResponse.data)
                 )
                 withContext(mainDispatcher) {
                     Log.d(TAG,"Contact ${singleContactResponse.data} retrieved from API")
@@ -75,15 +71,10 @@ class ContactRepository(private val database: ContactsDatabase) {
 
     fun getContactDetail(contactID: String): LiveData<Contact> {
         /**
-         * Retrieve DatabaseContact Record for specific ID number and
+         * Retrieve Contact Record for specific ID number and
          * Return Contact
          */
         Log.d(TAG, "Requesting $contactID from database")
-        return getDatabaseContact(contactID).map {it.asContact()}
-    }
-
-    fun getDatabaseContact(contactID: String): LiveData<DatabaseContact> {
-        //val contactData = withContext(ioDispatcher) {
         return database.contactDao.getContact(contactID).asLiveData()
     }
 
@@ -114,7 +105,7 @@ class ContactRepository(private val database: ContactsDatabase) {
 
                 // Insert into database
                 database.contactDao.insertContact(
-                    databaseContactFromEntryAdapter(response.await().data)
+                    contactFromEntryAdapter(response.await().data)
                 )
                 Log.d(TAG,
                     "Inserted into database: " +
@@ -152,7 +143,7 @@ class ContactRepository(private val database: ContactsDatabase) {
                         Log.d(TAG, "Response from PUT request: ${this.data}")
 
                         // Insert into database
-                        database.contactDao.insertContact(databaseContactFromEntryAdapter(this.data))
+                        database.contactDao.insertContact(contactFromEntryAdapter(this.data))
                         Log.d(TAG,
                             "Inserted into database: " +
                                     "${this.data.attributes.firstName} " +
@@ -178,7 +169,7 @@ class ContactRepository(private val database: ContactsDatabase) {
                 val response = ContactApi.retrofitService.getContacts(Secrets().headers)
                 Log.d(TAG,"Get request successful, retrieved ${response.data.size} entries."
                 )
-                database.contactDao.insertAll(response.asDatabaseContacts())
+                database.contactDao.insertAll(response.asContacts())
                 Log.d(TAG,"Contact List inserted into database")
             } catch (e: Exception) {
                 Log.d(TAG, "Exception during refreshContacts coroutine: $e")

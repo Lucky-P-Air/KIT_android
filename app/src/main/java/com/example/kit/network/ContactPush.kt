@@ -2,7 +2,6 @@ package com.example.kit.network
 
 import com.example.kit.model.Contact
 import com.example.kit.model.ContactSubmission
-import com.example.kit.utils.formatLocalDateTimesToUtc
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -68,7 +67,6 @@ fun contactPushFromContactAdapter(contact: Contact): ContactPush {
      * Params: <Contact>
      * Returns <ContactPush>
      */
-    val lastContactedString = contact.lastContacted?.let { it -> formatLocalDateTimesToUtc(it) }
 
     fun pushAttributesFromContact(contact: Contact): PushAttributes {
         return PushAttributes(
@@ -77,7 +75,7 @@ fun contactPushFromContactAdapter(contact: Contact): ContactPush {
             if (contact.phoneNumber.isNullOrEmpty()) null else contact.phoneNumber,
             if (contact.email.isNullOrEmpty()) null else contact.email,
             contact.remindersEnabled,
-            if (lastContactedString.isNullOrEmpty()) null else lastContactedString,
+            if (contact.lastContacted.isNullOrEmpty()) null else contact.lastContacted,
             contact.intervalUnit,
             contact.intervalTime
         )

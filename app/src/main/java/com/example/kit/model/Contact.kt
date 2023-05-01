@@ -1,24 +1,24 @@
 package com.example.kit.model
 
-import com.example.kit.utils.parseLocalDateTimes
-import java.time.LocalDateTime
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
+@Entity(tableName="contacts_table")
 data class Contact(
-    val id: String,
-    val firstName: String,
-    val lastName: String?,
-    val phoneNumber: String?,
-    val email: String?,
-    val intervalTime: Int,
-    val intervalUnit: String,
-    val remindersEnabled: Boolean,
-    val lastContacted: LocalDateTime?,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
-    val status: String
+    @PrimaryKey(autoGenerate = false) val id: String,
+    @ColumnInfo("first_name") val firstName: String,
+    @ColumnInfo("last_name") val lastName: String?,
+    @ColumnInfo("phone_number") val phoneNumber: String?,
+    @ColumnInfo val email: String?,
+    @ColumnInfo("interval_time") val intervalTime: Int,
+    @ColumnInfo("interval_unit") val intervalUnit: String,
+    @ColumnInfo("reminders_enabled") val remindersEnabled: Boolean,
+    @ColumnInfo("last_contacted") val lastContacted: String?,
+    @ColumnInfo("created_at") val createdAt: String,
+    @ColumnInfo("updated_at") val updatedAt: String,
+    @ColumnInfo val status: String
 )
-
-// TODO: Overwrite null values for constructor parameters to avoid always writing null
 
 data class ContactSubmission(
     // Contact Submission will only be used for POSTs / adding new contacts
@@ -34,7 +34,7 @@ data class ContactSubmission(
 
 fun contactFromEntryAdapter(contactEntry: ContactEntry): Contact {
     /**
-     * Convert ContactEntry object into a Contact object with LocalDates and null-values replaced
+     * Convert ContactEntry object into a Contact object with null-values replaced
      * by empty strings.
      *
      * Params: <ContactEntry>
@@ -49,9 +49,9 @@ fun contactFromEntryAdapter(contactEntry: ContactEntry): Contact {
         contactEntry.attributes.intervalNumber,
         contactEntry.attributes.intervalUnit,
         contactEntry.attributes.remindersEnabled,
-        contactEntry.attributes.lastContacted?.let { it1 -> parseLocalDateTimes(it1) },
-        parseLocalDateTimes(contactEntry.attributes.createdAt!!),
-        parseLocalDateTimes(contactEntry.attributes.updatedAt!!),
+        contactEntry.attributes.lastContacted,
+        contactEntry.attributes.createdAt!!,
+        contactEntry.attributes.updatedAt!!,
         contactEntry.attributes.status ?: "",
     )
 }

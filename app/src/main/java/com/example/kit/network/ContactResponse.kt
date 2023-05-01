@@ -10,9 +10,9 @@ data class ContactListResponse(
 /**
  * Convert Network results to database objects
  */
-fun ContactListResponse.asDatabaseContacts(): List<DatabaseContact> {
+fun ContactListResponse.asContacts(): List<Contact> {
     return data.map {
-        databaseContactFromEntryAdapter(it)
+        contactFromEntryAdapter(it)
     }
 }
 

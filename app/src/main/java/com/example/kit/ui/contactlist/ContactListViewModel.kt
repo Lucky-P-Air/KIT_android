@@ -8,12 +8,11 @@ import com.example.kit.data.ContactRepository
 import com.example.kit.data.getDatabase
 import com.example.kit.model.Contact
 import com.example.kit.model.ContactSubmission
-import com.example.kit.model.DatabaseContact
+import com.example.kit.utils.formatLocalDateTimesToUtc
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
-import java.time.LocalDateTime
 import java.time.ZoneId
 
 private const val TAG = "ContactListViewModel"
@@ -62,15 +61,15 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
         getContactList()
     }
 
-    fun deleteContact(dbContact: DatabaseContact) {
-        /** Deletes contact (default to databaseContact.value) from the server & database
+    fun deleteContact(contact: Contact) {
+        /** Deletes contact (default to contact.value) from the server & database
          * Function is currently implemented to only be called from ContactDetail page
          */
-        Log.d(TAG, "Deleting ${dbContact.id}")
+        Log.d(TAG, "Deleting ${contact.id}")
         //viewModelScope.launch {
         runBlocking {
             try {
-                contactRepository.deleteContact(dbContact)
+                contactRepository.deleteContact(contact)
                 Log.d(TAG, "Contact List Refreshed after contact deletion")
             } catch (e: Exception) {throw e}
         }
@@ -89,19 +88,16 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
         return contactRepository.getContactDetail(contactID)
     }
 
-    fun getDatabaseContactDetail(contactID: String): LiveData<DatabaseContact> {
-        fetchContactDetail(contactID)
-        return contactRepository.getDatabaseContact(contactID)
-    }
-
     // Load / refresh full list of contacts, sorted by name
     fun getContactList() {
         viewModelScope.launch { contactRepository.refreshContacts() }
     }
 
     fun markContacted(contact: Contact) {
-        val timeNow = Instant.now().atZone(ZoneId.of("UTC"))
-            .toLocalDateTime()
+        val timeNow = formatLocalDateTimesToUtc(
+            Instant.now().atZone(ZoneId.of("UTC"))
+                .toLocalDateTime()
+        )
         Log.d(TAG, "$timeNow for ${contact.firstName}")
         sendUpdate(contact.copy(lastContacted = timeNow))
     }
@@ -134,9 +130,9 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
         intervalTime: Int,
         intervalUnit: String,
         remindersEnabled: Boolean,
-        lastContacted: LocalDateTime?,
-        createdAt: LocalDateTime,
-        updatedAt: LocalDateTime,
+        lastContacted: String?,
+        createdAt: String,
+        updatedAt: String,
         status: String,
     ) {
         Log.d("ContactListViewModel", "updateContact method called")

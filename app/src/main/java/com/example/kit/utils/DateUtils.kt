@@ -42,6 +42,12 @@ fun formatLocalDateTimes(dateValue: LocalDateTime): String {
     return dateValue.atZone(ZoneId.of("UTC"))
         .format(formatter) // .atZone dictates the timezone of the input(dateValue)
 }
+fun formatDateStrings(dateString: String): String {
+    /** Return a String, formatted "MMM d, y", from an input datetime String (UTC timezone)
+     *  Output timezone is local to the device.
+     * */
+    return formatLocalDateTimes( parseLocalDateTimes(dateString) )
+}
 
 fun formatLocalDateTimesToUtc(dateValue: LocalDateTime): String {
     /** Return a datestring, formatted "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'",
@@ -79,7 +85,7 @@ fun parseLocalDateTimes(dateString: String): LocalDateTime {
     //Log.d("ContactDateUtil", "parseLocalDateTimes (from UTC) returned ${asLocalDateTimeFromUtc(parseDates(dateString)!!)}")
     return asLocalDateTimeFromUtc(parseDates(dateString)!!)
 }
-
+//TODO: Maybe switch this output to String?
 fun getNextContactLocalDateTime(contact: Contact): LocalDateTime {
     /** Takes input of a Contact object and returns a LocalDateTime (UTC timezone) for the
      * next expected reminder for that contact.
@@ -91,7 +97,10 @@ fun getNextContactLocalDateTime(contact: Contact): LocalDateTime {
     val createdLocalDate = contact.createdAt
 
     // Set starting point for next reminderDate based on lastContact or createdAt
-    var reminderDate = lastContactLocalDate ?: createdLocalDate
+    var reminderDate = parseLocalDateTimes(
+        lastContactLocalDate ?: createdLocalDate
+    )
+
     // Increment next reminderDate
     with(contact.intervalTime.toLong()) {
         when (contact.intervalUnit) {

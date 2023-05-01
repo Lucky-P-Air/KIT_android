@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kit.databinding.ListContactBinding
 import com.example.kit.model.Contact
+import com.example.kit.utils.formatDateStrings
 import com.example.kit.utils.formatLocalDateTimes
 import com.example.kit.utils.getNextContactLocalDateTime
 
@@ -64,7 +65,7 @@ class ContactListAdapter(val clickListener: ContactListListener) :
         holder.bind(clickListener, contact)
         holder.binding.apply {
             cardLastContact.text = contact.lastContacted?.let {
-                formatLocalDateTimes(it) } ?: "Never"
+                formatDateStrings(it) } ?: "Never"
             cardNextContact.text =
                 if (contact.remindersEnabled) formatLocalDateTimes(nextContactLocalDate)
                 else "Reminders disabled"
