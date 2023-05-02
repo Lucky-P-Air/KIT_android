@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.example.kit.BaseApplication
 import com.example.kit.R
 import com.example.kit.databinding.FragmentContactDetailBinding
 import com.example.kit.model.Contact
@@ -33,7 +34,7 @@ class ContactDetailFragment : Fragment() {
     // View Model & Data Binding Declarations
     private val viewModel: ContactListViewModel by activityViewModels {
         ContactListViewModelFactory(
-            requireNotNull(this.activity).application)
+            (requireNotNull(this.activity).application as BaseApplication).contactRepository)
     }
 
     private var _binding: FragmentContactDetailBinding? = null
@@ -43,7 +44,6 @@ class ContactDetailFragment : Fragment() {
     private lateinit var id: String
 
     private val contactObserver = Observer<Contact> {
-        Log.d(TAG, "Contact ${it.id} : ${it.firstName}")
         currentContact = it
         bindContact()
     }
@@ -97,7 +97,7 @@ class ContactDetailFragment : Fragment() {
         Log.d(TAG, "Observing to delete ${currentContact.id}")
         try { viewModel.deleteContact(currentContact) }
         catch (e: Exception) {
-            Toast.makeText(this.requireContext(), R.string.toast_contact_not_deleted, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this.requireContext(), R.string.toast_contact_not_deleted, Toast.LENGTH_LONG).show()
         }
         goToContactList()
     }

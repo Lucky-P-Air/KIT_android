@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.example.kit.BaseApplication
 import com.example.kit.R
 import com.example.kit.databinding.FragmentEditContactBinding
 import com.example.kit.model.Contact
@@ -40,9 +41,8 @@ class EditContactFragment : Fragment() {
 
     //private val viewModel: ContactListViewModel by activityViewModels()
     // View Model & Data Binding Declarations
-    private val viewModel: ContactListViewModel by activityViewModels {    //viewModels()
-        ContactListViewModelFactory(
-            requireNotNull(this.activity).application)
+    private val viewModel: ContactListViewModel by activityViewModels<ContactListViewModel> {
+        ContactListViewModelFactory((requireContext().applicationContext as BaseApplication).contactRepository)
     }
     private var _binding: FragmentEditContactBinding? = null
     private val binding get() = _binding!!
@@ -73,7 +73,6 @@ class EditContactFragment : Fragment() {
         Log.d(TAG, "EditDetail View Created")
 
         val contactObserver = Observer<Contact> {
-            Log.d(TAG, "Contact ${it.id} : ${it.firstName}")
             currentContact = it
             bindContact(view)
         }
@@ -133,7 +132,7 @@ class EditContactFragment : Fragment() {
             )
             Toast.makeText(this.requireContext(), R.string.toast_contact_updated, Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Toast.makeText(this.requireContext(),R.string.toast_contact_not_updated,Toast.LENGTH_SHORT).show()
+            Toast.makeText(this.requireContext(),R.string.toast_contact_not_updated,Toast.LENGTH_LONG).show()
         }
         goToContactDetail()
     }

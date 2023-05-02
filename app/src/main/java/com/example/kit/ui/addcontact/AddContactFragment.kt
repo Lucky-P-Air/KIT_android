@@ -10,9 +10,11 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.example.kit.BaseApplication
 import com.example.kit.R
 import com.example.kit.databinding.FragmentAddContactBinding
 import com.example.kit.ui.contactlist.ContactListViewModel
+import com.example.kit.ui.contactlist.ContactListViewModelFactory
 
 private const val TAG = "AddContactFragment"
 
@@ -22,7 +24,10 @@ class AddContactFragment : Fragment() {
         // fun newInstance() = AddContactFragment()
     }
 
-    private val viewModel: ContactListViewModel by activityViewModels()
+    //private val viewModel: ContactListViewModel by activityViewModels()
+    private val viewModel: ContactListViewModel by activityViewModels<ContactListViewModel> {
+        ContactListViewModelFactory((requireContext().applicationContext as BaseApplication).contactRepository)
+    }
     private var _binding: FragmentAddContactBinding? = null
     private val binding get() = _binding!!
 
@@ -73,7 +78,7 @@ class AddContactFragment : Fragment() {
                 binding.spinnerIntervalUnit.selectedItem.toString().lowercase(),
             )
         } catch (e: Exception) {
-            Toast.makeText(this.requireContext(), R.string.toast_contact_not_added, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this.requireContext(), R.string.toast_contact_not_added, Toast.LENGTH_LONG).show()
         }
         /*
         if (submittalSuccess) {

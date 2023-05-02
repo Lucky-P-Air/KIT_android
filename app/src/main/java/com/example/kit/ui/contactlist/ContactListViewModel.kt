@@ -1,14 +1,13 @@
 package com.example.kit.ui.contactlist
 
-import android.app.Application
 import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.*
-import com.example.kit.data.ContactRepository
-import com.example.kit.data.getDatabase
+import com.example.kit.data.RepositoryInterface
 import com.example.kit.model.Contact
 import com.example.kit.model.ContactSubmission
 import com.example.kit.utils.formatLocalDateTimesToUtc
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -17,9 +16,9 @@ import java.time.ZoneId
 
 private const val TAG = "ContactListViewModel"
 
-class ContactListViewModel(application: Application) : AndroidViewModel(application) {
+class ContactListViewModel(private val contactRepository: RepositoryInterface) : ViewModel() {
 
-    private val contactRepository = ContactRepository(getDatabase(application))
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
     lateinit var currentId: String
     private var _list = contactRepository.allContacts
     val list: LiveData<List<Contact>> get() = _list
@@ -50,15 +49,14 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
         //TODO Error catching, logging, and communication from server responses
         //val submittalSuccess = viewModelScope.async {
         try {
-            //viewModelScope.launch {
-            runBlocking {
+            viewModelScope.launch {
+            //runBlocking {
                 contactRepository.postContact(newContact)
             }
         } catch (e: Exception) {
             Log.d(TAG, "Error occurred trying to add contact. ${e.message}")
             throw e
         }
-        getContactList()
     }
 
     fun deleteContact(contact: Contact) {
@@ -66,8 +64,8 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
          * Function is currently implemented to only be called from ContactDetail page
          */
         Log.d(TAG, "Deleting ${contact.id}")
-        //viewModelScope.launch {
-        runBlocking {
+        viewModelScope.launch {
+        //runBlocking {
             try {
                 contactRepository.deleteContact(contact)
                 Log.d(TAG, "Contact List Refreshed after contact deletion")
@@ -78,7 +76,7 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
 
     // GET updated data from API & insert into database
     private fun fetchContactDetail(contactID: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             contactRepository.fetchContactDetail(contactID)
         }
     }
@@ -105,7 +103,6 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
     fun onContactClicked(contact: Contact) {
         Log.d(TAG, "Contact ${contact.id} clicked in RecyclerView")
         setContactId(contact.id)
-        fetchContactDetail(contact.id)
     }
 
     private fun sendUpdate(contact: Contact) {
@@ -152,7 +149,6 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
             status
         )
         sendUpdate(contactRevised)
-        getContactList()
     }
 
     override fun onCleared() {
@@ -186,6 +182,7 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
             // Reject any with Country Codes operator +
             when (phoneValue.first()) {
                 '+' -> return true
+                '1' -> return true
             }
             Log.d(TAG,"Valid 10-digit phone number ($phoneValue) provided. Adding country code +1")
             false
@@ -198,12 +195,25 @@ class ContactListViewModel(application: Application) : AndroidViewModel(applicat
 /**
  * Factory for constructing ContactListViewModel with parameter
  */
-class ContactListViewModelFactory(val app: Application) : ViewModelProvider.Factory {
+class ContactListViewModelFactory(private val contactRepository: RepositoryInterface) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ContactListViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return ContactListViewModel(app) as T
+            return ContactListViewModel(contactRepository) as T
         }
         throw IllegalArgumentException("Unable to construct viewmodel")
     }
 }
+
+/**
+ * Alternate Factory that produces new instances each time
+ */
+/*
+@Suppress("UNCHECKED_CAST")
+class ContactListViewModelFactory(val contactRepository: RepositoryInterface
+) : ViewModelProvider.NewInstanceFactory() {
+    override fun <T : ViewModel> create(modelClass: Class<T>) =
+        (ContactListViewModel(contactRepository) as T)
+}
+
+ */

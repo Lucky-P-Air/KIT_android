@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.kit.BaseApplication
 import com.example.kit.R
 import com.example.kit.databinding.FragmentContactListBinding
 
@@ -22,7 +23,7 @@ class ContactListFragment : Fragment() {
     // View Model & Data Binding Declarations
     private val viewModel: ContactListViewModel by activityViewModels {
         ContactListViewModelFactory(
-            requireNotNull(this.activity).application)
+            (requireNotNull(this.activity).application as BaseApplication).contactRepository)
     }
 
     private var _binding: FragmentContactListBinding? = null
