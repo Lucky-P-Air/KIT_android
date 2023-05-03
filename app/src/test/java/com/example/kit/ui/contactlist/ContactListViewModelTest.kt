@@ -1,8 +1,12 @@
 package com.example.kit.ui.contactlist
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.kit.ServiceLocator
+import com.example.kit.data.FakeTestRepository
+import com.example.kit.model.Contact
+import com.example.kit.utils.getTimeNowString
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -14,21 +18,29 @@ import org.junit.runner.RunWith
 class ContactListViewModelTest {
     /**
      * Tests for ContactListViewModel functions.
-     * Test Naming convention is
-     * [functionName]_[descriptorOfTestCondition]_[expectedResult] ()
+     * Test Naming convention is:
+     *      functionName_descriptorOfTestCondition_expectedResult ()
      */
 
     private lateinit var viewModel: ContactListViewModel
+    private lateinit var testRepository: FakeTestRepository
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Before
-    fun getViewModel() {
-        viewModel = ContactListViewModel(ApplicationProvider.getApplicationContext())
+    fun setupViewModel() {
+        testRepository = FakeTestRepository()
+        ServiceLocator.contactRepository = testRepository
+        val fakeTime = getTimeNowString()
+        val contact1 = Contact("1", "Michael", "Scott", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "")
+        val contact2 = Contact("2", "Pam", "Beasley", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "")
+        val contact3 = Contact("3", "Princess", "Zelda", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "")
+        for (person in listOf(contact1, contact2, contact3)) {
+            runBlocking{ testRepository.putContact(person) }
+        }
+        viewModel = ContactListViewModel(testRepository)
     }
-
-
 
     // Following tests should raise "false" flags, indicating valid input
     @Test
@@ -98,8 +110,15 @@ class ContactListViewModelTest {
         /**
          * errorPhoneNumber() test for typical 10-digit phone number
          */
-        assertFalse(viewModel.errorPhoneNumber("3050285759"))
         assertFalse(viewModel.errorPhoneNumber("0000000000"))
+        assertFalse(viewModel.errorPhoneNumber("2222222222"))
+        assertFalse(viewModel.errorPhoneNumber("3050285759"))
+        assertFalse(viewModel.errorPhoneNumber("4000000000"))
+        assertFalse(viewModel.errorPhoneNumber("5000000000"))
+        assertFalse(viewModel.errorPhoneNumber("6000000000"))
+        assertFalse(viewModel.errorPhoneNumber("7000000000"))
+        assertFalse(viewModel.errorPhoneNumber("8000000000"))
+        assertFalse(viewModel.errorPhoneNumber("9000000000"))
     }
 
     // Following tests should raise "true" flags, indicating invalid input
@@ -132,6 +151,17 @@ class ContactListViewModelTest {
         assertTrue(viewModel.errorPhoneNumber("+10133333334"))
         assertTrue(viewModel.errorPhoneNumber("+2013333333"))
         assertTrue(viewModel.errorPhoneNumber("+20133333"))
+    }
+
+    @Test
+    fun errorPhoneNumber_areaCode1_true() {
+        /**
+         * errorPhoneNumber() test for phone beginning with 1.
+         * 1 is not the first-digit of any valid US area code
+         */
+        assertTrue(viewModel.errorPhoneNumber("1053333333"))
+        assertTrue(viewModel.errorPhoneNumber("1000000000"))
+        assertTrue(viewModel.errorPhoneNumber("1015555555"))
     }
 
 }

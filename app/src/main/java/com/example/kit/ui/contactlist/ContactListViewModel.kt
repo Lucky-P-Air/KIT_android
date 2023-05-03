@@ -6,13 +6,11 @@ import androidx.lifecycle.*
 import com.example.kit.data.RepositoryInterface
 import com.example.kit.model.Contact
 import com.example.kit.model.ContactSubmission
-import com.example.kit.utils.formatLocalDateTimesToUtc
+import com.example.kit.utils.getTimeNowString
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.time.Instant
-import java.time.ZoneId
 
 private const val TAG = "ContactListViewModel"
 
@@ -92,10 +90,7 @@ class ContactListViewModel(private val contactRepository: RepositoryInterface) :
     }
 
     fun markContacted(contact: Contact) {
-        val timeNow = formatLocalDateTimesToUtc(
-            Instant.now().atZone(ZoneId.of("UTC"))
-                .toLocalDateTime()
-        )
+        val timeNow = getTimeNowString()
         Log.d(TAG, "$timeNow for ${contact.firstName}")
         sendUpdate(contact.copy(lastContacted = timeNow))
     }

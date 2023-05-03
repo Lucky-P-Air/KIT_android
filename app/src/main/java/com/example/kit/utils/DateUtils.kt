@@ -59,6 +59,15 @@ fun formatLocalDateTimesToUtc(dateValue: LocalDateTime): String {
     return dateValue.atZone(ZoneId.of("UTC")).format(formatter)
 }
 
+fun getTimeNowString(): String {
+    /**
+     * Return the current time as a datestring, formatted "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'",
+     * */
+    return formatLocalDateTimesToUtc(
+        Instant.now().atZone(ZoneId.of("UTC"))
+            .toLocalDateTime())
+}
+
 fun formatDates(dateValue: Date): String {
     /** Return a String, formatted "MMM d, y", from an input Date object.
      * Time zone displayed is local to the device
