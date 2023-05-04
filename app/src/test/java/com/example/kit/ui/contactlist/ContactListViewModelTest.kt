@@ -5,10 +5,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.kit.ServiceLocator
 import com.example.kit.data.FakeTestRepository
 import com.example.kit.model.Contact
-import com.example.kit.utils.getTimeNowString
+import com.example.kit.utils.*
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -25,6 +24,12 @@ class ContactListViewModelTest {
     private lateinit var viewModel: ContactListViewModel
     private lateinit var testRepository: FakeTestRepository
 
+    // Dummy values to populate testRepository
+    private lateinit var contact1: Contact
+    private lateinit var contact2: Contact
+    private lateinit var contact3: Contact
+    private val epochTime = getTimeEpochString()
+
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
@@ -32,14 +37,164 @@ class ContactListViewModelTest {
     fun setupViewModel() {
         testRepository = FakeTestRepository()
         ServiceLocator.contactRepository = testRepository
-        val fakeTime = getTimeNowString()
-        val contact1 = Contact("1", "Michael", "Scott", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "")
-        val contact2 = Contact("2", "Pam", "Beasley", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "")
-        val contact3 = Contact("3", "Princess", "Zelda", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "")
+        val fakeTime = epochTime
+        contact1 = Contact("1", "Michael", "Scott", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "overdue")
+        contact2 = Contact("2", "Pam", "Beasley", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "upcoming")
+        contact3 = Contact("3", "Princess", "Zelda", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "")
         for (person in listOf(contact1, contact2, contact3)) {
             runBlocking{ testRepository.putContact(person) }
         }
         viewModel = ContactListViewModel(testRepository)
+    }
+
+
+    @Test
+    fun addContact_nominal_equals() {
+        val contact = Contact(
+            "103",
+            "Link",
+            "",
+            null,
+            null,
+            2,
+            "weeks",
+            true,
+            getTimeEpochString(),
+            getTimeEpochString(),
+            getTimeEpochString(),
+            "overdue")
+        with (contact) {
+            viewModel.addContact(
+                this.firstName,
+                this.lastName,
+                this.phoneNumber,
+                this.email,
+                this.intervalTime,
+                this.intervalUnit
+            )
+        }
+        assertEquals(contact, testRepository.contactsServiceData[contact.id])
+    }
+
+    @Test
+    fun deleteContact_nominal_isNull() {
+        val contact = testRepository.contactsServiceData["2"]!!
+        viewModel.deleteContact(contact)
+        assertNull(testRepository.contactsServiceData["2"])
+    }
+
+    @Test
+    fun deleteContact_nominal_currentIdEquals() {
+        val contact = testRepository.contactsServiceData["2"]!!
+        viewModel.deleteContact(contact)
+        assertEquals("0", viewModel.currentId)
+    }
+
+    @Test
+    fun getContactDetail_nominal_equals() {
+        /**
+         * Testing the contact returned as LiveData.value matches expected contact
+         */
+        val id = contact2.id
+        val liveContact = viewModel.getContactDetail(id).value
+        assertEquals(contact2, liveContact)
+    }
+
+    @Test
+    fun getContactList_nominal_listEquals() {
+        // GIVEN that prior to getContactList(), viewModel.list should be observing no data
+        assertNull(viewModel.list.value)
+        // WHEN contact list is refreshed in the repository
+        viewModel.getContactList()
+        // THEN the observed list should be populated
+        assertEquals(listOf(contact1, contact2, contact3), viewModel.list.value)
+    }
+
+    @Test
+    fun getContactList_nominal_listNotEqual() {
+        // WHEN contact list is refreshed in the repository
+        viewModel.getContactList()
+        // THEN the observed dummy list should be populated
+        assertNotEquals(listOf(contact1, contact3), viewModel.list.value)
+    }
+
+    @Test
+    fun markContacted_afterEpoch_true() {
+        // GIVEN epochTime is used to define 'lastContacted' for test contacts
+        // WHEN markContacted() is called
+        viewModel.markContacted(contact3)
+        val newDate = testRepository. contactsServiceData[contact3.id]!!.lastContacted
+        // THEN new lastContacted date is AFTER epoch time
+        val epochLocalDateTime = getTimeEpoch()
+        assertTrue("new lastContacted is not AFTER epoch instant",
+            epochLocalDateTime < parseLocalDateTimes(newDate!!))
+    }
+
+    @Test
+    fun markContacted_isToday_true() {
+        // GIVEN epochTime is used to define 'lastContacted' for test contacts
+        // WHEN markContacted() is called
+        viewModel.markContacted(contact3)
+        val newDate = testRepository. contactsServiceData[contact3.id]!!.lastContacted
+        // THEN new lastContacted date is TODAY
+        assertEquals("new lastContacted is not Today",
+            parseLocalDateTimes(newDate!!).toLocalDate(),
+            getTimeNow().toLocalDate())
+    }
+
+    @Test
+    fun onContactClicked_nominal_currentIdEquals() {
+        // WHEN method is called on dummy contact
+        var clicked = contact1
+        viewModel.onContactClicked(clicked)
+        // THEN viewmodel.currentId is updated to match
+        assertEquals(clicked.id, viewModel.currentId)
+        // Again:
+        clicked = contact2
+        viewModel.onContactClicked(clicked)
+        // THEN viewmodel.currentId is updated to match
+        assertEquals(clicked.id, viewModel.currentId)
+    }
+
+    @Test
+    fun updateContact_nominal_equals() {
+        // GIVEN newContact(id=3) does not match existing record of savedContact(id=3)
+        val id = "3"
+        var savedContact = testRepository.contactsServiceData[id]
+        val newContact = Contact(
+            id=id,
+            "Link",
+            "Hyrule",
+            "",
+            "",
+            2,
+            "weeks",
+            true,
+            getTimeEpochString(),
+            getTimeEpochString(),
+            getTimeEpochString(),
+            "upcoming")
+        assertNotEquals(newContact, savedContact)
+        // WHEN updateContact() method updates the saved record
+        with (newContact) {
+            viewModel.updateContact(
+                this.id,
+                this.firstName,
+                this.lastName,
+                this.phoneNumber,
+                this.email,
+                this.intervalTime,
+                this.intervalUnit,
+                this.remindersEnabled,
+                this.lastContacted,
+                this.createdAt,
+                this.updatedAt,
+                this.status
+            )
+        }
+        // THEN newContact equals savedContact
+        savedContact = testRepository.contactsServiceData[id]
+        assertEquals(newContact, savedContact)
     }
 
     // Following tests should raise "false" flags, indicating valid input

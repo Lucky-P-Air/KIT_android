@@ -59,13 +59,30 @@ fun formatLocalDateTimesToUtc(dateValue: LocalDateTime): String {
     return dateValue.atZone(ZoneId.of("UTC")).format(formatter)
 }
 
+fun getTimeEpoch(): LocalDateTime {
+    return Instant.EPOCH
+        .atZone(ZoneId.of("UTC"))
+        .toLocalDateTime()
+}
+
+fun getTimeEpochString(): String {
+    /**
+     * Return the Epoch moment as a datestring, formatted "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'",
+     * */
+    return formatLocalDateTimes( getTimeEpoch() )
+}
+
+fun getTimeNow(): LocalDateTime {
+    return Instant.now()
+        .atZone(ZoneId.of("UTC"))
+        .toLocalDateTime()
+}
+
 fun getTimeNowString(): String {
     /**
      * Return the current time as a datestring, formatted "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'",
      * */
-    return formatLocalDateTimesToUtc(
-        Instant.now().atZone(ZoneId.of("UTC"))
-            .toLocalDateTime())
+    return formatLocalDateTimesToUtc( getTimeNow() )
 }
 
 fun formatDates(dateValue: Date): String {

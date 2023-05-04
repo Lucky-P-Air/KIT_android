@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.kit.model.Contact
 import com.example.kit.model.ContactSubmission
-import com.example.kit.utils.getTimeNowString
+import com.example.kit.utils.getTimeEpochString
 import kotlinx.coroutines.runBlocking
 
 class FakeTestRepository : RepositoryInterface {
@@ -18,23 +18,22 @@ class FakeTestRepository : RepositoryInterface {
 
     private fun serializeContact(contactSubmission: ContactSubmission): Contact {
         val newId = (contactsServiceData.size + 100).toString()
-        val timeNow = getTimeNowString()
+        val timeEpoch = getTimeEpochString()
         return with (contactSubmission) {
-            val contact = Contact(
-                id=newId,
-                this.firstName,
-                this.lastName,
-                this.phoneNumber,
-                this.email,
-                this.intervalTime,
-                this.intervalUnit,
-                this.remindersEnabled,
-                timeNow,
-                timeNow,
-                timeNow,
-                "Overdue"
+            return@with Contact(
+                id = newId,
+                firstName,
+                lastName,
+                phoneNumber,
+                email,
+                intervalTime,
+                intervalUnit,
+                true,
+                timeEpoch,
+                timeEpoch,
+                timeEpoch,
+                "overdue"
             )
-            return@with contact
         }
     }
 
