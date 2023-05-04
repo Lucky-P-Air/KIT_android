@@ -119,6 +119,18 @@ class ContactListViewModelTest {
     }
 
     @Test
+    fun getContactList_empty_Equals() {
+        // GIVEN no data in the datasources
+        for (contact in listOf(contact1, contact2, contact3)) {
+            runBlocking { testRepository.deleteContact(contact) }
+        }
+        // WHEN contact list is refreshed in the repository
+        viewModel.getContactList()
+        // THEN the observed dummy list should be populated
+        assertEquals(emptyList<Contact>(), viewModel.list.value)
+    }
+
+    @Test
     fun markContacted_afterEpoch_true() {
         // GIVEN epochTime is used to define 'lastContacted' for test contacts
         // WHEN markContacted() is called
