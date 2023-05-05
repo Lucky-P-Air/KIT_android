@@ -2,6 +2,7 @@ package com.example.kit.data
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.kit.model.Contact
+import com.example.kit.model.ContactSubmission
 import com.example.kit.utils.getTimeEpochString
 import getOrAwaitValue
 import kotlinx.coroutines.Dispatchers
@@ -21,8 +22,8 @@ internal class ContactRepositoryTest {
     private val epochTime = getTimeEpochString()
     private val fakeTime = epochTime
     private val contact1 = Contact("1", "Michael", "Scott", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "overdue")
-    private val contact2 = Contact("2", "Pam", "Beasley", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "upcoming")
-    private val contact3 = Contact("3", "Princess", "Zelda", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "")
+    private val contact2 = Contact("2", "Pam", "Beasley", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "overdue")
+    private val contact3 = Contact("3", "Princess", "Zelda", null, null, 2, "days", true, fakeTime, fakeTime, fakeTime, "overdue")
     private val remoteContacts = HashMap<String, Contact>()
 
     // Faked dependencies
@@ -37,7 +38,7 @@ internal class ContactRepositoryTest {
             contact2.id to contact2)
         )
         remoteDataSource = FakeRemoteDataSource(remoteContacts)
-        localDataSource = FakeLocalDataSource()
+        localDataSource = FakeLocalDataSource() // Empty to start
         contactRepository = ContactRepository(
             localDataSource,
             remoteDataSource,
@@ -117,11 +118,33 @@ internal class ContactRepositoryTest {
     }
 
     @Test
-    fun postContact() {
+    fun postContact_nominal_equals() {
+        // GIVEN a local data source empty of any records
+        // WHEN a new contact submission is generated & posted
+        val sourceContact = contact3
+        val contactSubmission = generateContactSubmission(sourceContact)
+        // Calculate new serialized ID number for contactSubmission, which comes from server when posted
+        val newId = (remoteDataSource.fakeDatabase.size + 100).toString()
+        runBlocking { contactRepository.postContact(contactSubmission) }
+        // THEN the contact (on which contactSubmission is based) will appear in local database
+        // ... but with the new ID number. ContactSubmissions don't have IDs;
+        val postedContact = sourceContact.copy(id=newId)
+        val observedContact = runBlocking { contactRepository.getContactDetail(newId).getOrAwaitValue() }
+        assertEquals(postedContact, observedContact)
     }
 
     @Test
-    fun putContact() {
+    fun putContact_nominal_equals() {
+        // GIVEN a local data source with 1 records
+        val oldContact = contact3
+        // WHEN an updated record is PUT
+        val newContact = oldContact.copy(firstName = "Abradolf", lastName = "Lincler")
+        runBlocking { contactRepository.putContact(newContact) }
+        // THEN the remote & local data sources will have records matching the new update
+        val observedLocalContact =  localDataSource.fakeDatabase[oldContact.id]
+        val observedRemoteContact = remoteDataSource.fakeDatabase[oldContact.id]
+        assertEquals(newContact, observedLocalContact)
+        assertEquals(newContact, observedRemoteContact)
     }
 
     @Test
@@ -156,5 +179,19 @@ internal class ContactRepositoryTest {
         // THEN local repository will have 2 records
         val localSize = runBlocking { localDataSource.getContacts().size }
         assertEquals(2, localSize)
+    }
+
+    private fun generateContactSubmission(contact: Contact): ContactSubmission {
+        return with (contact) {
+            return@with ContactSubmission(
+                this.firstName,
+                this.lastName,
+                this.phoneNumber,
+                this.email,
+                true,
+                this.intervalUnit,
+                this.intervalTime
+            )
+        }
     }
 }
