@@ -23,10 +23,10 @@ class ContactRepository(
          */
         try {
             Log.d(TAG, "Delete Contact coroutine launched for ${contact.id}")
-            contactsRemoteDataSource.deleteContact(contact)
             contactsLocalDataSource.deleteContact(contact)
+            contactsRemoteDataSource.deleteContact(contact)
             refreshContacts()
-            //TODO: This potentially leaves room for a success DELETE http request, but unsuccessful database deletion?
+            //TODO: This potentially leaves room for a success DELETE local request, but unsuccessful network deletion?
             Log.d(TAG, "Delete Contact coroutine SUCCESS")
         } catch (e: Exception) {
             Log.d(TAG, "Exception occurred during Delete Contact coroutine: ${e.message}")

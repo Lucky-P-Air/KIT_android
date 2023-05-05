@@ -7,7 +7,7 @@ import com.example.kit.model.ContactSubmission
 
 class FakeLocalDataSource : DataSourceInterface {
     // Mock database
-    private var fakeDatabase: HashMap<String, Contact> = HashMap()
+    var fakeDatabase: HashMap<String, Contact> = HashMap()
 
     private val observableContacts = MutableLiveData<List<Contact>>()
     private val observableContact = MutableLiveData<Contact>()
