@@ -18,19 +18,26 @@ fun asDate(localDateTime: LocalDateTime): Date {
 }
 
 fun asLocalDate(date: Date): LocalDate {
-    return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate()
+    return Instant.ofEpochMilli(date.time).atZone(ZoneId.systemDefault()).toLocalDate()
 }
 
 fun asLocalDateTime(date: Date): LocalDateTime {
-    return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault())
+    return Instant.ofEpochMilli(date.time).atZone(ZoneId.systemDefault())
         .toLocalDateTime()
 }
 
-fun asLocalDateTimeFromUtc(date: Date): LocalDateTime {
+private fun asLocalDateTimeFromUtc(date: Date): LocalDateTime {
     /** Convert a Date object to LocalDateTime in the timezone of UTC
      */
-    return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.of("UTC"))
+    return Instant.ofEpochMilli(date.time).atZone(ZoneId.of("UTC"))
         .toLocalDateTime()
+}
+
+fun formatDateStrings(dateString: String): String {
+    /** Return a String, formatted "MMM d, y", from an input datetime String (UTC timezone)
+     *  Output timezone is local to the device.
+     * */
+    return formatLocalDateTimes( parseLocalDateTimes(dateString) )
 }
 
 fun formatLocalDateTimes(dateValue: LocalDateTime): String {
@@ -41,12 +48,6 @@ fun formatLocalDateTimes(dateValue: LocalDateTime): String {
         .withZone(ZoneId.systemDefault()) // format the output using this timezone
     return dateValue.atZone(ZoneId.of("UTC"))
         .format(formatter) // .atZone dictates the timezone of the input(dateValue)
-}
-fun formatDateStrings(dateString: String): String {
-    /** Return a String, formatted "MMM d, y", from an input datetime String (UTC timezone)
-     *  Output timezone is local to the device.
-     * */
-    return formatLocalDateTimes( parseLocalDateTimes(dateString) )
 }
 
 fun formatLocalDateTimesToUtc(dateValue: LocalDateTime): String {
@@ -69,7 +70,7 @@ fun getTimeEpochString(): String {
     /**
      * Return the Epoch moment as a datestring, formatted "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'",
      * */
-    return formatLocalDateTimes( getTimeEpoch() )
+    return formatLocalDateTimesToUtc( getTimeEpoch() )
 }
 
 fun getTimeNow(): LocalDateTime {
