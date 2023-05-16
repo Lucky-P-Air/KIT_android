@@ -1,8 +1,8 @@
 # KIT_android
-Android App for KIT (Keep In Touch) by Nepenthe
+Android App for KIT (Keep In Touch) to help you [keep in touch with who you care about](https://reminder-web-client.herokuapp.com/)
 <p align="left">
   <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=kotlin,androidstudio" />
+    <img src="https://skillicons.dev/icons?i=kotlin,androidstudio,django,postgresql,sqlite" />
   </a>
 </p>
 
@@ -14,6 +14,7 @@ To try it out:
 1. Clone/Download this repo
 2. Launch AndroidStudio & open the project via the repo's parent directory
 3. Assuming you're one of the current developers/users of the web application, you'll need to make your own Secrets.kt file
+   - If you're not currently a user, register an account [here](https://reminder-web-client.herokuapp.com/) to obtain an authorization token
    - Create a Secrets class in the `/app/src/main/java/com/example/kit/network/` package
    - The Secrets class shall contain one value, `headers`
 
